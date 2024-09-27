@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import logo from '../public/images/logo.svg';
-import search from '../public/images/ico-search.svg';
+import logo from '../../public/images/logo.svg';
+import search from '../../public/images/ico-search.svg';
 import Link from 'next/link';
 
 interface HeaderProps {
