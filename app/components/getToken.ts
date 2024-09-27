@@ -11,6 +11,8 @@ const GetToken = async () => {
     };
     try {
         const response = await fetch(url, {
+            cache: 'no-store',
+            next: { revalidate: 3 },
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
