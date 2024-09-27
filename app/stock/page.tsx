@@ -1,21 +1,12 @@
-'use client';
-import useToken from '../../hook/useToken';
+import GetToken from '../components/getToken';
 
 export default function Home() {
-    const { token, loading, error } = useToken();
-
-    // function fetchStock() {
-    //     const url = '';
-    // }
+    const token = GetToken();
 
     return (
         <div>
             <h1>stock</h1>
-            <p>
-                {token}
-                {error}
-                {loading}
-            </p>
+            {token}
         </div>
     );
 }
