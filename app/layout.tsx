@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import '@/app/globals.css';
 import Footer from '@/app/components/Footer/Footer';
+import Header from '@/app/components/Header/Header';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,6 +16,13 @@ export default function RootLayout({
   return (
     <html lang="ko-kr">
       <body>
+        <Header
+          links={[
+            { name: '뉴스룸', url: '/news' },
+            { name: '커뮤니티', url: '/community' },
+            { name: '모의투자', url: '/stock' },
+          ]}
+        />
         {children}
         <Footer />
       </body>
