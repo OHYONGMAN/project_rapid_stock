@@ -1,9 +1,10 @@
-// import type { NextApiRequest, NextApiResponse } from 'next';
+let accessToken: string | null = null;
+let expiredToken: number | null = null;
 
-const GetToken = async () => {
+const GetToken = async (): Promise<string | null> => {
     const url = 'https://openapivts.koreainvestment.com:29443/oauth2/tokenP';
-    const CLIENT_ID = 'PSdHNByWrAtHQHJdgPni4klEcS2UhsjmyBqn';
-    const CLIENT_SECRET = 'd4H+5BzaVvA4EQGe4gUAVfjQF9erxySxkfk8aCRW9TUTShnoKMOY6XqOOotCnD83MUx8RZL6s3h7qNfoOesFdoaW1IOt2e7hjcn24AD996UMFmu1mBE0UIMNxAFv4Ow3Om7MqI4s7x11zEi0fJTDfgPfEwYyc6E77+6Kphmny3F6S9kJaCY=';
+    const CLIENT_ID = process.env.NEXT_PUBLIC_STOCK_API_KEY;
+    const CLIENT_SECRET = process.env.NEXT_PUBLIC_APP_SECRET;
     const body = {
         grant_type: 'client_credentials',
         appkey: CLIENT_ID,
@@ -20,7 +21,9 @@ const GetToken = async () => {
         const data = await response.json();
         if (response.ok) {
             console.log('발급된 Access Token:', data.access_token);
-            return data.access_token;
+            accessToken = data.access_token;
+            expiredToken = Date.now() + data.expires_in * 21600000;
+            return accessToken;
         } else {
             console.error('토큰 발급 실패:', data);
             return null;
@@ -31,4 +34,22 @@ const GetToken = async () => {
     }
 };
 
-export default GetToken;
+// Access Token 갱신, 반환
+const getRefreshToken = async (response: Response | null): Promise<string | null> => {
+    const isTokenExpired = !accessToken || !expiredToken || Date.now() >= expiredToken;
+
+    if ((response && response.status === 401) || isTokenExpired) {
+        console.log('Access Token이 만료되어 새로 발급합니다.');
+        const newToken = await GetToken();
+        if (!newToken) {
+            console.error('새로운 토큰을 발급받지 못했습니다.');
+            return null;
+        }
+        return newToken;
+    }
+
+    console.log('유효한 Access Token을 사용합니다.');
+    return accessToken;
+};
+
+export { GetToken, getRefreshToken };
