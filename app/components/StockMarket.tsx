@@ -1,15 +1,12 @@
 import { GetRefreshToken } from './getToken';
-import Image from 'next/image';
-import stockup from '../../public/images/ico-stockup.svg';
-import stockdown from '../../public/images/ico-stockdown.svg';
 
-export default async function RankStock() {
-    const url = 'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/volume-rank';
+export default async function StockMarket() {
+    const url = 'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-vi-status';
     const CLIENT_ID = process.env.NEXT_PUBLIC_STOCK_API_KEY;
     const CLIENT_SECRET = process.env.NEXT_PUBLIC_APP_SECRET;
 
     const fetchTopStock = async () => {
-        const token = await GetRefreshToken(null);
+        let token = await GetRefreshToken(null);
 
         if (!token) {
             console.error('유효한 토큰이 없습니다.');
@@ -17,31 +14,45 @@ export default async function RankStock() {
         }
 
         const params = new URLSearchParams({
-            FID_COND_MRKT_DIV_CODE: 'J',
-            FID_COND_SCR_DIV_CODE: '20171',
-            FID_INPUT_ISCD: '0000',
             FID_DIV_CLS_CODE: '0',
-            FID_BLNG_CLS_CODE: '0',
-            FID_TRGT_CLS_CODE: '111111111',
-            FID_TRGT_EXLS_CLS_CODE: '0000000000',
-            FID_INPUT_PRICE_1: '0',
-            FID_INPUT_PRICE_2: '1000000',
-            FID_VOL_CNT: '100000',
-            FID_INPUT_DATE_1: '',
+            FID_COND_SCR_DIV_CODE: '20139',
+            FID_MRKT_CLS_CODE: '0',
+            FID_INPUT_ISCD: '',
+            FID_RANK_SORT_CLS_CODE: '0',
+            FID_INPUT_DATE_1: '20240126',
+            FID_TRGT_CLS_CODE: '',
+            FID_TRGT_EXLS_CLS_CODE: '',
         });
 
         try {
-            const response = await fetch(`${url}?${params.toString()}`, {
+            let response = await fetch(`${url}?${params.toString()}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8',
                     Authorization: `Bearer ${token}`,
                     appkey: CLIENT_ID || '',
                     appsecret: CLIENT_SECRET || '',
-                    tr_id: 'FHPST01710000',
+                    tr_id: 'FHPST01390000',
                     custtype: 'P',
                 },
             });
+
+            // 401 오류 처리
+            if (response.status === 401) {
+                console.log('토큰이 만료되어 새로 발급합니다.');
+                token = await GetRefreshToken(response);
+                response = await fetch(`${url}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                        Authorization: `Bearer ${token}`,
+                        appkey: CLIENT_ID || '',
+                        appsecret: CLIENT_SECRET || '',
+                        tr_id: 'FHPST01390000',
+                        custtype: 'P',
+                    },
+                });
+            }
 
             if (response.ok) {
                 const data = await response.json();
@@ -66,26 +77,22 @@ export default async function RankStock() {
             <h3 className='text-lg font-semibold mb-4'>거래 상위</h3>
             {topStock ? (
                 <table className='w-full table-auto border-collapse text-center border-t-2 border-black'>
+                    <thead>
+                        <tr className='border-b'>
+                            <th className='py-4'>종목명</th>
+                            <th className='py-4'>종목 코드</th>
+                            <th className='py-4'>현재가</th>
+                            <th className='py-4'>전일 대비</th>
+                            <th className='py-4'>변동률</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {topStock.map((stock: any, index: number) => (
                             <tr key={index} className='border-b hover:bg-g-100'>
-                                <td className='py-4 px-2'>{index + 1}</td>
                                 <td className='py-4 px-2'>{stock.hts_kor_isnm}</td>
-                                <td className='py-4 px-2'>{stock.stck_prpr}</td>
-                                <td className='py-4 px-2'>
-                                    {stock.prdy_vrss > 0 ? (
-                                        <div className='flex items-center justify-center text-primary'>
-                                            <Image src={stockup} alt='상승' width={16} height={16} />
-                                            <span className='ml-2'>{stock.prdy_vrss}</span>
-                                        </div>
-                                    ) : (
-                                        <div className='flex items-center justify-center text-blue-500'>
-                                            <Image src={stockdown} alt='하락' width={16} height={16} />
-                                            <span className='ml-2'>{stock.prdy_vrss}</span>
-                                        </div>
-                                    )}
-                                </td>
-                                <td className={`py-4 px-2 ${stock.prdy_ctrt > 0 ? 'text-primary' : 'text-blue-500'}`}>{stock.prdy_ctrt > 0 ? `+${stock.prdy_ctrt}%` : `${stock.prdy_ctrt}%`}</td>
+                                <td className='py-4 px-2'>{stock.mksc_shrn_iscd}</td>
+                                <td className='py-4 px-2'>{stock.vi_prc}</td>
+                                <td className={`py-4 px-2 ${stock.vi_dmc_dprt > 0 ? 'text-primary' : 'text-blue-500'}`}>{stock.vi_dmc_dprt > 0 ? `+${stock.vi_dmc_dprt}%` : `${stock.vi_dmc_dprt}%`}</td>
                             </tr>
                         ))}
                     </tbody>

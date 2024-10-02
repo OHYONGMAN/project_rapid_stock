@@ -1,9 +1,11 @@
-import StockPage from './components/RankStock';
+import RankStock from './components/RankStock';
+import StockMarket from './components/StockMarket';
 
 export default function Home() {
     return (
         <main>
-            <StockPage />
+            <RankStock />
+            <StockMarket />
         </main>
     );
 }
