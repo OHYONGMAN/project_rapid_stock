@@ -103,3 +103,35 @@ export const cleanupToken = async (): Promise<void> => {
     console.log('폐기할 토큰이 없습니다.');
   }
 };
+
+// 웹소켓 접속키 발급 함수
+export const getWebSocketKey = async (): Promise<string | null> => {
+  const body = {
+    grant_type: 'client_credentials',
+    appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
+    secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
+  };
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_KIS_API_BASE_URL}/oauth2/Approval`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; utf-8' },
+        body: JSON.stringify(body),
+      },
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('웹소켓 접속키 발급 성공:', data.approval_key);
+      return data.approval_key;
+    } else {
+      console.error('웹소켓 접속키 발급 실패:', await response.json());
+      return null;
+    }
+  } catch (error) {
+    console.error('웹소켓 접속키 발급 중 에러 발생:', error);
+    return null;
+  }
+};
