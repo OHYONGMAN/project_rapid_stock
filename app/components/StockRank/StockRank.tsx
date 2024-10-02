@@ -62,7 +62,7 @@ export default async function StockRank() {
   const topStock = await fetchTopStock();
 
   return (
-    <div className="max-w-4xl mx-auto mt-16 mx-20">
+    <div className="max-w-4xl mx-auto mr-20">
       <h2 className="text-2xl font-semibold mb-4">TOP 종목</h2>
       <h3 className="text-lg font-semibold mb-4">거래 상위</h3>
       {topStock ? (
