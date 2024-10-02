@@ -5,8 +5,8 @@ import stockdown from '../../public/images/ico-stockdown.svg';
 
 export default async function RankStock() {
     const url = 'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/volume-rank';
-    const CLIENT_ID = process.env.NEXT_PUBLIC_STOCK_API_KEY;
-    const CLIENT_SECRET = process.env.NEXT_PUBLIC_APP_SECRET;
+    const CLIENT_ID = process.env.NEXT_PUBLIC_KIS_API_KEY;
+    const CLIENT_SECRET = process.env.NEXT_PUBLIC_KIS_API_SECRET;
 
     const fetchTopStock = async () => {
         const token = await GetRefreshToken(null);

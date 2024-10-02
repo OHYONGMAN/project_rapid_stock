@@ -4,8 +4,8 @@ let expiredToken: number | null = null;
 // 새로운 토큰 발급 함수
 const GetToken = async (): Promise<string | null> => {
     const url = 'https://openapi.koreainvestment.com:9443/oauth2/tokenP';
-    const CLIENT_ID = process.env.NEXT_PUBLIC_STOCK_API_KEY;
-    const CLIENT_SECRET = process.env.NEXT_PUBLIC_APP_SECRET;
+    const CLIENT_ID = process.env.NEXT_PUBLIC_KIS_API_KEY;
+    const CLIENT_SECRET = process.env.NEXT_PUBLIC_KIS_API_SECRET;
     const body = {
         grant_type: 'client_credentials',
         appkey: CLIENT_ID,
