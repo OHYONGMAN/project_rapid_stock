@@ -92,11 +92,11 @@
   textarea,
   select {
     font-family: 'Pretendard', sans-serif;
-    color: theme('colors.bk');
+    color: theme('colors.black');
   }
 }
 
-@layer base {
+layer base {
   input {
     background-color: transparent;
   }
