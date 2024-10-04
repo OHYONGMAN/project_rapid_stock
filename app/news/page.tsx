@@ -1,11 +1,10 @@
-import React from 'react';
-import StockChart from './components/StockChart';
+import NewsPage from './components/NewsPage';
 
-export default function NewsPage() {
+export default function NewsPageLayout() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">주식 차트</h1>
-      <StockChart />
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <h1 className="text-4xl font-bold mb-8">Stock News and Prices</h1>
+      <NewsPage />
+    </main>
   );
 }
