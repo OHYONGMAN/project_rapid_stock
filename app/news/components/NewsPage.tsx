@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchStockPrice } from '@/app/api/fetchStockData/route';
+import { fetchStockPrice } from '@/app/utils/kisApi/fetchStockPrice';
 import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
 
 interface StockPrice {

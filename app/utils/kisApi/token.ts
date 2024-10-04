@@ -107,7 +107,7 @@ export const getWebSocketKey = async (): Promise<string | null> => {
 
   try {
     const response = await fetch(
-      "https://vupnwpnqpatffsfexmpg.supabase.co/functions/v1/proxy",
+      `${process.env.NEXT_PUBLIC_KIS_API_BASE_URL}/oauth2/Approval`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=UTF-8" },
@@ -118,12 +118,9 @@ export const getWebSocketKey = async (): Promise<string | null> => {
     if (response.ok) {
       const data = await response.json();
       if (data.approval_key) {
-        console.log("웹소켓 접속키 발급 성공:", data.approval_key);
         return data.approval_key;
       } else {
-        console.error(
-          "웹소켓 접속키 발급 실패: 응답에 approval_key가 없습니다.",
-        );
+        console.error("웹소켓 접속키 발급 실패:", data);
         return null;
       }
     } else {

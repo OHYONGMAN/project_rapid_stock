@@ -11,9 +11,61 @@ serve(async (req) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers":
+          "Content-Type, Authorization, x-client-info",
       },
     });
+  }
+
+  if (req.method === "POST" && req.url.endsWith("/getWebSocketKey")) {
+    const body = await req.json();
+    const { appkey, secretkey } = body;
+
+    const tokenResponse = await fetch(
+      `${Deno.env.get("NEXT_PUBLIC_KIS_API_BASE_URL")}/oauth2/Approval`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          grant_type: "client_credentials",
+          appkey,
+          secretkey,
+        }),
+      },
+    );
+
+    if (!tokenResponse.ok) {
+      return new Response(
+        JSON.stringify({ error: "Failed to get WebSocket key" }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers":
+              "Content-Type, Authorization, x-client-info",
+          },
+        },
+      );
+    }
+
+    const tokenData = await tokenResponse.json();
+    return new Response(
+      JSON.stringify({ approval_key: tokenData.approval_key }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Authorization, x-client-info",
+        },
+      },
+    );
   }
 
   if (!symbol) {
@@ -23,7 +75,8 @@ serve(async (req) => {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers":
+          "Content-Type, Authorization, x-client-info",
       },
     });
   }
@@ -32,7 +85,12 @@ serve(async (req) => {
     `${Deno.env.get("NEXT_PUBLIC_KIS_API_TOKEN_URL")}`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${
+          Deno.env.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+        }`,
+      },
       body: JSON.stringify({
         grant_type: "client_credentials",
         appkey: Deno.env.get("NEXT_PUBLIC_KIS_API_KEY"),
@@ -50,7 +108,8 @@ serve(async (req) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Authorization, x-client-info",
         },
       },
     );
@@ -72,7 +131,8 @@ serve(async (req) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Authorization, x-client-info",
         },
       },
     );
@@ -101,7 +161,8 @@ serve(async (req) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Authorization, x-client-info",
         },
       },
     );
@@ -114,7 +175,8 @@ serve(async (req) => {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Headers":
+        "Content-Type, Authorization, x-client-info",
     },
   });
 });
