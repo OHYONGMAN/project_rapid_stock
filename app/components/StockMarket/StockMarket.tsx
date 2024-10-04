@@ -56,49 +56,59 @@ export default async function StockRank() {
   const indexData = await Promise.all(indexDataPromises);
 
   return (
-    <div className="w-[460px] mx-auto mx-20">
-      <h2 className="text-2xl font-semibold mb-4">오늘의 증시</h2>
+    <div className="max-w-4xl mx-auto mt-16 mx-20">
+      <h2 className="text-2xl font-semibold mb-4">지수 정보</h2>
       {indexData ? (
-        <div className="flex flex-col gap-4">
-          {indexData.map((data, index) => (
-            <div
-              key={index}
-              className="flex bg-g-100 p-4 rounded-lg items-center gap-5"
-            >
-              <h3 className="flex-1 font-semibold text-left">
-                {index === 0 ? '코스피' : index === 1 ? '코스피 200' : '코스닥'}
-              </h3>
-
-              <p className="text-right ">{data.bstp_nmix_prpr}</p>
-              <div className="w-16 flex items-center justify-between ml-2">
-                {data.bstp_nmix_prdy_vrss > 0 ? (
-                  <div className="w-full flex text-primary flex items-center">
-                    <Image src={stockup} alt="상승" width={16} height={16} />
-                    <p className="flex-1 text-right">
-                      {data.bstp_nmix_prdy_vrss}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="w-full flex text-blue-500 flex items-center">
-                    <Image src={stockdown} alt="하락" width={16} height={16} />
-                    <p className="flex-1 text-right">
-                      {data.bstp_nmix_prdy_vrss}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <p
-                className={`w-16 text-right  ${data.bstp_nmix_prdy_ctrt > 0 ? 'text-primary' : 'text-blue-500'}`}
-              >
-                {' '}
-                {data.bstp_nmix_prdy_ctrt > 0
-                  ? `+${data.bstp_nmix_prdy_ctrt}%`
-                  : `${data.bstp_nmix_prdy_ctrt}%`}
-              </p>
-            </div>
-          ))}
-        </div>
+        <table className="w-full table-auto border-collapse text-center border-t-2 border-black">
+          <thead>
+            <tr>
+              <th className="py-4">지수명</th>
+              <th className="py-4">현재가</th>
+              <th className="py-4">전일 대비</th>
+              <th className="py-4">등락률</th>
+            </tr>
+          </thead>
+          <tbody>
+            {indexData.map((data, index) => (
+              <tr key={index} className="border-b hover:bg-g-100">
+                <td className="py-4 px-2">
+                  {index === 0
+                    ? '코스피'
+                    : index === 1
+                      ? '코스피 200'
+                      : '코스닥'}
+                </td>
+                <td className="py-4 px-2">{data.bstp_nmix_prpr}</td>{' '}
+                {/* 현재가 */}
+                <td className="py-4 px-2">
+                  {data.bstp_nmix_prdy_vrss > 0 ? (
+                    <div className="flex items-center justify-center text-primary">
+                      <Image src={stockup} alt="상승" width={16} height={16} />
+                      <span className="ml-2">{data.bstp_nmix_prdy_vrss}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center text-blue-500">
+                      <Image
+                        src={stockdown}
+                        alt="하락"
+                        width={16}
+                        height={16}
+                      />
+                      <span className="ml-2">{data.bstp_nmix_prdy_vrss}</span>
+                    </div>
+                  )}
+                </td>
+                <td
+                  className={`py-4 px-2 ${data.bstp_nmix_prdy_ctrt > 0 ? 'text-primary' : 'text-blue-500'}`}
+                >
+                  {data.bstp_nmix_prdy_ctrt > 0
+                    ? `+${data.bstp_nmix_prdy_ctrt}%`
+                    : `${data.bstp_nmix_prdy_ctrt}%`}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : (
         <p>지수 데이터를 불러오는 중입니다...</p>
       )}
