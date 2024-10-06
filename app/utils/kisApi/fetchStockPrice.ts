@@ -1,3 +1,5 @@
+// app/utils/kisApi/fetchStockPrice.ts
+
 export async function fetchStockPrice(symbol: string) {
     const response = await fetch(`/api/fetchStockData?symbol=${symbol}`);
     if (!response.ok) {

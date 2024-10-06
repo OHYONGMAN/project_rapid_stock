@@ -1,3 +1,5 @@
+// supabase/functions/proxy/index.ts
+
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
 serve(async (req) => {
@@ -138,6 +140,7 @@ serve(async (req) => {
     );
   }
 
+  // 이 부분
   const stockResponse = await fetch(
     `${baseUrl}/uapi/domestic-stock/v1/quotations/inquire-price?FID_COND_MRKT_DIV_CODE=J&FID_INPUT_ISCD=${symbol}`,
     {

@@ -1,4 +1,4 @@
-// KIS API 토큰 관리
+// app/utils/kisApi/token.ts
 
 let accessToken: string | null = null;
 let tokenExpiration: number | null = null;
@@ -99,18 +99,20 @@ export const cleanupToken = async (): Promise<void> => {
 };
 
 export const getWebSocketKey = async (): Promise<string | null> => {
-  const body = {
-    grant_type: "client_credentials",
-    appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
-    secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
-  };
-
   try {
+    const body = {
+      grant_type: "client_credentials",
+      appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
+      secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
+    };
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_KIS_API_BASE_URL}/oauth2/Approval`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json; charset=UTF-8" },
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
         body: JSON.stringify(body),
       },
     );
@@ -118,13 +120,15 @@ export const getWebSocketKey = async (): Promise<string | null> => {
     if (response.ok) {
       const data = await response.json();
       if (data.approval_key) {
+        console.log("웹소켓 접속키 발급 성공:", data.approval_key);
         return data.approval_key;
       } else {
-        console.error("웹소켓 접속키 발급 실패:", data);
+        console.error("웹소켓 접속키 발급 실패: 응답에 approval_key가 없음");
         return null;
       }
     } else {
-      console.error("웹소켓 접속키 발급 실패:", await response.json());
+      const errorData = await response.json();
+      console.error("웹소켓 접속키 발급 실패:", errorData);
       return null;
     }
   } catch (error) {
