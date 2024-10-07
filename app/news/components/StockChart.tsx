@@ -2,133 +2,182 @@
 
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Chart, {
+  Series,
   ArgumentAxis,
   ValueAxis,
-  Aggregation,
-  Legend,
-  Series,
-  ScrollBar,
-  ZoomAndPan,
-  LoadingIndicator,
-  Pane,
+  Label,
   Tooltip,
-  Crosshair,
-  Margin,
-  HorizontalLine,
-  IAggregationProps,
+  Legend,
 } from 'devextreme-react/chart';
-import TooltipTemplate from './Tooltip';
+import { NextPage } from 'next';
+import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
+import axios from 'axios';
+import { getValidToken } from '@/app/utils/kisApi/token';
 
-const minVisualRangeLength = { minutes: 10 };
-const defaultVisualRange = { length: 'hour' };
-
-interface StockChartProps {
-  stockPrice: any; // 여기에 적절한 타입을 사용할 수 있습니다.
+interface StockData {
+  date: string;
+  close: number;
+  open: number;
+  high: number;
+  low: number;
+  volume: number;
 }
 
-function StockChart({ stockPrice }: StockChartProps) {
-  const [dataSource, setDataSource] = useState<any[]>([]);
-  const chartRef = useRef(null);
+const StockChart: NextPage = () => {
+  const [stockData, setStockData] = useState<StockData[]>([]);
+  const [symbol, setSymbol] = useState('000660');
+  const [error, setError] = useState<string | null>(null);
 
-  // stockPrice가 변경될 때마다 데이터 추가
   useEffect(() => {
-    if (stockPrice) {
-      const newData = {
-        date: new Date(),
-        open: stockPrice.stck_oprc,
-        high: stockPrice.stck_hgpr,
-        low: stockPrice.stck_lwpr,
-        close: stockPrice.stck_prpr,
-        volume: stockPrice.acml_vol, // 거래량 추가
-      };
-      setDataSource((prevData) => [...prevData, newData]);
-    }
-  }, [stockPrice]);
+    const fetchStockData = async () => {
+      try {
+        const token = await getValidToken();
+        if (!token) {
+          throw new Error('Failed to get access token');
+        }
 
-  const customizePoint = useCallback((arg) => {
-    if (arg.seriesName === '거래량' && chartRef.current) {
-      const point = chartRef.current
-        .instance()
-        .getAllSeries()[0]
-        .getPointsByArg(arg.argument)[0].data;
+        const response = await axios.get(
+          'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice',
+          {
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              Authorization: `Bearer ${token}`,
+              appkey: process.env.NEXT_PUBLIC_KIS_API_KEY!,
+              appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET!,
+              tr_id: 'FHKST03010100',
+            },
+            params: {
+              FID_COND_MRKT_DIV_CODE: 'J',
+              FID_INPUT_ISCD: symbol,
+              FID_INPUT_DATE_1: '20230101',
+              FID_INPUT_DATE_2: '20231001',
+              FID_PERIOD_DIV_CODE: 'D',
+              FID_ORG_ADJ_PRC: '0',
+            },
+          },
+        );
 
-      if (point && point.close >= point.open) {
-        return { color: '#1db2f5' };
+        const output = response.data.output2;
+        const formattedData = output.map((item: any) => ({
+          date: item.stck_bsop_date,
+          close: parseFloat(item.stck_clpr),
+          open: parseFloat(item.stck_oprc),
+          high: parseFloat(item.stck_hgpr),
+          low: parseFloat(item.stck_lwpr),
+          volume: parseInt(item.acml_vol, 10),
+        }));
+        setStockData(formattedData);
+      } catch (error) {
+        console.error('Failed to fetch stock data', error);
+        setError('Failed to fetch stock data');
       }
-    }
-    return null;
-  }, []);
+    };
 
-  const calculateCandle = useCallback<IAggregationProps['calculate']>((e) => {
-    const prices = e.data.map((d) => d.price);
-    if (prices.length) {
-      const startTime = e.intervalStart?.valueOf() || Date.now(); // 현재 시간으로 기본값 설정
-      const endTime = e.intervalEnd?.valueOf() || Date.now(); // 현재 시간으로 기본값 설정
+    const handleWebSocketMessage = (data: string) => {
+      try {
+        if (data.includes('SUBSCRIBE SUCCESS')) {
+          console.log('WebSocket subscription successful');
+          return;
+        }
 
-      return {
-        date: new Date((startTime + endTime) / 2),
-        open: prices[0],
-        high: Math.max.apply(null, prices),
-        low: Math.min.apply(null, prices),
-        close: prices[prices.length - 1],
-      };
-    }
-    return null;
-  }, []);
+        const parsedData = data.split('|');
+        const stockData = parsedData[3]?.split('^');
+
+        if (stockData && stockData.length >= 13) {
+          setStockData((prevState) => {
+            const currentState: StockData[] = prevState || [];
+            const newEntry: StockData = {
+              date: new Date().toISOString(),
+              close: parseFloat(stockData[2]),
+              open: parseFloat(stockData[6]),
+              high: parseFloat(stockData[7]),
+              low: parseFloat(stockData[8]),
+              volume: parseInt(stockData[12], 10),
+            };
+            return [...currentState, newEntry];
+          });
+        } else {
+          console.error('Invalid stock data format:', stockData);
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', data, error);
+      }
+    };
+
+    const connect = async () => {
+      const closeWebSocketConnection = await connectWebSocket(
+        symbol,
+        handleWebSocketMessage,
+      );
+      return closeWebSocketConnection;
+    };
+
+    let closeWebSocketConnection: () => void;
+
+    fetchStockData();
+    connect().then((closeFn) => {
+      closeWebSocketConnection = closeFn;
+    });
+
+    return () => {
+      if (closeWebSocketConnection) {
+        closeWebSocketConnection();
+      }
+      closeWebSocket();
+    };
+  }, [symbol]);
 
   return (
-    <div>
+    <div className="stock-chart">
+      <input
+        type="text"
+        value={symbol}
+        onChange={(e) => setSymbol(e.target.value)}
+        className="stock-input"
+        placeholder="Enter stock symbol"
+      />
+      {error && <p className="text-red-500">{error}</p>}
       <Chart
-        id="chart"
-        ref={chartRef}
-        dataSource={dataSource}
-        title="주식 가격"
-        customizePoint={customizePoint}
+        id="stockChart"
+        dataSource={stockData}
+        title={`Stock Price Chart for ${symbol}`}
       >
-        <Margin right={30} />
-        <Series pane="Price" argumentField="date" type="candlestick">
-          <Aggregation
-            enabled={true}
-            method="custom"
-            calculate={calculateCandle}
-          />
-        </Series>
+        <ArgumentAxis valueType="datetime">
+          <Label format="yyyy-MM-dd" />
+        </ArgumentAxis>
+        <ValueAxis name="price">
+          <Label format="currency" />
+        </ValueAxis>
+
         <Series
-          pane="Volume"
-          name="거래량"
+          valueField="close"
           argumentField="date"
-          valueField="volume"
-          color="red"
-          type="bar"
-        >
-          <Aggregation enabled={true} method="sum" />
-        </Series>
-        <Pane name="Price" />
-        <Pane name="Volume" height={80} />
-        <Legend visible={false} />
-        <ArgumentAxis
-          argumentType="datetime"
-          minVisualRangeLength={minVisualRangeLength}
-          defaultVisualRange={defaultVisualRange}
+          name="Close Price"
+          type="candlestick"
+          openValueField="open"
+          highValueField="high"
+          lowValueField="low"
+          closeValueField="close"
+          reduction={{ color: 'red' }}
         />
-        <ValueAxis placeholderSize={50} />
-        <ZoomAndPan argumentAxis="both" />
-        <ScrollBar visible={true} />
-        <LoadingIndicator enabled={true} />
+
         <Tooltip
           enabled={true}
-          shared={true}
-          argumentFormat="shortDateShortTime"
-          contentRender={TooltipTemplate}
+          location="edge"
+          customizeTooltip={customizeTooltip}
         />
-        <Crosshair enabled={true}>
-          <HorizontalLine visible={false} />
-        </Crosshair>
+        <Legend visible={false} />
       </Chart>
     </div>
   );
+};
+
+function customizeTooltip(arg: any) {
+  return {
+    text: `Open: ${arg.openValue}<br/>High: ${arg.highValue}<br/>Low: ${arg.lowValue}<br/>Close: ${arg.closeValue}<br/>Volume: ${arg.point.data.volume}`,
+  };
 }
 
 export default StockChart;

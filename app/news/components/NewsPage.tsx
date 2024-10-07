@@ -4,7 +4,6 @@
 
 import { useState, useEffect } from 'react';
 import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
-import StockChart from './StockChart'; // StockChart 컴포넌트 가져오기
 
 interface StockPrice {
   stck_prpr: number | string;
@@ -132,8 +131,6 @@ export default function NewsPage() {
       ) : (
         <p>Loading...</p>
       )}
-      {/* StockChart 컴포넌트에 stockPrice를 전달 */}
-      <StockChart stockPrice={stockPrice} />
     </div>
   );
 }
