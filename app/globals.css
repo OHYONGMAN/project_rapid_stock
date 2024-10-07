@@ -101,3 +101,16 @@
     background-color: transparent;
   }
 }
+#nGrid .dx-row {
+  height: 180px;
+}
+
+tbody:first-of-type {
+  display: none;
+}
+
+.dx-gridbase-a11y-status-container {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
