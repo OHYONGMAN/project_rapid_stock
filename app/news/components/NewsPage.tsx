@@ -31,6 +31,12 @@ export default function NewsPage() {
           return;
         }
 
+        // PING 메시지 무시
+        if (data.includes('"tr_id":"PINGPONG"')) {
+          console.log('Received PINGPONG message, ignoring.');
+          return;
+        }
+
         // 필요한 데이터 추출
         const parsedData = data.split('|');
         const stockData = parsedData[3]?.split('^');
@@ -107,18 +113,17 @@ export default function NewsPage() {
   }, [symbol]);
 
   return (
-    <div className="w-full max-w-md">
+    <div>
       <input
         type="text"
         value={symbol}
         onChange={(e) => setSymbol(e.target.value)}
-        className="w-full p-2 mb-4 border rounded"
         placeholder="Enter stock symbol"
       />
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p>{error}</p>}
       {stockPrice ? (
-        <div className="bg-white shadow-md rounded p-4">
-          <h2 className="text-2xl font-bold mb-2">{symbol}</h2>
+        <div>
+          <h2>{symbol}</h2>
           <p>주식 현재가: {stockPrice.stck_prpr}</p>
           <p>시가: {stockPrice.stck_oprc}</p>
           <p>고가: {stockPrice.stck_hgpr}</p>

@@ -2,9 +2,12 @@
 
 let accessToken: string | null = null;
 let tokenExpiration: number | null = null;
+let isTokenRefreshing = false;
+
+const isServer = typeof window === "undefined";
 
 const getNewToken = async (): Promise<string | null> => {
-  if (accessToken) {
+  if (accessToken && tokenExpiration && Date.now() < tokenExpiration) {
     await revokeToken(accessToken);
   }
 
@@ -24,26 +27,57 @@ const getNewToken = async (): Promise<string | null> => {
     if (response.ok) {
       const data = await response.json();
       accessToken = data.access_token;
-      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000; // 만료 시간 설정
+      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000; // 만료 시간 설정 (1분 전 여유)
+
+      // 클라이언트에서만 localStorage에 토큰 저장
+      if (!isServer) {
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+        }
+        localStorage.setItem("tokenExpiration", tokenExpiration.toString());
+      }
+
       console.log(
         "새 토큰 발급 완료. 만료 시간:",
         new Date(tokenExpiration).toLocaleString(),
       );
       return accessToken;
     } else {
-      console.error("토큰 발급 실패:", await response.json());
+      const errorDetails = await response.json();
+      console.error("토큰 발급 실패:", errorDetails);
       return null;
     }
   } catch (error) {
-    console.error("토큰 발급 중 에러 발생:", error);
+    console.error("토큰 발급 중 네트워크 에러 발생:", error);
     return null;
   }
 };
 
 export const getValidToken = async (): Promise<string | null> => {
+  if (isTokenRefreshing) {
+    console.log("토큰 발급 중입니다. 기다리세요...");
+    while (isTokenRefreshing) {
+      await new Promise((resolve) => setTimeout(resolve, 100)); // 기다림
+    }
+    return accessToken;
+  }
+
+  // 클라이언트에서는 localStorage에서 토큰을 불러옵니다.
+  if (!isServer) {
+    const storedToken = localStorage.getItem("accessToken");
+    const storedExpiration = localStorage.getItem("tokenExpiration");
+    if (storedToken && storedExpiration) {
+      accessToken = storedToken;
+      tokenExpiration = parseInt(storedExpiration, 10);
+    }
+  }
+
   if (!accessToken || Date.now() >= tokenExpiration!) {
     console.log("토큰이 만료되었거나 만료 중입니다. 새로운 토큰을 요청합니다.");
-    return await getNewToken();
+    isTokenRefreshing = true;
+    const token = await getNewToken();
+    isTokenRefreshing = false;
+    return token;
   }
 
   console.log("유효한 토큰이 있습니다. 기존 토큰을 사용합니다.");
@@ -92,9 +126,14 @@ export const cleanupToken = async (): Promise<void> => {
     await revokeToken(accessToken);
     accessToken = null;
     tokenExpiration = null;
+
+    // 클라이언트에서는 localStorage에서도 제거합니다.
+    if (!isServer) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("tokenExpiration");
+    }
+
     console.log("토큰이 폐기되었습니다.");
-  } else {
-    console.log("폐기할 토큰이 없습니다.");
   }
 };
 
