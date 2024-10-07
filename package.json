@@ -16,7 +16,6 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
-    "axios": "^1.7.7",
     "devexpress-diagram": "2.2.11",
     "devexpress-gantt": "4.1.56",
     "devextreme": "^24.1.6",

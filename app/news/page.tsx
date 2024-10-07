@@ -1,445 +1,17 @@
 'use client';
-
+// devexteme licenseKey를 가져오는겁니다. (삭제금지)
 import config from 'devextreme/core/config';
 import { licenseKey } from '../devextreme-license';
-
 config({ licenseKey });
 
 import React from 'react';
 import DataGrid from 'devextreme-react/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 
-// 예시 데이터
-/* const articles = [
-
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://naver.com',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://naver.com' },
-      { name: 'Company B', link: 'https://google.com' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description:
-      'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...인구전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://google.com',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description:
-      '미국 통화당국의 금리 인하에도 불구하고...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-  {
-    id: 1,
-    title: '[글로벌 핫스톡] 美 인구구조 변화…부동산-헬스케어 등 주목',
-    description:
-      '전 세계적으로 인구 구조가 바뀌면서 경제 및 사회 전반이 변화하고 있다...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096548_001_20241003183512388.jpg?type=w647', // 이미지 경로
-    link: 'https://example.com/article1',
-    date: '2024-10-03 17:52',
-    relatedCompanies: [
-      { name: 'Company A', link: 'https://example.com/companyA' },
-      { name: 'Company B', link: 'https://example.com/companyB' },
-    ],
-  },
-  {
-    id: 2,
-    title: "엠풍정밀 매수가 올린 MBK 고려하면 끝없는 '쩐의 전쟁'",
-    description: 'MBK파트너스-엠풍정밀이 공개매수 가격을 기준...',
-    image: '', // 이미지가 없는 경우
-    link: 'https://example.com/article2',
-    date: '2024-10-03 17:50',
-    relatedCompanies: [
-      { name: 'Company C', link: 'https://example.com/companyC' },
-    ],
-  },
-  {
-    id: 3,
-    title: '금리 인하도 무색…상장사 41%, 영업익 눈높이 낮췄다',
-    description: '미국 통화당국의 금리 인하에도 불구하고...',
-    image:
-      'https://imgnews.pstatic.net/image/008/2024/10/03/0005096520_001_20241003163014736.jpg?type=w647',
-    link: 'https://example.com/article3',
-    date: '2024-10-03 17:49',
-    relatedCompanies: [],
-  },
-]; */
-
 const customDataSource = new CustomStore({
-  load: (loadOptions) => {
-    // 외부 JSON 파일을 가져오는 로직
-    return fetch('../utils/combined_news_data.json')
+  load: () => {
+    // 외부 JSON 파일을 public 폴더에서 가져오는 로직
+    return fetch('/combined_news_data.json') // public 폴더에 있는 JSON 파일을 불러옴
       .then((response) => {
         if (!response.ok) {
           throw new Error('JSON 파일 로드 실패');
@@ -450,24 +22,10 @@ const customDataSource = new CustomStore({
         throw '데이터 로드 실패';
       });
   },
-  insert: (values) => {
-    // 데이터 추가 로직
-    return fetch('/api/data', {
-      method: 'POST',
-      body: JSON.stringify(values),
-    }).then((response) => response.json());
-  },
-  update: (key, values) => {
-    // 데이터 수정 로직
-    return fetch(`/api/data/${key}`, {
-      method: 'PUT',
-      body: JSON.stringify(values),
-    }).then((response) => response.json());
-  },
 });
 
 // DataGrid 컴포넌트
-const InfiniteScroll = () => {
+const Home = () => {
   return (
     <DataGrid
       dataSource={customDataSource}
@@ -477,7 +35,7 @@ const InfiniteScroll = () => {
       showColumnHeaders={false}
       sorting={{ mode: 'single' }} // Sorting 속성 사용
       scrolling={{ mode: 'infinite' }} // Scrolling 속성으로 변경
-      // loadPanel={{ enabled: false }} // LoadPanel 속성으로 변경
+      loadPanel={{ enabled: false }} // LoadPanel 속성으로 변경
       rowTemplate={(container, options) => {
         const data = options.data;
         const rowElement = document.createElement('div');
@@ -498,9 +56,15 @@ const InfiniteScroll = () => {
           imgElement = document.createElement('img');
           imgElement.src = data.image;
           imgElement.alt = 'article image';
-          imgElement.style.width = '180px';
-          imgElement.style.height = '180px';
+          imgElement.style.height = '70px';
           imgElement.className = 'mr-14'; // 이미지와 내용 간의 간격 추가
+
+          // 이미지 스타일 추가
+          imgElement.style.objectFit = 'cover'; // 이미지가 영역을 꽉 채우도록 설정
+          imgElement.style.imageRendering = 'auto'; // 이미지 렌더링 최적화 (특정 환경에서 유리함)
+          imgElement.style.borderRadius = '8px'; // 모서리를 둥글게 처리 (선택 사항)
+          imgElement.style.filter = 'none'; // 혹시 뿌옇게 만드는 필터가 적용되었을 가능성 제거
+
           rowElement.appendChild(imgElement);
 
           // 이미지가 있을 때는 텍스트 영역을 좁게 설정
@@ -563,8 +127,8 @@ const InfiniteScroll = () => {
         rowElement.appendChild(contentElement);
         container.appendChild(rowElement);
       }}
-    ></DataGrid>
+    ></DataGrid>  
   );
 };
 
-export default InfiniteScroll;
+export default Home;
