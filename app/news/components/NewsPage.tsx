@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
 
 interface StockPrice {
@@ -21,72 +21,83 @@ export default function NewsPage() {
   const [stockPrice, setStockPrice] = useState<StockPrice | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // REST API로 초기 데이터 가져오기
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const response = await fetch('/api/fetchStockData', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ symbol }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch initial stock data');
+        }
+
+        const data = await response.json();
+        const stockData = data.output2[0]; // 첫 번째 데이터 사용
+
+        // 초기 데이터 설정
+        setStockPrice({
+          stck_prpr: stockData.stck_clpr,
+          stck_oprc: stockData.stck_oprc,
+          stck_hgpr: stockData.stck_hgpr,
+          stck_lwpr: stockData.stck_lwpr,
+          cntg_vol: stockData.cntg_vol,
+          acml_vol: stockData.acml_vol,
+          prdy_vrss: stockData.prdy_vrss,
+          prdy_ctrt: stockData.prdy_ctrt,
+        });
+      } catch (error) {
+        console.error(error);
+        setError((error as Error).message);
+      }
+    };
+
+    fetchInitialData();
+  }, [symbol]);
+
   // WebSocket 연결 및 메시지 처리
   useEffect(() => {
-    const handleWebSocketMessage = (data: string) => {
+    const handleWebSocketMessage = (data: any) => {
+      console.log('Received WebSocket message:', data);
       try {
+        // JSON 객체가 아니면 파싱
+        if (typeof data === 'string') {
+          data = JSON.parse(data);
+        }
+
         // 구독 성공 메시지 무시
-        if (data.includes('SUBSCRIBE SUCCESS')) {
+        if (
+          data.body.msg_cd === 'OPSP0000' &&
+          data.body.msg1 === 'SUBSCRIBE SUCCESS'
+        ) {
           console.log('WebSocket subscription successful');
           return;
         }
 
-        // PING 메시지 무시
-        if (data.includes('"tr_id":"PINGPONG"')) {
-          console.log('Received PINGPONG message, ignoring.');
-          return;
-        }
-
-        // 필요한 데이터 추출
-        const parsedData = data.split('|');
-        const stockData = parsedData[3]?.split('^');
-
-        if (stockData && stockData.length >= 13) {
-          setStockPrice((prevState) => {
-            const currentState: StockPrice = prevState || {
-              stck_prpr: 0,
-              stck_oprc: 0,
-              stck_hgpr: 0,
-              stck_lwpr: 0,
-              cntg_vol: 0,
-              acml_vol: 0,
-              prdy_vrss: 0,
-              prdy_ctrt: 0,
-            };
-
-            return {
-              ...currentState,
-              stck_prpr: stockData[2]
-                ? Number(stockData[2]).toLocaleString()
-                : 0, // 주식 현재가
-              stck_oprc: stockData[6]
-                ? Number(stockData[6]).toLocaleString()
-                : 0, // 시가
-              stck_hgpr: stockData[7]
-                ? Number(stockData[7]).toLocaleString()
-                : 0, // 고가
-              stck_lwpr: stockData[8]
-                ? Number(stockData[8]).toLocaleString()
-                : 0, // 저가
-              cntg_vol: stockData[12]
-                ? Number(stockData[12]).toLocaleString()
-                : 0, // 체결 거래량
-              acml_vol: stockData[13]
-                ? Number(stockData[13]).toLocaleString()
-                : 0, // 누적 거래량
-              prdy_vrss: stockData[4]
-                ? Number(stockData[4]).toLocaleString()
-                : 0, // 전일 대비
-              prdy_ctrt: stockData[5]
-                ? Number(stockData[5]).toLocaleString()
-                : 0, // 전일 대비율
-            };
-          });
+        // 주식 데이터 처리
+        if (data.body && data.body.output) {
+          const stockData = data.body.output;
+          setStockPrice((prevState) => ({
+            ...prevState,
+            stck_prpr: stockData.stck_prpr || prevState?.stck_prpr,
+            stck_oprc: stockData.stck_oprc || prevState?.stck_oprc,
+            stck_hgpr: stockData.stck_hgpr || prevState?.stck_hgpr,
+            stck_lwpr: stockData.stck_lwpr || prevState?.stck_lwpr,
+            cntg_vol: stockData.cntg_vol || prevState?.cntg_vol,
+            acml_vol: stockData.acml_vol || prevState?.acml_vol,
+            prdy_vrss: stockData.prdy_vrss || prevState?.prdy_vrss,
+            prdy_ctrt: stockData.prdy_ctrt || prevState?.prdy_ctrt,
+          }));
         } else {
-          console.error('Invalid stock data format:', stockData);
+          console.error('Invalid stock data format:', data);
         }
       } catch (error) {
-        console.error('Error processing WebSocket message:', data, error);
+        console.error('Error processing WebSocket message:', error);
       }
     };
 
@@ -113,28 +124,29 @@ export default function NewsPage() {
   }, [symbol]);
 
   return (
-    <div>
+    <div className="w-full max-w-md">
       <input
         type="text"
         value={symbol}
         onChange={(e) => setSymbol(e.target.value)}
-        placeholder="Enter stock symbol"
+        className="w-full p-2 mb-4 border rounded"
+        placeholder="종목 코드를 입력하세요"
       />
-      {error && <p>{error}</p>}
+      {error && <p className="text-red-500">{error}</p>}
       {stockPrice ? (
-        <div>
-          <h2>{symbol}</h2>
-          <p>주식 현재가: {stockPrice.stck_prpr}</p>
-          <p>시가: {stockPrice.stck_oprc}</p>
-          <p>고가: {stockPrice.stck_hgpr}</p>
-          <p>저가: {stockPrice.stck_lwpr}</p>
-          <p>체결 거래량: {stockPrice.cntg_vol}</p>
-          <p>거래량: {stockPrice.acml_vol}</p>
-          <p>전일 대비: {stockPrice.prdy_vrss}</p>
+        <div className="bg-white shadow-md rounded p-4">
+          <h2 className="text-2xl font-bold mb-2">{symbol}</h2>
+          <p>주식 현재가: {stockPrice.stck_prpr} 원</p>
+          <p>시가: {stockPrice.stck_oprc} 원</p>
+          <p>고가: {stockPrice.stck_hgpr} 원</p>
+          <p>저가: {stockPrice.stck_lwpr} 원</p>
+          <p>체결 거래량: {stockPrice.cntg_vol} 주</p>
+          <p>거래량: {stockPrice.acml_vol} 주</p>
+          <p>전일 대비: {stockPrice.prdy_vrss} 원</p>
           <p>전일 대비율: {stockPrice.prdy_ctrt}%</p>
         </div>
       ) : (
-        <p>Loading...</p>
+        <p>로딩 중...</p>
       )}
     </div>
   );

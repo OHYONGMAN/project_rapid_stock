@@ -12,12 +12,7 @@ export const connectWebSocket = async (
   symbol: string,
   onMessage: (data: any) => void,
 ): Promise<() => void> => {
-  if (
-    isConnecting ||
-    (socket &&
-      (socket.readyState === WebSocket.OPEN ||
-        socket.readyState === WebSocket.CONNECTING))
-  ) {
+  if (isConnecting || (socket && socket.readyState === WebSocket.OPEN)) {
     return () => {};
   }
 
@@ -36,12 +31,13 @@ export const connectWebSocket = async (
     socket = null;
   }
 
+  // WebSocket URL
   const wsUrl = `ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0`;
   socket = new WebSocket(wsUrl);
 
   socket.onopen = () => {
-    isConnecting = false; // 연결이 완료되었으므로 `isConnecting`을 false로 설정
     console.log("WebSocket 연결 성공");
+    isConnecting = false; // 연결 성공 시 플래그 해제
     const message = {
       header: {
         approval_key: approvalKey,
@@ -57,13 +53,19 @@ export const connectWebSocket = async (
       },
     };
 
-    socket?.send(JSON.stringify(message));
+    if (socket) {
+      socket.send(JSON.stringify(message));
+    }
   };
 
   socket.onmessage = (event) => {
+    console.log("Raw WebSocket Message:", event.data); // 수신된 메시지 출력
     try {
-      const message = event.data;
-      onMessage(message);
+      const message = typeof event.data === "string"
+        ? JSON.parse(event.data)
+        : event.data; // 문자열일 경우에만 JSON 파싱
+      console.log("Parsed WebSocket Message:", message); // 파싱된 메시지 출력
+      onMessage(message); // 파싱된 메시지를 전달
     } catch (error) {
       console.error("WebSocket 메시지 처리 중 에러:", error);
     }
@@ -71,7 +73,6 @@ export const connectWebSocket = async (
 
   socket.onclose = () => {
     console.log("WebSocket 연결이 끊겼습니다. 5초 후 재연결 시도.");
-    isConnecting = false; // 연결이 끊어졌으므로 `isConnecting`을 false로 설정
     reconnectTimeout = setTimeout(() => {
       connectWebSocket(symbol, onMessage);
     }, 5000);
@@ -79,14 +80,12 @@ export const connectWebSocket = async (
 
   socket.onerror = (error) => {
     console.error("WebSocket 오류:", error);
-    isConnecting = false; // 오류가 발생했으므로 재연결을 시도할 수 있도록 설정
   };
 
   return () => {
     if (socket) {
       socket.close();
       socket = null;
-      clearTimeout(reconnectTimeout!); // 재연결 시도를 중단하기 위해 `clearTimeout` 호출
     }
   };
 };
