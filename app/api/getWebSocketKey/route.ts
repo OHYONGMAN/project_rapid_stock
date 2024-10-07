@@ -1,20 +1,14 @@
 // app/api/getWebSocketKey/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { getValidToken } from "@/app/utils/kisApi/token";
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
-        const { appkey, secretkey } = body;
-
-        const token = await getValidToken();
-
-        if (!token) {
-            return NextResponse.json({ error: "Failed to get valid token" }, {
-                status: 500,
-            });
-        }
+        const body = {
+            grant_type: "client_credentials",
+            appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
+            secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
+        };
 
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_KIS_API_BASE_URL}/oauth2/Approval`,
@@ -22,13 +16,8 @@ export async function POST(req: NextRequest) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json; charset=UTF-8",
-                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    grant_type: "client_credentials",
-                    appkey,
-                    secretkey,
-                }),
+                body: JSON.stringify(body),
             },
         );
 

@@ -24,7 +24,7 @@ const getNewToken = async (): Promise<string | null> => {
     if (response.ok) {
       const data = await response.json();
       accessToken = data.access_token;
-      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000;
+      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000; // 만료 시간 설정
       console.log(
         "새 토큰 발급 완료. 만료 시간:",
         new Date(tokenExpiration).toLocaleString(),
@@ -41,8 +41,8 @@ const getNewToken = async (): Promise<string | null> => {
 };
 
 export const getValidToken = async (): Promise<string | null> => {
-  if (!accessToken || !tokenExpiration || Date.now() >= tokenExpiration) {
-    console.log("토큰이 만료되었거나 곧 만료됩니다. 새로운 토큰을 발급합니다.");
+  if (!accessToken || Date.now() >= tokenExpiration!) {
+    console.log("토큰이 만료되었거나 만료 중입니다. 새로운 토큰을 요청합니다.");
     return await getNewToken();
   }
 
@@ -100,22 +100,9 @@ export const cleanupToken = async (): Promise<void> => {
 
 export const getWebSocketKey = async (): Promise<string | null> => {
   try {
-    const body = {
-      grant_type: "client_credentials",
-      appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
-      secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
-    };
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_KIS_API_BASE_URL}/oauth2/Approval`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify(body),
-      },
-    );
+    const response = await fetch("/api/getWebSocketKey", {
+      method: "POST",
+    });
 
     if (response.ok) {
       const data = await response.json();

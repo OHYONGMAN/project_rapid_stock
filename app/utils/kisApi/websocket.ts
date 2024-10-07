@@ -1,89 +1,80 @@
-// app/utils/kisApi/websocket.ts
+"use client";
 
 import { getWebSocketKey } from "./token";
 
 let socket: WebSocket | null = null;
+let reconnectTimeout: NodeJS.Timeout | null = null;
+let isConnecting = false;
 
 export const connectWebSocket = async (
   symbol: string,
   onMessage: (data: any) => void,
 ): Promise<() => void> => {
+  if (isConnecting || (socket && socket.readyState === WebSocket.OPEN)) {
+    return () => {};
+  }
+
+  isConnecting = true;
+
   const approvalKey = await getWebSocketKey();
 
   if (!approvalKey) {
-    console.error("웹소켓 접속키 발급 실패로 인해 연결 시도 불가");
+    isConnecting = false;
     return () => {};
   }
 
-  const wsUrl = process.env.NEXT_PUBLIC_KIS_API_WEBSOCKET_URL;
-
-  if (!wsUrl) {
-    console.error("WebSocket URL이 정의되지 않았습니다.");
-    return () => {};
+  // 기존 연결 종료
+  if (socket && socket.readyState !== WebSocket.CLOSED) {
+    socket.close();
+    socket = null;
   }
 
-  try {
-    socket = new WebSocket(wsUrl);
+  const wsUrl = `ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0`;
+  socket = new WebSocket(wsUrl);
 
-    socket.onopen = () => {
-      console.log("WebSocket 연결 성공");
-      const message = {
-        header: {
-          approval_key: approvalKey,
-          custtype: "P",
-          tr_type: "1",
-          content_type: "utf-8",
+  socket.onopen = () => {
+    const message = {
+      header: {
+        approval_key: approvalKey,
+        custtype: "P",
+        tr_type: "1",
+        content_type: "utf-8",
+      },
+      body: {
+        input: {
+          tr_id: "H0STCNT0",
+          tr_key: symbol,
         },
-        body: {
-          input: {
-            tr_id: "H0STCNT0",
-            tr_key: symbol,
-          },
-        },
-      };
-
-      if (socket) {
-        socket.send(JSON.stringify(message));
-        console.log("웹소켓 메시지 전송:", JSON.stringify(message));
-      } else {
-        console.error("웹소켓이 연결되지 않았습니다.");
-      }
+      },
     };
 
-    socket.onmessage = (event) => {
-      console.log("웹소켓 메시지 수신:", event.data);
-      const data = JSON.parse(event.data);
-      onMessage(data);
-    };
+    socket?.send(JSON.stringify(message));
+  };
 
-    socket.onerror = (error) => {
-      console.error("웹소켓 오류 발생:", error);
-    };
+  socket.onmessage = (event) => {
+    try {
+      const message = event.data;
+      onMessage(message);
+    } catch (error) {
+      console.error("WebSocket 메시지 처리 중 에러:", error);
+    }
+  };
 
-    let retryCount = 0;
-    const maxRetries = 5;
+  socket.onclose = () => {
+    console.log("WebSocket 연결이 끊겼습니다. 5초 후 재연결 시도.");
+    reconnectTimeout = setTimeout(() => {
+      connectWebSocket(symbol, onMessage);
+    }, 5000);
+  };
 
-    socket.onclose = () => {
-      console.log("WebSocket 연결이 종료되었습니다.");
-      if (retryCount < maxRetries) {
-        console.log("연결을 재시도합니다...");
-        retryCount++;
-        setTimeout(() => {
-          connectWebSocket(symbol, onMessage);
-        }, 1000 * retryCount);
-      } else {
-        console.error(
-          "최대 재시도 횟수에 도달했습니다. WebSocket은 재연결되지 않습니다.",
-        );
-      }
-    };
-  } catch (error) {
-    console.error("WebSocket 연결 시 에러 발생:", error);
-  }
+  socket.onerror = (error) => {
+    console.error("WebSocket 오류:", error);
+  };
 
   return () => {
     if (socket) {
       socket.close();
+      socket = null;
     }
   };
 };
@@ -91,5 +82,6 @@ export const connectWebSocket = async (
 export const closeWebSocket = () => {
   if (socket) {
     socket.close();
+    socket = null;
   }
 };
