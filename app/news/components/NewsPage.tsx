@@ -6,14 +6,15 @@ import React, { useState, useEffect } from 'react';
 import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
 
 interface StockPrice {
-  stck_prpr: number | string;
-  stck_oprc: number | string;
-  stck_hgpr: number | string;
-  stck_lwpr: number | string;
-  cntg_vol: number | string;
-  acml_vol: number | string;
-  prdy_vrss: number | string;
-  prdy_ctrt: number | string;
+  stck_prpr: number;
+  stck_oprc: number;
+  stck_hgpr: number;
+  stck_lwpr: number;
+  cntg_vol: number;
+  acml_vol: number;
+  prdy_vrss: number;
+  prdy_ctrt: number;
+  prdy_vrss_sign: string;
 }
 
 export default function NewsPage() {
@@ -21,99 +22,63 @@ export default function NewsPage() {
   const [stockPrice, setStockPrice] = useState<StockPrice | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // REST API로 초기 데이터 가져오기
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const response = await fetch('/api/fetchStockData', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ symbol }),
-        });
-
+        const response = await fetch(`/api/stockData?symbol=${symbol}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch initial stock data');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const data = await response.json();
-        const stockData = data.output2[0]; // 첫 번째 데이터 사용
-
-        // 초기 데이터 설정
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error('Invalid data received from API');
+        }
+        const stockData = data[0];
         setStockPrice({
-          stck_prpr: stockData.stck_clpr,
-          stck_oprc: stockData.stck_oprc,
-          stck_hgpr: stockData.stck_hgpr,
-          stck_lwpr: stockData.stck_lwpr,
-          cntg_vol: stockData.cntg_vol,
-          acml_vol: stockData.acml_vol,
-          prdy_vrss: stockData.prdy_vrss,
-          prdy_ctrt: stockData.prdy_ctrt,
+          stck_prpr: parseFloat(stockData.close) || 0,
+          stck_oprc: parseFloat(stockData.open) || 0,
+          stck_hgpr: parseFloat(stockData.high) || 0,
+          stck_lwpr: parseFloat(stockData.low) || 0,
+          cntg_vol: parseFloat(stockData.volume) || 0,
+          acml_vol: parseFloat(stockData.volume) || 0,
+          prdy_vrss: parseFloat(stockData.prdy_vrss) || 0,
+          prdy_ctrt: parseFloat(stockData.prdy_ctrt) || 0,
+          prdy_vrss_sign: stockData.prdy_vrss_sign || '3', // '3'은 보합을 의미
         });
       } catch (error) {
-        console.error(error);
-        setError((error as Error).message);
+        console.error('Error fetching initial data:', error);
+        setError(
+          `Failed to fetch initial stock data: ${(error as Error).message}`,
+        );
       }
     };
 
     fetchInitialData();
   }, [symbol]);
 
-  // WebSocket 연결 및 메시지 처리
   useEffect(() => {
-    const handleWebSocketMessage = (data: any) => {
-      console.log('Received WebSocket message:', data);
+    const handleWebSocketMessage = (data: StockPrice) => {
+      setStockPrice((prevState) => ({
+        ...prevState,
+        ...data,
+      }));
+    };
+
+    let closeWebSocketConnection: (() => void) | undefined;
+
+    const connect = async () => {
       try {
-        // JSON 객체가 아니면 파싱
-        if (typeof data === 'string') {
-          data = JSON.parse(data);
-        }
-
-        // 구독 성공 메시지 무시
-        if (
-          data.body.msg_cd === 'OPSP0000' &&
-          data.body.msg1 === 'SUBSCRIBE SUCCESS'
-        ) {
-          console.log('WebSocket subscription successful');
-          return;
-        }
-
-        // 주식 데이터 처리
-        if (data.body && data.body.output) {
-          const stockData = data.body.output;
-          setStockPrice((prevState) => ({
-            ...prevState,
-            stck_prpr: stockData.stck_prpr || prevState?.stck_prpr,
-            stck_oprc: stockData.stck_oprc || prevState?.stck_oprc,
-            stck_hgpr: stockData.stck_hgpr || prevState?.stck_hgpr,
-            stck_lwpr: stockData.stck_lwpr || prevState?.stck_lwpr,
-            cntg_vol: stockData.cntg_vol || prevState?.cntg_vol,
-            acml_vol: stockData.acml_vol || prevState?.acml_vol,
-            prdy_vrss: stockData.prdy_vrss || prevState?.prdy_vrss,
-            prdy_ctrt: stockData.prdy_ctrt || prevState?.prdy_ctrt,
-          }));
-        } else {
-          console.error('Invalid stock data format:', data);
-        }
+        closeWebSocketConnection = await connectWebSocket(
+          symbol,
+          handleWebSocketMessage,
+        );
       } catch (error) {
-        console.error('Error processing WebSocket message:', error);
+        console.error('WebSocket connection error:', error);
+        setError(`Failed to connect to WebSocket: ${(error as Error).message}`);
       }
     };
 
-    const connect = async () => {
-      const closeWebSocketConnection = await connectWebSocket(
-        symbol,
-        handleWebSocketMessage,
-      );
-      return closeWebSocketConnection;
-    };
-
-    let closeWebSocketConnection: () => void;
-
-    connect().then((closeFn) => {
-      closeWebSocketConnection = closeFn;
-    });
+    connect();
 
     return () => {
       if (closeWebSocketConnection) {
@@ -122,6 +87,11 @@ export default function NewsPage() {
       closeWebSocket();
     };
   }, [symbol]);
+  const formatChangeDirection = (changeSign: string, value: number) => {
+    if (changeSign === '1') return `▲ ${value.toLocaleString()}`;
+    if (changeSign === '2') return `▼ ${value.toLocaleString()}`;
+    return value.toLocaleString();
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -136,14 +106,28 @@ export default function NewsPage() {
       {stockPrice ? (
         <div className="bg-white shadow-md rounded p-4">
           <h2 className="text-2xl font-bold mb-2">{symbol}</h2>
-          <p>주식 현재가: {stockPrice.stck_prpr} 원</p>
-          <p>시가: {stockPrice.stck_oprc} 원</p>
-          <p>고가: {stockPrice.stck_hgpr} 원</p>
-          <p>저가: {stockPrice.stck_lwpr} 원</p>
-          <p>체결 거래량: {stockPrice.cntg_vol} 주</p>
-          <p>거래량: {stockPrice.acml_vol} 주</p>
-          <p>전일 대비: {stockPrice.prdy_vrss} 원</p>
-          <p>전일 대비율: {stockPrice.prdy_ctrt}%</p>
+          <p>주식 현재가: {stockPrice.stck_prpr.toLocaleString()} 원</p>
+          <p>시가: {stockPrice.stck_oprc.toLocaleString()} 원</p>
+          <p>고가: {stockPrice.stck_hgpr.toLocaleString()} 원</p>
+          <p>저가: {stockPrice.stck_lwpr.toLocaleString()} 원</p>
+          <p>체결 거래량: {stockPrice.cntg_vol.toLocaleString()} 주</p>
+          <p>누적 거래량: {stockPrice.acml_vol.toLocaleString()} 주</p>
+          <p>
+            전일 대비:{' '}
+            {formatChangeDirection(
+              stockPrice.prdy_vrss_sign,
+              stockPrice.prdy_vrss,
+            )}{' '}
+            원
+          </p>
+          <p>
+            전일 대비율:{' '}
+            {formatChangeDirection(
+              stockPrice.prdy_vrss_sign,
+              stockPrice.prdy_ctrt,
+            )}
+            %
+          </p>
         </div>
       ) : (
         <p>로딩 중...</p>

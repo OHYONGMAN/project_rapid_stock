@@ -1,7 +1,12 @@
 import '@/app/globals.css';
-import Head from 'next/head';
 import Footer from '@/app/components/Footer/Footer';
 import Header from '@/app/components/Header/Header';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Rapid Stock',
+  description: '증권 뉴스와 관련 주식 소식을 전달해드립니다.',
+};
 
 export default function RootLayout({
   children,
@@ -9,15 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <Head>
-        <title>{'Rapid Stock'}</title>
-        <meta
-          name="description"
-          content={'증권 뉴스와 관련 주식 소식을 전달해드립니다.'}
-        />
-      </Head>
-      <body>
+    <html lang="en" className="h-full">
+      <body className="flex flex-col min-h-full">
         <Header
           links={[
             { name: '뉴스룸', url: '/news' },
@@ -25,7 +23,7 @@ export default function RootLayout({
             { name: '모의투자', url: '/stock' },
           ]}
         />
-        {children}
+        <main className="flex-grow">{children}</main>
         <Footer />
       </body>
     </html>

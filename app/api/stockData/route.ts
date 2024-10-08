@@ -1,15 +1,22 @@
-// app/api/fetchStockData/route.ts
+// app/api/stockData/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { getValidToken } from "@/app/utils/kisApi/token";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url);
+    const symbol = searchParams.get("symbol");
+
+    if (!symbol) {
+        return NextResponse.json({ error: "Symbol is required" }, {
+            status: 400,
+        });
+    }
+
     try {
-        const { symbol } = await req.json();
         const token = await getValidToken();
 
         if (!token) {
-            console.error("Failed to get access token");
             return NextResponse.json({ error: "Failed to get access token" }, {
                 status: 500,
             });
@@ -29,7 +36,7 @@ export async function POST(req: NextRequest) {
             FID_COND_MRKT_DIV_CODE: "J",
             FID_INPUT_ISCD: symbol,
             FID_INPUT_DATE_1: "20241001",
-            FID_INPUT_DATE_2: "20241001",
+            FID_INPUT_DATE_2: "20241030",
             FID_PERIOD_DIV_CODE: "D",
             FID_ORG_ADJ_PRC: "0",
         });
@@ -40,23 +47,28 @@ export async function POST(req: NextRequest) {
         });
 
         if (!response.ok) {
-            const errorDetails = await response.json();
-            console.error("Failed to fetch stock data", {
-                status: response.status,
-                statusText: response.statusText,
-                errorDetails,
-            });
-            return NextResponse.json({
-                error: "Failed to fetch stock data",
-                details: errorDetails,
-            }, { status: 500 });
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        return NextResponse.json(data);
+
+        if (data.rt_cd !== "0") {
+            throw new Error(`API error: ${data.msg1}`);
+        }
+
+        const formattedData = data.output2.map((item: any) => ({
+            date: item.stck_bsop_date, // Keep as string 'YYYYMMDD'
+            open: parseFloat(item.stck_oprc),
+            high: parseFloat(item.stck_hgpr),
+            low: parseFloat(item.stck_lwpr),
+            close: parseFloat(item.stck_clpr),
+            volume: parseInt(item.acml_vol, 10),
+        }));
+
+        return NextResponse.json(formattedData);
     } catch (error) {
-        console.error("Error fetching stock data:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, {
+        console.error("Failed to fetch stock data", error);
+        return NextResponse.json({ error: "Internal server error" }, {
             status: 500,
         });
     }

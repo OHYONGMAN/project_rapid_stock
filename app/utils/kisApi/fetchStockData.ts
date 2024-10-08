@@ -1,44 +1,25 @@
-import { getValidToken } from "@/app/utils/kisApi/token";
+// app/utils/kisApi/fetchStockData.ts
 
 export const fetchStockData = async (symbol: string) => {
     try {
-        const response = await fetch("/api/fetchStockData", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ symbol }),
-        });
-
+        const response = await fetch(`/api/stockData?symbol=${symbol}`);
         if (!response.ok) {
-            const errorDetails = await response.json();
-            console.error("Failed to fetch stock data", errorDetails);
-            throw new Error(
-                `Failed to fetch stock data: ${
-                    errorDetails?.error || "Unknown error"
-                }`,
-            );
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        const responseData = await response.json();
-
-        // 응답 구조 유효성 검사
-        if (!responseData.output2) {
-            throw new Error("Invalid response structure: missing output2");
-        }
-
-        // 주식 데이터를 맵핑하여 반환
-        const output = responseData.output2;
-        return output.map((item: any) => ({
-            date: item.stck_bsop_date,
-            close: parseFloat(item.stck_clpr),
-            open: parseFloat(item.stck_oprc),
-            high: parseFloat(item.stck_hgpr),
-            low: parseFloat(item.stck_lwpr),
-            volume: parseInt(item.acml_vol, 10), // acml_vo → acml_vol 로 수정
+        const data = await response.json();
+        return data.map((item: any) => ({
+            ...item,
+            date: parseDateString(item.date), // Convert 'YYYYMMDD' to Date object
         }));
     } catch (error) {
         console.error("Failed to fetch stock data", error);
-        throw error; // 오류를 호출자에게 전달
+        throw error;
     }
 };
+
+function parseDateString(dateString: string): Date {
+    const year = parseInt(dateString.substring(0, 4), 10);
+    const month = parseInt(dateString.substring(4, 6), 10) - 1; // 월은 0-based
+    const day = parseInt(dateString.substring(6, 8), 10);
+    return new Date(year, month, day);
+}

@@ -1,16 +1,12 @@
 // app/utils/kisApi/token.ts
 
+import { isServer } from "../utils";
+
 let accessToken: string | null = null;
 let tokenExpiration: number | null = null;
 let isTokenRefreshing = false;
 
-const isServer = typeof window === "undefined";
-
 const getNewToken = async (): Promise<string | null> => {
-  if (accessToken && tokenExpiration && Date.now() < tokenExpiration) {
-    await revokeToken(accessToken);
-  }
-
   const body = {
     grant_type: "client_credentials",
     appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
@@ -27,9 +23,8 @@ const getNewToken = async (): Promise<string | null> => {
     if (response.ok) {
       const data = await response.json();
       accessToken = data.access_token;
-      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000; // 만료 시간 설정 (1분 전 여유)
+      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000; // 1분 일찍 만료되는 것으로 처리
 
-      // 클라이언트에서만 localStorage에 토큰 저장
       if (!isServer) {
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
@@ -57,12 +52,11 @@ export const getValidToken = async (): Promise<string | null> => {
   if (isTokenRefreshing) {
     console.log("토큰 발급 중입니다. 기다리세요...");
     while (isTokenRefreshing) {
-      await new Promise((resolve) => setTimeout(resolve, 100)); // 기다림
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
     return accessToken;
   }
 
-  // 클라이언트에서는 localStorage에서 토큰을 불러옵니다.
   if (!isServer) {
     const storedToken = localStorage.getItem("accessToken");
     const storedExpiration = localStorage.getItem("tokenExpiration");
@@ -72,8 +66,8 @@ export const getValidToken = async (): Promise<string | null> => {
     }
   }
 
-  if (!accessToken || Date.now() >= tokenExpiration!) {
-    console.log("토큰이 만료되었거나 만료 중입니다. 새로운 토큰을 요청합니다.");
+  if (!accessToken || !tokenExpiration || Date.now() >= tokenExpiration) {
+    console.log("토큰이 만료되었거나 없습니다. 새로운 토큰을 요청합니다.");
     isTokenRefreshing = true;
     const token = await getNewToken();
     isTokenRefreshing = false;
@@ -127,7 +121,6 @@ export const cleanupToken = async (): Promise<void> => {
     accessToken = null;
     tokenExpiration = null;
 
-    // 클라이언트에서는 localStorage에서도 제거합니다.
     if (!isServer) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("tokenExpiration");

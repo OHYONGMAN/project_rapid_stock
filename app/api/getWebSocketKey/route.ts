@@ -24,8 +24,11 @@ export async function POST(req: NextRequest) {
         if (!response.ok) {
             const errorData = await response.json();
             console.error("웹소켓 접속키 발급 실패:", errorData);
-            return NextResponse.json({ error: "Failed to get WebSocket key" }, {
-                status: 500,
+            return NextResponse.json({
+                error: "Failed to get WebSocket key",
+                details: errorData,
+            }, {
+                status: response.status,
             });
         }
 
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ approval_key: data.approval_key });
     } catch (error) {
         console.error("웹소켓 접속키 발급 중 에러 발생:", error);
-        return NextResponse.json({ error: "Failed to get WebSocket key" }, {
+        return NextResponse.json({ error: "Internal server error" }, {
             status: 500,
         });
     }
