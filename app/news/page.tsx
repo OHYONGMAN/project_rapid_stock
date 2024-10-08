@@ -1,7 +1,8 @@
 'use client';
+
+const licenseKey = process.env.NEXT_PUBLIC_DEVEXTREME_LICENSE_KEY;
 // devexteme licenseKey를 가져오는겁니다. (삭제금지)
 import config from 'devextreme/core/config';
-import { licenseKey } from '../devextreme-license';
 config({ licenseKey });
 
 import React from 'react';
@@ -127,7 +128,7 @@ const Home = () => {
         rowElement.appendChild(contentElement);
         container.appendChild(rowElement);
       }}
-    ></DataGrid>  
+    ></DataGrid>
   );
 };
 

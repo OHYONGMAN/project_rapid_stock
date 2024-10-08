@@ -1,2 +1,0 @@
-export const licenseKey =
-  "ewogICJmb3JtYXQiOiAxLAogICJjdXN0b21lcklkIjogIjlhZDliN2I0LTMzOGItNDAzNC1hOTQ4LThkMGRhZGI2N2MyNSIsCiAgIm1heFZlcnNpb25BbGxvd2VkIjogMjQxCn0=.G5hHAXC56p9H7KCWaw2K3AtSB+ncofZsEPDctJy2SgiIus6u/XcIDJydt0egmcpZMveml3Z/ZLBOXlD80GjSOVBR9k2HTMPYI+SpqXIpEhEMZ5n7c+fmvQ1cjeoNghnufSfJTQ==";
