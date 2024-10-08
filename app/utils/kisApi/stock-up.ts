@@ -1,4 +1,4 @@
-import { getValidToken } from '../../utils/kisApi/token';
+import { getValidToken } from './token';
 
 export const fetchUpStock = async () => {
   const url =

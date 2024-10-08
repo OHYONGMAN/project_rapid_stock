@@ -1,5 +1,6 @@
+// /pages/api/stock-rank.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getValidToken } from './token';
+import { getValidToken } from './token'; // 토큰 관리 로직
 
 const url =
   'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/volume-rank';
@@ -51,7 +52,7 @@ export default async function handler(
 
     if (response.ok) {
       const data = await response.json();
-      res.status(200).json(data.output.slice(0, 10));
+      res.status(200).json(data.output.slice(0, 10)); // 상위 10개 종목만 반환
     } else {
       const errorData = await response.json();
       res
