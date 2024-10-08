@@ -14,48 +14,31 @@ const formatNumber = new Intl.NumberFormat('ko-KR', {
   minimumFractionDigits: 0,
 }).format;
 
-interface TooltipProps {
-  data?: {
-    argument: Date;
-    seriesName: string;
-    openValue: number;
-    highValue: number;
-    lowValue: number;
-    closeValue: number;
-    value: number;
-  };
-}
-
-export default function TooltipTemplate(props: TooltipProps) {
-  if (!props.data) {
-    return <div>데이터가 없습니다</div>; // data가 없을 때 처리
-  }
-
-  const { argument, openValue, highValue, lowValue, closeValue, value } =
-    props.data;
+export default function TooltipTemplate(pointInfo) {
+  const volume = pointInfo.points.filter(
+    (point: { seriesName: string }) => point.seriesName === 'Volume',
+  )[0];
+  const prices = pointInfo.points.filter(
+    (point: { seriesName: string }) => point.seriesName !== 'Volume',
+  )[0];
 
   return (
     <div className="tooltip-template">
-      <div>{argument.toLocaleDateString()}</div>
+      <div>{pointInfo.argumentText}</div>
       <div>
-        <span>시가: </span>
-        {formatCurrency(openValue)}
+        <span>시가: {formatCurrency(prices.openValue)}</span>
       </div>
       <div>
-        <span>고가: </span>
-        {formatCurrency(highValue)}
+        <span>고가: {formatCurrency(prices.highValue)}</span>
       </div>
       <div>
-        <span>저가: </span>
-        {formatCurrency(lowValue)}
+        <span>저가: {formatCurrency(prices.lowValue)}</span>
       </div>
       <div>
-        <span>종가: </span>
-        {formatCurrency(closeValue)}
+        <span>종가: {formatCurrency(prices.closeValue)} </span>
       </div>
       <div>
-        <span>거래량: </span>
-        {formatNumber(value)}
+        <span>거래량: {formatNumber(volume.value)}</span>
       </div>
     </div>
   );

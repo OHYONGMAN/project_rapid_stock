@@ -2,6 +2,7 @@
 
 import NewsPage from './components/NewsPage';
 import StockChart from './components/StockChart';
+import StockCharts from './components/StockCharts';
 
 export default function NewsPageLayout() {
   return (
@@ -15,6 +16,10 @@ export default function NewsPageLayout() {
         <div>
           <h2 className="text-2xl font-bold mb-4">Historical Stock Chart</h2>
           <StockChart />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Real-time Stock Chart</h2>
+          <StockCharts />
         </div>
       </div>
     </main>

@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchStockData } from '@/app/utils/kisApi/fetchStockData';
 
 interface StockData {
-  date: Date;
+  date: string; // Date 대신 string 사용
   open: number;
   high: number;
   low: number;
@@ -34,12 +34,9 @@ export default function StockChart() {
     loadData();
   }, [symbol]);
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
+  const formatDate = (dateString: string) => {
+    // 'YYYYMMDD' 형식의 문자열을 'YYYY-MM-DD' 형식으로 변환
+    return `${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}`;
   };
 
   return (
