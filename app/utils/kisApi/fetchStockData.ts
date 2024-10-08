@@ -9,7 +9,7 @@ export const fetchStockData = async (symbol: string) => {
         const data = await response.json();
         return data.map((item: any) => ({
             ...item,
-            date: item.date, // 'YYYYMMDD' 형식 유지
+            date: parseDateString(item.date), // 'YYYYMMDD' 형식을 Date 객체로 변환
             open: parseFloat(item.open),
             high: parseFloat(item.high),
             low: parseFloat(item.low),
@@ -22,9 +22,9 @@ export const fetchStockData = async (symbol: string) => {
     }
 };
 
-// function parseDateString(dateString: string): Date {
-//     const year = parseInt(dateString.substring(0, 4), 10);
-//     const month = parseInt(dateString.substring(4, 6), 10) - 1; // 월은 0-based
-//     const day = parseInt(dateString.substring(6, 8), 10);
-//     return new Date(year, month, day);
-// }
+function parseDateString(dateString: string): Date {
+    const year = parseInt(dateString.substring(0, 4), 10);
+    const month = parseInt(dateString.substring(4, 6), 10) - 1; // 월은 0-based
+    const day = parseInt(dateString.substring(6, 8), 10);
+    return new Date(year, month, day);
+}

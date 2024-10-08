@@ -99,12 +99,6 @@ export default function StockChart() {
             argumentType="datetime"
             tickInterval={{ months: 1 }}
             label={{ format: 'yyyy-MM-dd' }}
-            valueFormatter={(value: string) => {
-              const year = parseInt(value.slice(0, 4));
-              const month = parseInt(value.slice(4, 6)) - 1;
-              const day = parseInt(value.slice(6, 8));
-              return new Date(year, month, day);
-            }}
           />
           <ValueAxis pane="Price" />
           <ValueAxis pane="Volume" position="right" />
