@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "echo.> out\\.nojekyll && gh-pages -d out --dotfiles"
   },
   "dependencies": {
     "@aspnet/signalr": "1.0.27",
@@ -15,7 +16,6 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
-    "axios": "^1.7.7",
     "devexpress-diagram": "2.2.11",
     "devexpress-gantt": "4.1.56",
     "devextreme": "^24.1.6",
@@ -50,7 +50,15 @@
     "string-similarity": "^4.0.4",
     "xls-to-json": "^2.1.1",
     "xlsjs": "^1.0.1",
+<<<<<<< HEAD
     "xlsx": "^0.18.5"
+=======
+    "xlsx": "^0.18.5",
+    "@vendia/serverless-express": "^4.12.6",
+    "@nestjs/core": "^9.x.x",
+    "@nestjs/common": "^9.x.x",
+    "@nestjs/platform-express": "^9.x.x"
+>>>>>>> newsCrawling
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
@@ -66,8 +74,15 @@
     "eslint-plugin-react-refresh": "^0.4.12",
     "eslint-plugin-tailwindcss": "^3.17.4",
     "globals": "^15.9.0",
+<<<<<<< HEAD
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5"
+=======
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5",
+    "gh-pages": "^6.1.1"
+>>>>>>> newsCrawling
   }
 }
