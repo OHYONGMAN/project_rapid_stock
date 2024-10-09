@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getValidToken } from "@/app/utils/kisApi/token";
+import { fetchHolidays } from "@/app/utils/kisApi/holiday";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -25,8 +26,30 @@ export async function GET(req: NextRequest) {
             });
         }
 
+        const holidays = await fetchHolidays();
+        // 개장 여부 확인
+        if (timeUnit !== "M1") {
+            const today = new Date();
+            const formattedDate = today.toISOString().split("T")[0].replace(
+                /-/g,
+                "",
+            );
+            const isOpen = holidays.some((holiday) =>
+                holiday.bass_dt === formattedDate && holiday.opnd_yn === "Y"
+            );
+
+            if (!isOpen) {
+                return NextResponse.json({
+                    error: "The market is closed today.",
+                }, {
+                    status: 403,
+                });
+            }
+        }
+
         let url, params, trId;
 
+        // 기존의 API 설정 유지
         if (timeUnit === "M1") {
             url =
                 "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice";
@@ -76,7 +99,14 @@ export async function GET(req: NextRequest) {
             throw new Error(`API error: ${data.msg1}`);
         }
 
-        const processedData = data.output2.map((item: any) => ({
+        const filteredData = data.output2.filter((item: any) =>
+            holidays.some((holiday) =>
+                holiday.bass_dt === item.stck_bsop_date &&
+                holiday.opnd_yn === "Y"
+            )
+        );
+
+        const processedData = filteredData.map((item: any) => ({
             date: item.stck_bsop_date,
             time: item.stck_cntg_hour,
             open: parseFloat(item.stck_oprc),

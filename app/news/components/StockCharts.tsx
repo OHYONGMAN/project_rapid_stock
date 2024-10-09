@@ -22,6 +22,7 @@ import Chart, {
   Margin,
 } from 'devextreme-react/chart';
 import TooltipTemplate from './TooltipTemplate';
+import { getOpenDays, isMarketOpen } from '@/app/utils/kisApi/holiday';
 
 interface StockData {
   date: Date;
@@ -34,27 +35,6 @@ interface StockData {
 
 type TimeUnit = 'M1' | 'D' | 'W' | 'M' | 'Y';
 
-interface CustomPointInfo {
-  seriesName?: string;
-  data?: {
-    open: number;
-    close: number;
-  };
-}
-
-const isMarketOpen = () => {
-  const now = new Date();
-  const day = now.getDay(); // 일요일: 0, 월요일: 1, ... 토요일: 6
-  const hour = now.getHours();
-
-  // 주말이나 거래 시간 외인 경우
-  if (day === 0 || day === 6 || hour < 9 || hour > 15) {
-    return false;
-  }
-
-  return true;
-};
-
 export default function StockCharts() {
   const [symbol, setSymbol] = useState('000660');
   const [chartData, setChartData] = useState<StockData[]>([]);
@@ -62,25 +42,51 @@ export default function StockCharts() {
   const [timeUnit, setTimeUnit] = useState<TimeUnit>('D');
   const lastTickRef = useRef<StockData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [websocketClosed, setWebsocketClosed] = useState(true);
+  const [openDays, setOpenDays] = useState<Set<string>>(new Set());
+
+  const loadOpenDays = useCallback(async () => {
+    try {
+      const openDaysData = await getOpenDays();
+      setOpenDays(openDaysData);
+    } catch (error) {
+      console.error('Failed to fetch open days:', error);
+      setError('Failed to load market calendar. Some features may be limited.');
+    }
+  }, []);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      let data;
-      if (timeUnit === 'M1') {
-        data = await fetchMinuteData(symbol);
-      } else {
-        data = await fetchStockData(symbol, timeUnit);
+      const today = new Date();
+      let isOpen = true;
+      try {
+        isOpen = await isMarketOpen(today);
+      } catch (error) {
+        console.error('Failed to check if market is open:', error);
+        // 시장 개장 여부를 확인할 수 없을 때는 기본적으로 열려있다고 가정
       }
 
-      // 콘솔에 데이터 출력하여 확인
-      console.log('Fetched data:', data);
+      if (!isOpen) {
+        setError('오늘은 주식시장이 개장하지 않습니다.');
+        setIsLoading(false);
+        return;
+      }
 
-      const formattedData = data.map((item: any) => ({
-        ...item,
-        date: new Date(item.date),
-      }));
-      setChartData(formattedData);
+      let stockData: StockData[];
+      if (timeUnit === 'M1') {
+        stockData = (await fetchMinuteData(symbol)).map((data) => ({
+          ...data,
+          date: new Date(data.date),
+        }));
+      } else {
+        stockData = (await fetchStockData(symbol, timeUnit)).map((data) => ({
+          ...data,
+          date: new Date(data.date),
+        }));
+      }
+
+      setChartData(stockData);
       setError(null);
     } catch (error) {
       console.error('Failed to fetch stock data:', error);
@@ -91,88 +97,70 @@ export default function StockCharts() {
   }, [symbol, timeUnit]);
 
   useEffect(() => {
+    loadOpenDays();
+  }, [loadOpenDays]);
+
+  useEffect(() => {
     loadData();
   }, [loadData]);
 
   useEffect(() => {
-    if (timeUnit !== 'M1' || !isMarketOpen()) {
-      console.log('시장 개장 시간이 아니므로 WebSocket을 연결하지 않습니다.');
-      return;
-    }
+    const connectWebSocketWithMarketCheck = async () => {
+      if (timeUnit !== 'M1') return;
+      const today = new Date();
+      const isOpen = await isMarketOpen(today);
 
-    const handleWebSocketMessage = (data: any) => {
-      console.log('WebSocket received data:', data);
-
-      const now = new Date();
-      const newTick: StockData = {
-        date: now,
-        open: parseFloat(data.stck_oprc),
-        high: parseFloat(data.stck_hgpr),
-        low: parseFloat(data.stck_lwpr),
-        close: parseFloat(data.stck_prpr),
-        volume: parseInt(data.cntg_vol, 10),
-      };
-
-      setChartData((prevData) => {
-        if (
-          lastTickRef.current &&
-          lastTickRef.current.date.getMinutes() === now.getMinutes()
-        ) {
-          const updatedData = [...prevData];
-          const lastIndex = updatedData.length - 1;
-          updatedData[lastIndex] = {
-            ...updatedData[lastIndex],
-            high: Math.max(updatedData[lastIndex].high, newTick.high),
-            low: Math.min(updatedData[lastIndex].low, newTick.low),
-            close: newTick.close,
-            volume: updatedData[lastIndex].volume + newTick.volume,
-          };
-          return updatedData;
-        } else {
-          return [...prevData, newTick];
-        }
-      });
-
-      lastTickRef.current = newTick;
-    };
-
-    let closeWebSocketConnection: (() => void) | undefined;
-
-    const connect = async () => {
-      try {
-        closeWebSocketConnection = await connectWebSocket(
-          symbol,
-          handleWebSocketMessage,
+      if (!isOpen) {
+        console.error(
+          '오늘은 주식시장이 개장하지 않으므로 WebSocket을 연결하지 않습니다.',
         );
-      } catch (error) {
-        console.error('WebSocket connection error:', error);
-        setError(`Failed to connect to WebSocket: ${(error as Error).message}`);
+        setWebsocketClosed(true);
+        return;
       }
+
+      setWebsocketClosed(false);
+      connectWebSocket(symbol, handleWebSocketMessage);
     };
 
-    connect();
+    connectWebSocketWithMarketCheck();
 
     return () => {
-      if (closeWebSocketConnection) {
-        closeWebSocketConnection();
-      }
       closeWebSocket();
     };
   }, [symbol, timeUnit]);
 
-  const customizePoint = useCallback((pointInfo: CustomPointInfo) => {
-    if (pointInfo.seriesName === 'Volume') {
-      if (pointInfo.data && pointInfo.data.close >= pointInfo.data.open) {
-        return { color: '#1db2f5' };
-      }
-      return { color: '#ff7285' };
-    }
-    return {};
-  }, []);
+  const handleWebSocketMessage = (data: any) => {
+    const now = new Date();
+    const newTick: StockData = {
+      date: now,
+      open: parseFloat(data.stck_oprc),
+      high: parseFloat(data.stck_hgpr),
+      low: parseFloat(data.stck_lwpr),
+      close: parseFloat(data.stck_prpr),
+      volume: parseInt(data.cntg_vol, 10),
+    };
 
-  const getChartTitle = () => {
-    const unitMap = { M1: '분봉', D: '일', W: '주', M: '월', Y: '년' };
-    return `${symbol} 주가 차트 (${unitMap[timeUnit]})`;
+    setChartData((prevData) => {
+      if (
+        lastTickRef.current &&
+        lastTickRef.current.date.getMinutes() === now.getMinutes()
+      ) {
+        const updatedData = [...prevData];
+        const lastIndex = updatedData.length - 1;
+        updatedData[lastIndex] = {
+          ...updatedData[lastIndex],
+          high: Math.max(updatedData[lastIndex].high, newTick.high),
+          low: Math.min(updatedData[lastIndex].low, newTick.low),
+          close: newTick.close,
+          volume: updatedData[lastIndex].volume + newTick.volume,
+        };
+        return updatedData;
+      } else {
+        return [...prevData, newTick];
+      }
+    });
+
+    lastTickRef.current = newTick;
   };
 
   return (
@@ -204,8 +192,14 @@ export default function StockCharts() {
         <Chart
           id="stock-chart"
           dataSource={chartData}
-          title={getChartTitle()}
-          customizePoint={customizePoint}
+          customizePoint={(pointInfo) => {
+            if (pointInfo.seriesName === 'Volume') {
+              return pointInfo.data.close >= pointInfo.data.open
+                ? { color: '#1db2f5' }
+                : { color: '#ff7285' };
+            }
+            return {};
+          }}
         >
           <Margin right={30} />
           <Series
@@ -229,28 +223,28 @@ export default function StockCharts() {
           <Legend visible={false} />
           <ArgumentAxis
             argumentType="datetime"
-            tickInterval={{
-              minutes: timeUnit === 'M1' ? 10 : undefined,
-              days: timeUnit === 'D' ? 7 : undefined,
-              weeks: timeUnit === 'W' ? 1 : undefined,
-              months: timeUnit === 'M' ? 1 : undefined,
-              years: timeUnit === 'Y' ? 1 : undefined,
-            }}
             label={{
-              format: timeUnit === 'M1' ? 'HH:mm' : 'yyyy-MM-dd',
+              format: 'yyyy-MM-dd',
+              customizeText(arg) {
+                const date = new Date(arg.value);
+                const dateStr = date
+                  .toISOString()
+                  .split('T')[0]
+                  .replace(/-/g, '');
+                if (openDays.has(dateStr)) {
+                  return arg.valueText;
+                }
+                return '';
+              },
             }}
           />
           <ValueAxis pane="Price" />
           <ValueAxis pane="Volume" position="right" />
           <ZoomAndPan argumentAxis="both" />
-          <ScrollBar visible={true} />
-          <LoadingIndicator enabled={true} />
-          <Tooltip
-            enabled={true}
-            shared={true}
-            contentRender={TooltipTemplate}
-          />
-          <Crosshair enabled={true} />
+          <ScrollBar visible />
+          <LoadingIndicator enabled />
+          <Tooltip enabled shared contentRender={TooltipTemplate} />
+          <Crosshair enabled />
         </Chart>
       ) : (
         <p>데이터가 없습니다.</p>

@@ -1,5 +1,7 @@
 // app/utils/kisApi/websocket.ts
 
+import { isMarketOpen } from "@/app/utils/kisApi/holiday";
+
 let socket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let isConnecting = false;
@@ -16,28 +18,34 @@ export const connectWebSocket = async (
 
   isConnecting = true;
 
-  // Get the WebSocket approval key
+  const today = new Date();
+  const isOpen = await isMarketOpen(today);
+  if (!isOpen) {
+    console.error("The market is closed today, skipping WebSocket connection.");
+    isConnecting = false;
+    return () => {};
+  }
+
   const approvalKey = await fetch("/api/getWebSocketKey", {
     method: "POST",
-  }).then((res) => res.json()).then((data) => data.approval_key).catch(
-    (err) => {
+  })
+    .then((res) => res.json())
+    .then((data) => data.approval_key)
+    .catch((err) => {
       console.error("Failed to fetch WebSocket key:", err);
       return null;
-    },
-  );
+    });
 
   if (!approvalKey) {
     isConnecting = false;
     throw new Error("Failed to get WebSocket approval key");
   }
 
-  // Close any existing socket connection
   if (socket && socket.readyState !== WebSocket.CLOSED) {
     socket.close();
     socket = null;
   }
 
-  // WebSocket URL for the live data feed
   const wsUrl = `ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0`;
   socket = new WebSocket(wsUrl);
 
@@ -46,7 +54,6 @@ export const connectWebSocket = async (
     isConnecting = false;
     reconnectAttempts = 0;
 
-    // Send the subscription message
     const message = {
       header: {
         approval_key: approvalKey,
@@ -76,7 +83,7 @@ export const connectWebSocket = async (
       if (data && data.header && data.header.tr_id === "H0STCNT0") {
         if (!data.body || data.body.rt_cd !== "0" || !data.body.output) {
           console.warn("유효하지 않은 데이터 수신:", data);
-          return; // 데이터가 유효하지 않을 경우 무시
+          return;
         }
 
         const stockData = parseStockData(data);
@@ -150,7 +157,6 @@ const parseStockData = (data: any) => {
         acml_vol,
       } = body.output || {};
 
-      // NaN이 발생하는 이유를 조사하기 위해, 수신된 필드값을 콘솔에 출력
       console.log("수신된 데이터:", {
         stck_prpr,
         stck_oprc,

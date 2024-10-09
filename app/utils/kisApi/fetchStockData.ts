@@ -1,7 +1,8 @@
 // app/utils/kisApi/fetchStockData.ts
+import { getOpenDays } from "@/app/utils/kisApi/holiday";
 
 interface StockData {
-    date: string; // ISO 8601 형식의 문자열로 변경
+    date: string;
     open: number;
     high: number;
     low: number;
@@ -48,7 +49,10 @@ export const fetchStockData = async (
     });
 
     try {
-        const response = await fetch(`/api/stockData?${params}`);
+        const [response, openDays] = await Promise.all([
+            fetch(`/api/stockData?${params}`),
+            getOpenDays(),
+        ]);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -56,14 +60,22 @@ export const fetchStockData = async (
 
         const data = await response.json();
 
-        return data.map((item: any): StockData => ({
-            date: parseDate(item.date, item.time),
-            open: Number(item.open),
-            high: Number(item.high),
-            low: Number(item.low),
-            close: Number(item.close),
-            volume: Number(item.volume),
-        }));
+        if (data.length === 0 || !data.some((item: any) => item.close !== 0)) {
+            throw new Error("Received insufficient or invalid data.");
+        }
+
+        return data
+            .filter((item: any) =>
+                openDays.has(item.date.split("T")[0].replace(/-/g, ""))
+            )
+            .map((item: any): StockData => ({
+                date: parseDate(item.date, item.time),
+                open: Number(item.open),
+                high: Number(item.high),
+                low: Number(item.low),
+                close: Number(item.close),
+                volume: Number(item.volume),
+            }));
     } catch (error) {
         console.error("Failed to fetch stock data", error);
         throw error;
@@ -77,7 +89,10 @@ export const fetchMinuteData = async (symbol: string): Promise<StockData[]> => {
     });
 
     try {
-        const response = await fetch(`/api/stockData?${params}`);
+        const [response, openDays] = await Promise.all([
+            fetch(`/api/stockData?${params}`),
+            getOpenDays(),
+        ]);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -85,14 +100,22 @@ export const fetchMinuteData = async (symbol: string): Promise<StockData[]> => {
 
         const data = await response.json();
 
-        return data.map((item: any): StockData => ({
-            date: parseDate(item.date, item.time),
-            open: Number(item.open),
-            high: Number(item.high),
-            low: Number(item.low),
-            close: Number(item.close),
-            volume: Number(item.volume),
-        }));
+        if (data.length === 0 || !data.some((item: any) => item.close !== 0)) {
+            throw new Error("Received insufficient or invalid data.");
+        }
+
+        return data
+            .filter((item: any) =>
+                openDays.has(item.date.split("T")[0].replace(/-/g, ""))
+            )
+            .map((item: any): StockData => ({
+                date: parseDate(item.date, item.time),
+                open: Number(item.open),
+                high: Number(item.high),
+                low: Number(item.low),
+                close: Number(item.close),
+                volume: Number(item.volume),
+            }));
     } catch (error) {
         console.error("Failed to fetch minute data", error);
         throw error;

@@ -59,7 +59,6 @@ const getNewToken = async (): Promise<string | null> => {
 };
 
 export const getValidToken = async (): Promise<string | null> => {
-  // 이미 토큰 발급 중인 경우 다른 요청은 대기
   if (isTokenRefreshing) {
     console.log("토큰 발급 중입니다. 기다리세요...");
     while (isTokenRefreshing) {
@@ -69,7 +68,6 @@ export const getValidToken = async (): Promise<string | null> => {
   }
 
   if (!isServer) {
-    // 로컬 저장소에서 토큰 가져오기
     const storedToken = localStorage.getItem("accessToken");
     const storedExpiration = localStorage.getItem("tokenExpiration");
     if (storedToken && storedExpiration) {
@@ -78,13 +76,11 @@ export const getValidToken = async (): Promise<string | null> => {
     }
   }
 
-  // 기존 토큰이 유효한지 확인
   if (accessToken && tokenExpiration && Date.now() < tokenExpiration) {
     console.log("유효한 토큰이 있습니다. 기존 토큰을 사용합니다.");
     return accessToken;
   }
 
-  // 새로운 토큰 발급 필요
   console.log("토큰이 만료되었거나 없습니다. 새로운 토큰을 요청합니다.");
   isTokenRefreshing = true;
 
