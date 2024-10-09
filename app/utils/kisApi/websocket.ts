@@ -16,6 +16,7 @@ export const connectWebSocket = async (
 
   isConnecting = true;
 
+  // Get the WebSocket approval key
   const approvalKey = await fetch("/api/getWebSocketKey", {
     method: "POST",
   }).then((res) => res.json()).then((data) => data.approval_key).catch(
@@ -30,11 +31,13 @@ export const connectWebSocket = async (
     throw new Error("Failed to get WebSocket approval key");
   }
 
+  // Close any existing socket connection
   if (socket && socket.readyState !== WebSocket.CLOSED) {
     socket.close();
     socket = null;
   }
 
+  // WebSocket URL for the live data feed
   const wsUrl = `ws://ops.koreainvestment.com:21000/tryitout/H0STCNT0`;
   socket = new WebSocket(wsUrl);
 
@@ -42,6 +45,8 @@ export const connectWebSocket = async (
     console.log("WebSocket 연결 성공");
     isConnecting = false;
     reconnectAttempts = 0;
+
+    // Send the subscription message
     const message = {
       header: {
         approval_key: approvalKey,
@@ -59,20 +64,28 @@ export const connectWebSocket = async (
 
     if (socket) {
       socket.send(JSON.stringify(message));
+      console.log("구독 요청 메시지 전송:", message);
     }
   };
 
   socket.onmessage = (event) => {
     try {
-      const data = event.data;
-      if (typeof data === "string") {
-        const [encryptFlag, trId, dataCount, ...items] = data.split("|");
-        if (trId === "H0STCNT0") {
-          const stockData = parseStockData(items[0]);
+      const data = JSON.parse(event.data);
+      console.log("수신된 원본 데이터:", data);
+
+      if (data && data.header && data.header.tr_id === "H0STCNT0") {
+        if (!data.body || data.body.rt_cd !== "0" || !data.body.output) {
+          console.warn("유효하지 않은 데이터 수신:", data);
+          return; // 데이터가 유효하지 않을 경우 무시
+        }
+
+        const stockData = parseStockData(data);
+        if (stockData) {
+          console.log("파싱된 주식 데이터:", stockData);
           onMessage(stockData);
         }
       } else {
-        console.warn("Unexpected message format:", data);
+        console.warn("알 수 없는 메시지 형식:", data);
       }
     } catch (error) {
       console.error("WebSocket 메시지 처리 중 에러:", error);
@@ -124,35 +137,43 @@ export const closeWebSocket = () => {
   }
 };
 
-const parseStockData = (data: string) => {
-  const [
-    MKSC_SHRN_ISCD,
-    STCK_CNTG_HOUR,
-    STCK_PRPR,
-    PRDY_VRSS_SIGN,
-    PRDY_VRSS,
-    PRDY_CTRT,
-    WGHN_AVRG_STCK_PRC,
-    STCK_OPRC,
-    STCK_HGPR,
-    STCK_LWPR,
-    ASKP1,
-    BIDP1,
-    CNTG_VOL,
-    ACML_VOL,
-    ACML_TR_PBMN,
-    ...rest
-  ] = data.split("^");
+const parseStockData = (data: any) => {
+  try {
+    const { body } = data;
+    if (body && body.rt_cd === "0") {
+      const {
+        stck_prpr,
+        stck_oprc,
+        stck_hgpr,
+        stck_lwpr,
+        cntg_vol,
+        acml_vol,
+      } = body.output || {};
 
-  return {
-    stck_prpr: parseFloat(STCK_PRPR),
-    stck_oprc: parseFloat(STCK_OPRC),
-    stck_hgpr: parseFloat(STCK_HGPR),
-    stck_lwpr: parseFloat(STCK_LWPR),
-    cntg_vol: parseFloat(CNTG_VOL),
-    acml_vol: parseFloat(ACML_VOL),
-    prdy_vrss: parseFloat(PRDY_VRSS),
-    prdy_ctrt: parseFloat(PRDY_CTRT),
-    prdy_vrss_sign: PRDY_VRSS_SIGN,
-  };
+      // NaN이 발생하는 이유를 조사하기 위해, 수신된 필드값을 콘솔에 출력
+      console.log("수신된 데이터:", {
+        stck_prpr,
+        stck_oprc,
+        stck_hgpr,
+        stck_lwpr,
+        cntg_vol,
+        acml_vol,
+      });
+
+      return {
+        stck_prpr: parseFloat(stck_prpr) || 0,
+        stck_oprc: parseFloat(stck_oprc) || 0,
+        stck_hgpr: parseFloat(stck_hgpr) || 0,
+        stck_lwpr: parseFloat(stck_lwpr) || 0,
+        cntg_vol: parseFloat(cntg_vol) || 0,
+        acml_vol: parseFloat(acml_vol) || 0,
+      };
+    } else {
+      console.warn("주식 데이터 응답에 문제가 있습니다:", body);
+      return null;
+    }
+  } catch (error) {
+    console.error("주식 데이터 파싱 중 에러:", error);
+    return null;
+  }
 };

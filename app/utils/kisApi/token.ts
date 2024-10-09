@@ -31,7 +31,7 @@ const getNewToken = async (): Promise<string | null> => {
     if (response.ok) {
       const data = await response.json();
       accessToken = data.access_token;
-      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000;
+      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000; // 만료 시간을 1분 빼서 설정
 
       if (!isServer) {
         if (accessToken) {
@@ -40,10 +40,12 @@ const getNewToken = async (): Promise<string | null> => {
         localStorage.setItem("tokenExpiration", tokenExpiration.toString());
       }
 
+      console.log("토큰 유효기간 (초):", data.expires_in);
       console.log(
         "새 토큰 발급 완료. 만료 시간:",
         new Date(tokenExpiration).toLocaleString(),
       );
+
       return accessToken;
     } else {
       const errorDetails = await response.json();
@@ -57,6 +59,7 @@ const getNewToken = async (): Promise<string | null> => {
 };
 
 export const getValidToken = async (): Promise<string | null> => {
+  // 이미 토큰 발급 중인 경우 다른 요청은 대기
   if (isTokenRefreshing) {
     console.log("토큰 발급 중입니다. 기다리세요...");
     while (isTokenRefreshing) {
@@ -66,6 +69,7 @@ export const getValidToken = async (): Promise<string | null> => {
   }
 
   if (!isServer) {
+    // 로컬 저장소에서 토큰 가져오기
     const storedToken = localStorage.getItem("accessToken");
     const storedExpiration = localStorage.getItem("tokenExpiration");
     if (storedToken && storedExpiration) {
@@ -74,16 +78,22 @@ export const getValidToken = async (): Promise<string | null> => {
     }
   }
 
-  if (!accessToken || !tokenExpiration || Date.now() >= tokenExpiration) {
-    console.log("토큰이 만료되었거나 없습니다. 새로운 토큰을 요청합니다.");
-    isTokenRefreshing = true;
-    const token = await getNewToken();
-    isTokenRefreshing = false;
-    return token;
+  // 기존 토큰이 유효한지 확인
+  if (accessToken && tokenExpiration && Date.now() < tokenExpiration) {
+    console.log("유효한 토큰이 있습니다. 기존 토큰을 사용합니다.");
+    return accessToken;
   }
 
-  console.log("유효한 토큰이 있습니다. 기존 토큰을 사용합니다.");
-  return accessToken;
+  // 새로운 토큰 발급 필요
+  console.log("토큰이 만료되었거나 없습니다. 새로운 토큰을 요청합니다.");
+  isTokenRefreshing = true;
+
+  try {
+    const token = await getNewToken();
+    return token;
+  } finally {
+    isTokenRefreshing = false;
+  }
 };
 
 const revokeToken = async (token: string): Promise<void> => {

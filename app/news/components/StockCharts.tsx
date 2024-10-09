@@ -42,6 +42,19 @@ interface CustomPointInfo {
   };
 }
 
+const isMarketOpen = () => {
+  const now = new Date();
+  const day = now.getDay(); // 일요일: 0, 월요일: 1, ... 토요일: 6
+  const hour = now.getHours();
+
+  // 주말이나 거래 시간 외인 경우
+  if (day === 0 || day === 6 || hour < 9 || hour > 15) {
+    return false;
+  }
+
+  return true;
+};
+
 export default function StockCharts() {
   const [symbol, setSymbol] = useState('000660');
   const [chartData, setChartData] = useState<StockData[]>([]);
@@ -59,6 +72,10 @@ export default function StockCharts() {
       } else {
         data = await fetchStockData(symbol, timeUnit);
       }
+
+      // 콘솔에 데이터 출력하여 확인
+      console.log('Fetched data:', data);
+
       const formattedData = data.map((item: any) => ({
         ...item,
         date: new Date(item.date),
@@ -78,9 +95,14 @@ export default function StockCharts() {
   }, [loadData]);
 
   useEffect(() => {
-    if (timeUnit !== 'M1') return;
+    if (timeUnit !== 'M1' || !isMarketOpen()) {
+      console.log('시장 개장 시간이 아니므로 WebSocket을 연결하지 않습니다.');
+      return;
+    }
 
     const handleWebSocketMessage = (data: any) => {
+      console.log('WebSocket received data:', data);
+
       const now = new Date();
       const newTick: StockData = {
         date: now,

@@ -1,7 +1,5 @@
 // app/news/page.tsx
 
-import NewsPage from './components/NewsPage';
-import StockChart from './components/StockChart';
 import StockCharts from './components/StockCharts';
 
 export default function NewsPageLayout() {
