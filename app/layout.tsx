@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="ko-KR">
       <body className="flex flex-col min-h-full">
         <Header
           links={[

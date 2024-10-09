@@ -8,6 +8,7 @@ import {
   fetchMinuteData,
 } from '@/app/utils/kisApi/fetchStockData';
 import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
+import { fetchHolidays } from '@/app/utils/kisApi/holiday';
 import Chart, {
   ArgumentAxis,
   ValueAxis,
@@ -59,19 +60,49 @@ export default function StockCharts() {
     setIsLoading(true);
     try {
       const today = new Date();
-      let isOpen = true;
-      try {
-        isOpen = await isMarketOpen(today);
-      } catch (error) {
-        console.error('Failed to check if market is open:', error);
-        // 시장 개장 여부를 확인할 수 없을 때는 기본적으로 열려있다고 가정
+      const holidays = await fetchHolidays();
+
+      const formattedToday = today
+        .toISOString()
+        .split('T')[0]
+        .replace(/-/g, '');
+
+      let isOpen = holidays.some(
+        (holiday) =>
+          holiday.bass_dt === formattedToday && holiday.opnd_yn === 'Y',
+      );
+
+      let targetDate = today;
+      if (!isOpen) {
+        console.warn(
+          '오늘은 휴장일입니다. 가장 최근 개장일 데이터를 가져옵니다.',
+        );
+        // 가장 최근 개장일 찾기 (오늘 이전의 개장일만 고려)
+        const recentOpenDay = holidays
+          .filter(
+            (holiday) =>
+              holiday.opnd_yn === 'Y' && holiday.bass_dt < formattedToday,
+          )
+          .sort((a, b) => parseInt(b.bass_dt) - parseInt(a.bass_dt))[0];
+
+        if (recentOpenDay) {
+          targetDate = new Date(
+            Number(recentOpenDay.bass_dt.slice(0, 4)),
+            Number(recentOpenDay.bass_dt.slice(4, 6)) - 1,
+            Number(recentOpenDay.bass_dt.slice(6, 8)),
+          );
+        } else {
+          setError('최근 개장일을 찾을 수 없습니다.');
+          setIsLoading(false);
+          return;
+        }
       }
 
-      if (!isOpen) {
-        setError('오늘은 주식시장이 개장하지 않습니다.');
-        setIsLoading(false);
-        return;
-      }
+      const startDate = targetDate
+        .toISOString()
+        .split('T')[0]
+        .replace(/-/g, '');
+      const endDate = new Date().toISOString().split('T')[0].replace(/-/g, '');
 
       let stockData: StockData[];
       if (timeUnit === 'M1') {
@@ -80,7 +111,9 @@ export default function StockCharts() {
           date: new Date(data.date),
         }));
       } else {
-        stockData = (await fetchStockData(symbol, timeUnit)).map((data) => ({
+        stockData = (
+          await fetchStockData(symbol, timeUnit, startDate, endDate)
+        ).map((data) => ({
           ...data,
           date: new Date(data.date),
         }));

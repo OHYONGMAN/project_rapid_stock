@@ -1,4 +1,5 @@
 // app/utils/kisApi/fetchStockData.ts
+
 import { getOpenDays } from "@/app/utils/kisApi/holiday";
 
 interface StockData {
@@ -29,30 +30,23 @@ const parseDate = (dateString: string, timeString?: string): string => {
 export const fetchStockData = async (
     symbol: string,
     timeUnit: "D" | "W" | "M" | "Y",
+    startDate: string,
+    endDate: string,
 ): Promise<StockData[]> => {
-    const today = new Date();
-    const oneYearAgo = new Date(
-        today.getFullYear() - 1,
-        today.getMonth(),
-        today.getDate(),
-    );
-
-    const formatDate = (date: Date) => {
-        return date.toISOString().split("T")[0].replace(/-/g, "");
-    };
-
     const params = new URLSearchParams({
         symbol,
         timeUnit,
-        startDate: formatDate(oneYearAgo),
-        endDate: formatDate(today),
+        startDate,
+        endDate,
     });
 
     try {
-        const [response, openDays] = await Promise.all([
-            fetch(`/api/stockData?${params}`),
-            getOpenDays(),
-        ]);
+        // openDays를 비동기로 가져오는 부분 추가
+        const openDays = await getOpenDays();
+
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stockData?${params}`,
+        );
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -90,7 +84,9 @@ export const fetchMinuteData = async (symbol: string): Promise<StockData[]> => {
 
     try {
         const [response, openDays] = await Promise.all([
-            fetch(`/api/stockData?${params}`),
+            fetch(
+                `${process.env.NEXT_PUBLIC_BASE_URL}/api/stockData?${params}`,
+            ),
             getOpenDays(),
         ]);
 

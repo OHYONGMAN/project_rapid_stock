@@ -22,15 +22,15 @@ export const fetchHolidays = async (): Promise<HolidayInfo[]> => {
     }
 
     try {
-        const response = await fetch(`/api/fetchHolidayInfo`);
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/fetchHolidayInfo`,
+        );
 
         if (!response.ok) {
             throw new Error(`Failed to fetch holidays: ${response.status}`);
         }
 
         const data = await response.json();
-
-        console.log("Fetched holiday data:", JSON.stringify(data, null, 2)); // 디버깅용 로그
 
         if (!Array.isArray(data)) {
             throw new Error(
@@ -62,7 +62,7 @@ export const isMarketOpen = async (date: Date): Promise<boolean> => {
         return cachedOpenDays.has(formattedDate);
     } catch (error) {
         console.error("Failed to check if market is open:", error);
-        return false; // 에러 발생 시 기본적으로 시장이 닫혀있다고 가정
+        return false;
     }
 };
 
@@ -74,6 +74,6 @@ export const getOpenDays = async (): Promise<Set<string>> => {
         return cachedOpenDays;
     } catch (error) {
         console.error("Failed to get open days:", error);
-        return new Set(); // 에러 발생 시 빈 Set 반환
+        return new Set();
     }
 };

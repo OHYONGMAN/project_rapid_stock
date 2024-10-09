@@ -18,17 +18,12 @@ export const connectWebSocket = async (
 
   isConnecting = true;
 
-  const today = new Date();
-  const isOpen = await isMarketOpen(today);
-  if (!isOpen) {
-    console.error("The market is closed today, skipping WebSocket connection.");
-    isConnecting = false;
-    return () => {};
-  }
-
-  const approvalKey = await fetch("/api/getWebSocketKey", {
-    method: "POST",
-  })
+  const approvalKey = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getWebSocketKey`,
+    {
+      method: "POST",
+    },
+  )
     .then((res) => res.json())
     .then((data) => data.approval_key)
     .catch((err) => {
@@ -69,47 +64,26 @@ export const connectWebSocket = async (
       },
     };
 
-    if (socket) {
-      socket.send(JSON.stringify(message));
-      console.log("구독 요청 메시지 전송:", message);
-    }
+    socket?.send(JSON.stringify(message));
   };
 
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      console.log("수신된 원본 데이터:", data);
-
       if (data && data.header && data.header.tr_id === "H0STCNT0") {
-        if (!data.body || data.body.rt_cd !== "0" || !data.body.output) {
-          console.warn("유효하지 않은 데이터 수신:", data);
-          return;
-        }
-
         const stockData = parseStockData(data);
         if (stockData) {
-          console.log("파싱된 주식 데이터:", stockData);
           onMessage(stockData);
         }
-      } else {
-        console.warn("알 수 없는 메시지 형식:", data);
       }
     } catch (error) {
       console.error("WebSocket 메시지 처리 중 에러:", error);
     }
   };
 
-  socket.onclose = (event) => {
-    console.log(
-      `WebSocket 연결이 끊겼습니다. 코드: ${event.code}, 이유: ${event.reason}`,
-    );
+  socket.onclose = () => {
     if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
       const delay = Math.min(1000 * 2 ** reconnectAttempts, 30000);
-      console.log(
-        `${delay / 1000}초 후 재연결 시도 (${
-          reconnectAttempts + 1
-        }/${MAX_RECONNECT_ATTEMPTS})`,
-      );
       reconnectTimeout = setTimeout(() => {
         reconnectAttempts++;
         connectWebSocket(symbol, onMessage);
@@ -124,13 +98,7 @@ export const connectWebSocket = async (
   };
 
   return () => {
-    if (socket) {
-      socket.close();
-      socket = null;
-    }
-    if (reconnectTimeout) {
-      clearTimeout(reconnectTimeout);
-    }
+    closeWebSocket();
   };
 };
 
@@ -142,29 +110,15 @@ export const closeWebSocket = () => {
   if (reconnectTimeout) {
     clearTimeout(reconnectTimeout);
   }
+  console.log("WebSocket 연결이 종료되었습니다.");
 };
 
 const parseStockData = (data: any) => {
   try {
     const { body } = data;
     if (body && body.rt_cd === "0") {
-      const {
-        stck_prpr,
-        stck_oprc,
-        stck_hgpr,
-        stck_lwpr,
-        cntg_vol,
-        acml_vol,
-      } = body.output || {};
-
-      console.log("수신된 데이터:", {
-        stck_prpr,
-        stck_oprc,
-        stck_hgpr,
-        stck_lwpr,
-        cntg_vol,
-        acml_vol,
-      });
+      const { stck_prpr, stck_oprc, stck_hgpr, stck_lwpr, cntg_vol } =
+        body.output || {};
 
       return {
         stck_prpr: parseFloat(stck_prpr) || 0,
@@ -172,7 +126,6 @@ const parseStockData = (data: any) => {
         stck_hgpr: parseFloat(stck_hgpr) || 0,
         stck_lwpr: parseFloat(stck_lwpr) || 0,
         cntg_vol: parseFloat(cntg_vol) || 0,
-        acml_vol: parseFloat(acml_vol) || 0,
       };
     } else {
       console.warn("주식 데이터 응답에 문제가 있습니다:", body);

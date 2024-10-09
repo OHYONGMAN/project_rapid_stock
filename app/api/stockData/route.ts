@@ -12,44 +12,44 @@ export async function GET(req: NextRequest) {
     const timeUnit = searchParams.get("timeUnit");
 
     if (!symbol || !timeUnit) {
-        return NextResponse.json({ error: "Missing required parameters" }, {
-            status: 400,
-        });
+        return NextResponse.json(
+            { error: "Missing required parameters" },
+            { status: 400 },
+        );
     }
 
     try {
         const token = await getValidToken();
 
         if (!token) {
-            return NextResponse.json({ error: "Failed to get access token" }, {
-                status: 500,
-            });
+            console.error("Failed to get access token");
+            return NextResponse.json(
+                { error: "Failed to get access token" },
+                { status: 500 },
+            );
         }
 
         const holidays = await fetchHolidays();
-        // 개장 여부 확인
-        if (timeUnit !== "M1") {
-            const today = new Date();
-            const formattedDate = today.toISOString().split("T")[0].replace(
-                /-/g,
-                "",
-            );
-            const isOpen = holidays.some((holiday) =>
-                holiday.bass_dt === formattedDate && holiday.opnd_yn === "Y"
-            );
+        const today = new Date();
+        const formattedDate = today.toISOString().split("T")[0].replace(
+            /-/g,
+            "",
+        );
 
-            if (!isOpen) {
-                return NextResponse.json({
-                    error: "The market is closed today.",
-                }, {
-                    status: 403,
-                });
-            }
+        let isOpen = holidays.some(
+            (holiday) =>
+                holiday.bass_dt === formattedDate &&
+                holiday.opnd_yn === "Y",
+        );
+
+        if (!isOpen && timeUnit !== "M1") {
+            console.warn(
+                "The market is closed today, but we will proceed with the request.",
+            );
         }
 
         let url, params, trId;
 
-        // 기존의 API 설정 유지
         if (timeUnit === "M1") {
             url =
                 "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice";
@@ -90,19 +90,22 @@ export async function GET(req: NextRequest) {
         });
 
         if (!response.ok) {
+            console.error(`HTTP error! status: ${response.status}`);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
 
         if (data.rt_cd !== "0") {
+            console.error(`API error: ${data.msg1}`);
             throw new Error(`API error: ${data.msg1}`);
         }
 
         const filteredData = data.output2.filter((item: any) =>
-            holidays.some((holiday) =>
-                holiday.bass_dt === item.stck_bsop_date &&
-                holiday.opnd_yn === "Y"
+            holidays.some(
+                (holiday) =>
+                    holiday.bass_dt === item.stck_bsop_date &&
+                    holiday.opnd_yn === "Y",
             )
         );
 
@@ -119,8 +122,9 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(processedData);
     } catch (error) {
         console.error("Failed to fetch stock data", error);
-        return NextResponse.json({ error: "Internal server error" }, {
-            status: 500,
-        });
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 },
+        );
     }
 }

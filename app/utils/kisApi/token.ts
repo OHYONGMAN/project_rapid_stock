@@ -92,6 +92,28 @@ export const getValidToken = async (): Promise<string | null> => {
   }
 };
 
+// API 호출 시 유효한 토큰을 받아와서 사용
+export const makeAuthorizedRequest = async (url: string, options: any) => {
+  const token = await getValidToken();
+  if (!token) {
+    throw new Error("토큰 발급 실패");
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
 const revokeToken = async (token: string): Promise<void> => {
   const body = {
     appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,

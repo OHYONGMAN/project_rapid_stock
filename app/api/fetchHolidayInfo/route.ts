@@ -13,14 +13,20 @@ export async function GET() {
         }
 
         const today = new Date();
-        const formattedToday = today.toISOString().split("T")[0].replace(
-            /-/g,
-            "",
-        );
+        const pastDate = new Date(today);
+        pastDate.setDate(today.getDate() - 365);
 
-        const response = await fetch(
-            `${url}?BASS_DT=${formattedToday}&CTX_AREA_NK=&CTX_AREA_FK=`,
-            {
+        const dateRange = [];
+        let currentDate = new Date(pastDate);
+        while (currentDate <= today) {
+            dateRange.push(
+                currentDate.toISOString().split("T")[0].replace(/-/g, ""),
+            );
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        const holidayInfoPromises = dateRange.map((date) =>
+            fetch(`${url}?BASS_DT=${date}&CTX_AREA_NK=&CTX_AREA_FK=`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json; charset=utf-8",
@@ -30,27 +36,26 @@ export async function GET() {
                     tr_id: "CTCA0903R",
                     custtype: "P",
                 },
-            },
+            }).then((response) => {
+                if (!response.ok) {
+                    console.error(
+                        `Failed to fetch holidays for ${date}: ${response.statusText}`,
+                    );
+                    return null; // 에러를 무시하고 null 반환
+                }
+                return response.json();
+            })
         );
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch holidays: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        // 응답 데이터 구조 확인 및 로깅
-        console.log("Holiday API Response:", JSON.stringify(data, null, 2));
-
-        if (!data.output || !Array.isArray(data.output)) {
-            throw new Error("Invalid holiday data structure");
-        }
-
-        // 휴일 데이터 가공
-        const holidayInfo = data.output.map((item: any) => ({
-            bass_dt: item.bass_dt,
-            opnd_yn: item.opnd_yn,
-        }));
+        const holidayDataArray = await Promise.all(holidayInfoPromises);
+        const holidayInfo = holidayDataArray
+            .filter((data) => data !== null)
+            .flatMap((data) =>
+                data.output?.map((item: any) => ({
+                    bass_dt: item.bass_dt,
+                    opnd_yn: item.opnd_yn,
+                })) || []
+            );
 
         return NextResponse.json(holidayInfo);
     } catch (error: any) {
