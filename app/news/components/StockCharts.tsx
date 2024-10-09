@@ -106,7 +106,7 @@ export default function StockCharts() {
 
       let stockData: StockData[];
       if (timeUnit === 'M1') {
-        stockData = (await fetchMinuteData(symbol)).map((data) => ({
+        stockData = (await fetchMinuteData(symbol)).map((data: any) => ({
           ...data,
           date: new Date(data.date),
         }));
@@ -264,13 +264,15 @@ export default function StockCharts() {
                   .toISOString()
                   .split('T')[0]
                   .replace(/-/g, '');
+                // 휴장일이 아닌 경우에만 X축에 날짜 표시
                 if (openDays.has(dateStr)) {
-                  return arg.valueText;
+                  return arg.valueText; // 개장일만 표시
                 }
-                return '';
+                return ''; // 휴장일은 빈 문자열로 표시하지 않음
               },
             }}
           />
+
           <ValueAxis pane="Price" />
           <ValueAxis pane="Volume" position="right" />
           <ZoomAndPan argumentAxis="both" />

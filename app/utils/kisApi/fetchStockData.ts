@@ -41,7 +41,6 @@ export const fetchStockData = async (
     });
 
     try {
-        // openDays를 비동기로 가져오는 부분 추가
         const openDays = await getOpenDays();
 
         const response = await fetch(

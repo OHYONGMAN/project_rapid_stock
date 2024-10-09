@@ -7,8 +7,6 @@ import { fetchHolidays } from "@/app/utils/kisApi/holiday";
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const symbol = searchParams.get("symbol");
-    const startDate = searchParams.get("startDate");
-    const endDate = searchParams.get("endDate");
     const timeUnit = searchParams.get("timeUnit");
 
     if (!symbol || !timeUnit) {
@@ -29,24 +27,18 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const holidays = await fetchHolidays();
+        // 365일 날짜 범위 계산
         const today = new Date();
-        const formattedDate = today.toISOString().split("T")[0].replace(
+        const pastDate = new Date(today);
+        pastDate.setDate(today.getDate() - 365);
+
+        const startDate = pastDate.toISOString().split("T")[0].replace(
             /-/g,
             "",
         );
+        const endDate = today.toISOString().split("T")[0].replace(/-/g, "");
 
-        let isOpen = holidays.some(
-            (holiday) =>
-                holiday.bass_dt === formattedDate &&
-                holiday.opnd_yn === "Y",
-        );
-
-        if (!isOpen && timeUnit !== "M1") {
-            console.warn(
-                "The market is closed today, but we will proceed with the request.",
-            );
-        }
+        const holidays = await fetchHolidays();
 
         let url, params, trId;
 
@@ -57,7 +49,7 @@ export async function GET(req: NextRequest) {
                 FID_ETC_CLS_CODE: "",
                 FID_COND_MRKT_DIV_CODE: "J",
                 FID_INPUT_ISCD: symbol,
-                FID_INPUT_HOUR_1: startDate || "090000",
+                FID_INPUT_HOUR_1: "090000",
                 FID_PW_DATA_INCU_YN: "Y",
             });
             trId = "FHKST03010200";
@@ -67,8 +59,8 @@ export async function GET(req: NextRequest) {
             params = new URLSearchParams({
                 FID_COND_MRKT_DIV_CODE: "J",
                 FID_INPUT_ISCD: symbol,
-                FID_INPUT_DATE_1: startDate || "",
-                FID_INPUT_DATE_2: endDate || "",
+                FID_INPUT_DATE_1: startDate, // 365일 이전 날짜
+                FID_INPUT_DATE_2: endDate, // 오늘 날짜
                 FID_PERIOD_DIV_CODE: timeUnit,
                 FID_ORG_ADJ_PRC: "0",
             });
