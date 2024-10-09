@@ -14,11 +14,14 @@ const getNewToken = async (): Promise<string | null> => {
   };
 
   try {
-    const response = await fetch(process.env.NEXT_PUBLIC_KIS_API_TOKEN_URL!, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const response = await fetch(
+      `https://openapi.koreainvestment.com:9443/oauth2/tokenP`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    );
 
     if (response.ok) {
       const data = await response.json();
@@ -97,7 +100,7 @@ const revokeToken = async (token: string): Promise<void> => {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_KIS_API_BASE_URL}/oauth2/revokeP`,
+      `https://openapi.koreainvestment.com:9443/oauth2/tokenP`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -132,9 +135,18 @@ export const cleanupToken = async (): Promise<void> => {
 
 export const getWebSocketKey = async (): Promise<string | null> => {
   try {
-    const response = await fetch("/api/getWebSocketKey", {
-      method: "POST",
-    });
+    const response = await fetch(
+      `https://openapi.koreainvestment.com:9443/oauth2/Approval`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          grant_type: "client_credentials",
+          appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
+          secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
+        }),
+      },
+    );
 
     if (response.ok) {
       const data = await response.json();

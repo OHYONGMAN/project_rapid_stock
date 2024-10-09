@@ -2,8 +2,12 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { fetchStockData } from '@/app/utils/kisApi/fetchStockData';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  fetchStockData,
+  fetchMinuteData,
+} from '@/app/utils/kisApi/fetchStockData';
+import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
 import Chart, {
   ArgumentAxis,
   ValueAxis,
@@ -20,7 +24,7 @@ import Chart, {
 import TooltipTemplate from './TooltipTemplate';
 
 interface StockData {
-  date: string; // Date 대신 string 사용
+  date: Date;
   open: number;
   high: number;
   low: number;
@@ -28,35 +32,128 @@ interface StockData {
   volume: number;
 }
 
-export default function StockChart() {
+type TimeUnit = 'M1' | 'D' | 'W' | 'M' | 'Y';
+
+interface CustomPointInfo {
+  seriesName?: string;
+  data?: {
+    open: number;
+    close: number;
+  };
+}
+
+export default function StockCharts() {
   const [symbol, setSymbol] = useState('000660');
-  const [stockData, setStockData] = useState<StockData[]>([]);
+  const [chartData, setChartData] = useState<StockData[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [timeUnit, setTimeUnit] = useState<TimeUnit>('D');
+  const lastTickRef = useRef<StockData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      let data;
+      if (timeUnit === 'M1') {
+        data = await fetchMinuteData(symbol);
+      } else {
+        data = await fetchStockData(symbol, timeUnit);
+      }
+      const formattedData = data.map((item: any) => ({
+        ...item,
+        date: new Date(item.date),
+      }));
+      setChartData(formattedData);
+      setError(null);
+    } catch (error) {
+      console.error('Failed to fetch stock data:', error);
+      setError('Failed to load stock data. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [symbol, timeUnit]);
 
   useEffect(() => {
-    const loadData = async () => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    if (timeUnit !== 'M1') return;
+
+    const handleWebSocketMessage = (data: any) => {
+      const now = new Date();
+      const newTick: StockData = {
+        date: now,
+        open: parseFloat(data.stck_oprc),
+        high: parseFloat(data.stck_hgpr),
+        low: parseFloat(data.stck_lwpr),
+        close: parseFloat(data.stck_prpr),
+        volume: parseInt(data.cntg_vol, 10),
+      };
+
+      setChartData((prevData) => {
+        if (
+          lastTickRef.current &&
+          lastTickRef.current.date.getMinutes() === now.getMinutes()
+        ) {
+          // Update the last candle
+          const updatedData = [...prevData];
+          const lastIndex = updatedData.length - 1;
+          updatedData[lastIndex] = {
+            ...updatedData[lastIndex],
+            high: Math.max(updatedData[lastIndex].high, newTick.high),
+            low: Math.min(updatedData[lastIndex].low, newTick.low),
+            close: newTick.close,
+            volume: updatedData[lastIndex].volume + newTick.volume,
+          };
+          return updatedData;
+        } else {
+          // Add a new candle
+          return [...prevData, newTick];
+        }
+      });
+
+      lastTickRef.current = newTick;
+    };
+
+    let closeWebSocketConnection: (() => void) | undefined;
+
+    const connect = async () => {
       try {
-        const data = await fetchStockData(symbol);
-        setStockData(data);
-        setError(null);
+        closeWebSocketConnection = await connectWebSocket(
+          symbol,
+          handleWebSocketMessage,
+        );
       } catch (error) {
-        console.error('Failed to fetch stock data:', error);
-        setError('Failed to load stock data. Please try again later.');
+        console.error('WebSocket connection error:', error);
+        setError(`Failed to connect to WebSocket: ${(error as Error).message}`);
       }
     };
 
-    loadData();
-  }, [symbol]);
+    connect();
 
-  const customizePoint = useCallback((arg: any) => {
-    if (arg.seriesName === 'Volume') {
-      if (arg.data && arg.data.close >= arg.data.open) {
+    return () => {
+      if (closeWebSocketConnection) {
+        closeWebSocketConnection();
+      }
+      closeWebSocket();
+    };
+  }, [symbol, timeUnit]);
+
+  const customizePoint = useCallback((pointInfo: CustomPointInfo) => {
+    if (pointInfo.seriesName === 'Volume') {
+      if (pointInfo.data && pointInfo.data.close >= pointInfo.data.open) {
         return { color: '#1db2f5' };
       }
       return { color: '#ff7285' };
     }
-    return null;
+    return {};
   }, []);
+
+  const getChartTitle = () => {
+    const unitMap = { M1: '분봉', D: '일', W: '주', M: '월', Y: '년' };
+    return `${symbol} 주가 차트 (${unitMap[timeUnit]})`;
+  };
 
   return (
     <div className="w-full">
@@ -67,12 +164,27 @@ export default function StockChart() {
         className="w-full p-2 mb-4 border rounded"
         placeholder="종목 코드를 입력하세요"
       />
+      <div className="mb-4">
+        {['M1', 'D', 'W', 'M', 'Y'].map((unit) => (
+          <button
+            key={unit}
+            onClick={() => setTimeUnit(unit as TimeUnit)}
+            className={`mr-2 px-4 py-2 rounded ${
+              timeUnit === unit ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
+          >
+            {unit === 'M1' ? '분봉' : unit}
+          </button>
+        ))}
+      </div>
       {error && <p className="text-red-500">{error}</p>}
-      {stockData.length > 0 ? (
+      {isLoading ? (
+        <p>로딩 중...</p>
+      ) : chartData.length > 0 ? (
         <Chart
           id="stock-chart"
-          dataSource={stockData}
-          title={`${symbol} 주가 차트`}
+          dataSource={chartData}
+          title={getChartTitle()}
           customizePoint={customizePoint}
         >
           <Margin right={30} />
@@ -97,8 +209,16 @@ export default function StockChart() {
           <Legend visible={false} />
           <ArgumentAxis
             argumentType="datetime"
-            tickInterval={{ months: 1 }}
-            label={{ format: 'yyyy-MM-dd' }}
+            tickInterval={{
+              minutes: timeUnit === 'M1' ? 10 : undefined,
+              days: timeUnit === 'D' ? 7 : undefined,
+              weeks: timeUnit === 'W' ? 1 : undefined,
+              months: timeUnit === 'M' ? 1 : undefined,
+              years: timeUnit === 'Y' ? 1 : undefined,
+            }}
+            label={{
+              format: timeUnit === 'M1' ? 'HH:mm' : 'yyyy-MM-dd',
+            }}
           />
           <ValueAxis pane="Price" />
           <ValueAxis pane="Volume" position="right" />
@@ -113,7 +233,7 @@ export default function StockChart() {
           <Crosshair enabled={true} />
         </Chart>
       ) : (
-        <p>로딩 중...</p>
+        <p>데이터가 없습니다.</p>
       )}
     </div>
   );

@@ -14,7 +14,7 @@ const formatNumber = new Intl.NumberFormat('ko-KR', {
   minimumFractionDigits: 0,
 }).format;
 
-export default function TooltipTemplate(pointInfo) {
+export default function TooltipTemplate(pointInfo: any) {
   const volume = pointInfo.points.filter(
     (point: { seriesName: string }) => point.seriesName === 'Volume',
   )[0];
@@ -22,9 +22,18 @@ export default function TooltipTemplate(pointInfo) {
     (point: { seriesName: string }) => point.seriesName !== 'Volume',
   )[0];
 
+  const dateFormat = new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  });
+
   return (
     <div className="tooltip-template">
-      <div>{pointInfo.argumentText}</div>
+      <div>{dateFormat.format(prices.argument)}</div>
       <div>
         <span>시가: {formatCurrency(prices.openValue)}</span>
       </div>

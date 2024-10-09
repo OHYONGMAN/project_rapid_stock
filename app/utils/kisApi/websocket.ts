@@ -139,17 +139,14 @@ const parseStockData = (data: string) => {
     ...rest
   ] = data.split("^");
 
-  const prdy_vrss = parseFloat(PRDY_VRSS);
-  const stck_prpr = parseFloat(STCK_PRPR);
-
   return {
-    stck_prpr: stck_prpr,
+    stck_prpr: parseFloat(STCK_PRPR),
     stck_oprc: parseFloat(STCK_OPRC),
     stck_hgpr: parseFloat(STCK_HGPR),
     stck_lwpr: parseFloat(STCK_LWPR),
     cntg_vol: parseFloat(CNTG_VOL),
     acml_vol: parseFloat(ACML_VOL),
-    prdy_vrss: prdy_vrss,
+    prdy_vrss: parseFloat(PRDY_VRSS),
     prdy_ctrt: parseFloat(PRDY_CTRT),
     prdy_vrss_sign: PRDY_VRSS_SIGN,
   };
