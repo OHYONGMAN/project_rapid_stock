@@ -96,7 +96,6 @@ export default function StockCharts() {
           lastTickRef.current &&
           lastTickRef.current.date.getMinutes() === now.getMinutes()
         ) {
-          // Update the last candle
           const updatedData = [...prevData];
           const lastIndex = updatedData.length - 1;
           updatedData[lastIndex] = {
@@ -108,7 +107,6 @@ export default function StockCharts() {
           };
           return updatedData;
         } else {
-          // Add a new candle
           return [...prevData, newTick];
         }
       });

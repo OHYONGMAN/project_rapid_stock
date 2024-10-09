@@ -22,6 +22,8 @@ export default function TooltipTemplate(pointInfo: any) {
     (point: { seriesName: string }) => point.seriesName !== 'Volume',
   )[0];
 
+  if (!prices) return <div>데이터가 없습니다.</div>;
+
   const dateFormat = new Intl.DateTimeFormat('ko-KR', {
     year: 'numeric',
     month: 'short',
@@ -47,7 +49,7 @@ export default function TooltipTemplate(pointInfo: any) {
         <span>종가: {formatCurrency(prices.closeValue)} </span>
       </div>
       <div>
-        <span>거래량: {formatNumber(volume.value)}</span>
+        <span>거래량: {volume ? formatNumber(volume.value) : 'N/A'}</span>
       </div>
     </div>
   );

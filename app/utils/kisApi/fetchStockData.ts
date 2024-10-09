@@ -57,7 +57,7 @@ export const fetchStockData = async (
         const data = await response.json();
 
         return data.map((item: any): StockData => ({
-            date: parseDate(item.date),
+            date: parseDate(item.date, item.time),
             open: Number(item.open),
             high: Number(item.high),
             low: Number(item.low),

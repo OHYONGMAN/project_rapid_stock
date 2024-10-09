@@ -10,12 +10,16 @@ export async function POST(req: NextRequest) {
             secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
         };
 
+        if (!body.appkey || !body.secretkey) {
+            throw new Error("Missing API credentials");
+        }
+
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_KIS_API_BASE_URL}/oauth2/Approval`,
+            `https://openapi.koreainvestment.com:9443/oauth2/Approval`,
             {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json; charset=UTF-8",
+                    "Content-Type": "application/json; utf-8",
                 },
                 body: JSON.stringify(body),
             },

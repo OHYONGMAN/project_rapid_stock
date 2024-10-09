@@ -28,19 +28,17 @@ export async function GET(req: NextRequest) {
         let url, params, trId;
 
         if (timeUnit === "M1") {
-            // 분봉 데이터 요청
             url =
                 "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice";
             params = new URLSearchParams({
                 FID_ETC_CLS_CODE: "",
                 FID_COND_MRKT_DIV_CODE: "J",
                 FID_INPUT_ISCD: symbol,
-                FID_INPUT_HOUR_1: startDate || "090000", // 시작 시간, 기본값 9시
+                FID_INPUT_HOUR_1: startDate || "090000",
                 FID_PW_DATA_INCU_YN: "Y",
             });
             trId = "FHKST03010200";
         } else {
-            // 일/주/월/년 데이터 요청
             url =
                 "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice";
             params = new URLSearchParams({
@@ -78,7 +76,6 @@ export async function GET(req: NextRequest) {
             throw new Error(`API error: ${data.msg1}`);
         }
 
-        // 응답 데이터 처리
         const processedData = data.output2.map((item: any) => ({
             date: item.stck_bsop_date,
             time: item.stck_cntg_hour,

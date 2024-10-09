@@ -13,6 +13,11 @@ const getNewToken = async (): Promise<string | null> => {
     appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET,
   };
 
+  if (!body.appkey || !body.appsecret) {
+    console.error("Missing API credentials");
+    return null;
+  }
+
   try {
     const response = await fetch(
       `https://openapi.koreainvestment.com:9443/oauth2/tokenP`,
@@ -26,7 +31,7 @@ const getNewToken = async (): Promise<string | null> => {
     if (response.ok) {
       const data = await response.json();
       accessToken = data.access_token;
-      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000; // 1분 일찍 만료되는 것으로 처리
+      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000;
 
       if (!isServer) {
         if (accessToken) {
@@ -81,16 +86,6 @@ export const getValidToken = async (): Promise<string | null> => {
   return accessToken;
 };
 
-export const forceTokenRefresh = async (): Promise<string | null> => {
-  console.log("토큰 갱신을 강제로 실행합니다.");
-  if (accessToken) {
-    await revokeToken(accessToken);
-  }
-  accessToken = null;
-  tokenExpiration = null;
-  return await getNewToken();
-};
-
 const revokeToken = async (token: string): Promise<void> => {
   const body = {
     appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
@@ -100,7 +95,7 @@ const revokeToken = async (token: string): Promise<void> => {
 
   try {
     const response = await fetch(
-      `https://openapi.koreainvestment.com:9443/oauth2/tokenP`,
+      `https://openapi.koreainvestment.com:9443/oauth2/revokeP`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -130,40 +125,5 @@ export const cleanupToken = async (): Promise<void> => {
     }
 
     console.log("토큰이 폐기되었습니다.");
-  }
-};
-
-export const getWebSocketKey = async (): Promise<string | null> => {
-  try {
-    const response = await fetch(
-      `https://openapi.koreainvestment.com:9443/oauth2/Approval`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          grant_type: "client_credentials",
-          appkey: process.env.NEXT_PUBLIC_KIS_API_KEY,
-          secretkey: process.env.NEXT_PUBLIC_KIS_API_SECRET,
-        }),
-      },
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.approval_key) {
-        console.log("웹소켓 접속키 발급 성공:", data.approval_key);
-        return data.approval_key;
-      } else {
-        console.error("웹소켓 접속키 발급 실패: 응답에 approval_key가 없음");
-        return null;
-      }
-    } else {
-      const errorData = await response.json();
-      console.error("웹소켓 접속키 발급 실패:", errorData);
-      return null;
-    }
-  } catch (error) {
-    console.error("웹소켓 접속키 발급 중 에러 발생:", error);
-    return null;
   }
 };

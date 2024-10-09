@@ -1,7 +1,5 @@
 // app/utils/kisApi/websocket.ts
 
-import { getWebSocketKey } from "./token";
-
 let socket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let isConnecting = false;
@@ -18,7 +16,14 @@ export const connectWebSocket = async (
 
   isConnecting = true;
 
-  const approvalKey = await getWebSocketKey();
+  const approvalKey = await fetch("/api/getWebSocketKey", {
+    method: "POST",
+  }).then((res) => res.json()).then((data) => data.approval_key).catch(
+    (err) => {
+      console.error("Failed to fetch WebSocket key:", err);
+      return null;
+    },
+  );
 
   if (!approvalKey) {
     isConnecting = false;
