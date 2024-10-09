@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        // 365일 날짜 범위 계산
         const today = new Date();
         const pastDate = new Date(today);
         pastDate.setDate(today.getDate() - 365);
@@ -59,8 +58,8 @@ export async function GET(req: NextRequest) {
             params = new URLSearchParams({
                 FID_COND_MRKT_DIV_CODE: "J",
                 FID_INPUT_ISCD: symbol,
-                FID_INPUT_DATE_1: startDate, // 365일 이전 날짜
-                FID_INPUT_DATE_2: endDate, // 오늘 날짜
+                FID_INPUT_DATE_1: startDate,
+                FID_INPUT_DATE_2: endDate,
                 FID_PERIOD_DIV_CODE: timeUnit,
                 FID_ORG_ADJ_PRC: "0",
             });

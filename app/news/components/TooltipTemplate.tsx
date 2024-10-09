@@ -1,5 +1,3 @@
-// app/news/components/TooltipTemplate.tsx
-
 'use client';
 
 import React from 'react';
@@ -24,6 +22,11 @@ export default function TooltipTemplate(pointInfo: any) {
 
   if (!prices) return <div>데이터가 없습니다.</div>;
 
+  const validDate = new Date(prices.argument);
+  if (isNaN(validDate.getTime())) {
+    return <div>유효하지 않은 날짜입니다.</div>;
+  }
+
   const dateFormat = new Intl.DateTimeFormat('ko-KR', {
     year: 'numeric',
     month: 'short',
@@ -35,7 +38,7 @@ export default function TooltipTemplate(pointInfo: any) {
 
   return (
     <div className="tooltip-template">
-      <div>{dateFormat.format(prices.argument)}</div>
+      <div>{dateFormat.format(validDate)}</div>
       <div>
         <span>시가: {formatCurrency(prices.openValue)}</span>
       </div>

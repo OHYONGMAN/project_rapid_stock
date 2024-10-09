@@ -1,5 +1,3 @@
-// app/news/components/StockCharts.tsx
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -8,7 +6,7 @@ import {
   fetchMinuteData,
 } from '@/app/utils/kisApi/fetchStockData';
 import { connectWebSocket, closeWebSocket } from '@/app/utils/kisApi/websocket';
-import { fetchHolidays } from '@/app/utils/kisApi/holiday';
+import { getOpenDays, isMarketOpen } from '@/app/utils/kisApi/holiday';
 import Chart, {
   ArgumentAxis,
   ValueAxis,
@@ -23,10 +21,9 @@ import Chart, {
   Margin,
 } from 'devextreme-react/chart';
 import TooltipTemplate from './TooltipTemplate';
-import { getOpenDays, isMarketOpen } from '@/app/utils/kisApi/holiday';
 
 interface StockData {
-  date: Date;
+  date: string | number | Date;
   open: number;
   high: number;
   low: number;
@@ -46,6 +43,7 @@ export default function StockCharts() {
   const [websocketClosed, setWebsocketClosed] = useState(true);
   const [openDays, setOpenDays] = useState<Set<string>>(new Set());
 
+  // 개장일 정보를 불러오는 함수
   const loadOpenDays = useCallback(async () => {
     try {
       const openDaysData = await getOpenDays();
@@ -56,53 +54,19 @@ export default function StockCharts() {
     }
   }, []);
 
+  // 주식 데이터를 불러오는 함수
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const today = new Date();
-      const holidays = await fetchHolidays();
+      const startDate = new Date();
+      startDate.setDate(today.getDate() - 365);
 
-      const formattedToday = today
+      const startFormatted = startDate
         .toISOString()
         .split('T')[0]
         .replace(/-/g, '');
-
-      let isOpen = holidays.some(
-        (holiday) =>
-          holiday.bass_dt === formattedToday && holiday.opnd_yn === 'Y',
-      );
-
-      let targetDate = today;
-      if (!isOpen) {
-        console.warn(
-          '오늘은 휴장일입니다. 가장 최근 개장일 데이터를 가져옵니다.',
-        );
-        // 가장 최근 개장일 찾기 (오늘 이전의 개장일만 고려)
-        const recentOpenDay = holidays
-          .filter(
-            (holiday) =>
-              holiday.opnd_yn === 'Y' && holiday.bass_dt < formattedToday,
-          )
-          .sort((a, b) => parseInt(b.bass_dt) - parseInt(a.bass_dt))[0];
-
-        if (recentOpenDay) {
-          targetDate = new Date(
-            Number(recentOpenDay.bass_dt.slice(0, 4)),
-            Number(recentOpenDay.bass_dt.slice(4, 6)) - 1,
-            Number(recentOpenDay.bass_dt.slice(6, 8)),
-          );
-        } else {
-          setError('최근 개장일을 찾을 수 없습니다.');
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      const startDate = targetDate
-        .toISOString()
-        .split('T')[0]
-        .replace(/-/g, '');
-      const endDate = new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const endFormatted = today.toISOString().split('T')[0].replace(/-/g, '');
 
       let stockData: StockData[];
       if (timeUnit === 'M1') {
@@ -112,14 +76,28 @@ export default function StockCharts() {
         }));
       } else {
         stockData = (
-          await fetchStockData(symbol, timeUnit, startDate, endDate)
+          await fetchStockData(symbol, timeUnit, startFormatted, endFormatted)
         ).map((data) => ({
           ...data,
           date: new Date(data.date),
         }));
       }
 
-      setChartData(stockData);
+      // 개장일 필터링
+      const filteredData = stockData
+        .filter((item) => {
+          const dateString = new Date(item.date)
+            .toISOString()
+            .split('T')[0]
+            .replace(/-/g, '');
+          return openDays.has(dateString);
+        })
+        .map((item) => ({
+          ...item,
+          date: new Date(item.date).toISOString().split('T')[0], // 날짜 형식 수정
+        }));
+
+      setChartData(filteredData);
       setError(null);
     } catch (error) {
       console.error('Failed to fetch stock data:', error);
@@ -127,16 +105,19 @@ export default function StockCharts() {
     } finally {
       setIsLoading(false);
     }
-  }, [symbol, timeUnit]);
+  }, [symbol, timeUnit, openDays]);
 
+  // 컴포넌트 마운트 시 개장일 불러오기
   useEffect(() => {
     loadOpenDays();
   }, [loadOpenDays]);
 
+  // 데이터 로드 시마다 차트 업데이트
   useEffect(() => {
     loadData();
   }, [loadData]);
 
+  // 웹소켓 연결을 통한 실시간 데이터 처리
   useEffect(() => {
     const connectWebSocketWithMarketCheck = async () => {
       if (timeUnit !== 'M1') return;
@@ -162,10 +143,11 @@ export default function StockCharts() {
     };
   }, [symbol, timeUnit]);
 
+  // 실시간 데이터 업데이트
   const handleWebSocketMessage = (data: any) => {
     const now = new Date();
     const newTick: StockData = {
-      date: now,
+      date: now.toISOString().split('T')[0],
       open: parseFloat(data.stck_oprc),
       high: parseFloat(data.stck_hgpr),
       low: parseFloat(data.stck_lwpr),
@@ -174,10 +156,7 @@ export default function StockCharts() {
     };
 
     setChartData((prevData) => {
-      if (
-        lastTickRef.current &&
-        lastTickRef.current.date.getMinutes() === now.getMinutes()
-      ) {
+      if (lastTickRef.current && lastTickRef.current.date === newTick.date) {
         const updatedData = [...prevData];
         const lastIndex = updatedData.length - 1;
         updatedData[lastIndex] = {
@@ -255,24 +234,11 @@ export default function StockCharts() {
           <Pane name="Volume" height={80} />
           <Legend visible={false} />
           <ArgumentAxis
-            argumentType="datetime"
+            argumentType="string"
             label={{
               format: 'yyyy-MM-dd',
-              customizeText(arg) {
-                const date = new Date(arg.value);
-                const dateStr = date
-                  .toISOString()
-                  .split('T')[0]
-                  .replace(/-/g, '');
-                // 휴장일이 아닌 경우에만 X축에 날짜 표시
-                if (openDays.has(dateStr)) {
-                  return arg.valueText; // 개장일만 표시
-                }
-                return ''; // 휴장일은 빈 문자열로 표시하지 않음
-              },
             }}
           />
-
           <ValueAxis pane="Price" />
           <ValueAxis pane="Volume" position="right" />
           <ZoomAndPan argumentAxis="both" />

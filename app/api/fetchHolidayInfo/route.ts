@@ -41,7 +41,7 @@ export async function GET() {
                     console.error(
                         `Failed to fetch holidays for ${date}: ${response.statusText}`,
                     );
-                    return null; // 에러를 무시하고 null 반환
+                    return null;
                 }
                 return response.json();
             })
