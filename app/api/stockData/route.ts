@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
         );
 
         const processedData = filteredData.map((item: any) => ({
-            date: item.stck_bsop_date,
+            date: item.stck_bsop_date, // 시간 정보 없이 날짜만 유지
             time: item.stck_cntg_hour,
             open: parseFloat(item.stck_oprc),
             high: parseFloat(item.stck_hgpr),

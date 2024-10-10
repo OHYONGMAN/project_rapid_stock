@@ -19,6 +19,7 @@ import Chart, {
 } from 'devextreme-react/chart';
 import TooltipTemplate from './TooltipTemplate';
 
+// 주식 데이터 인터페이스 정의
 interface StockData {
   date: string;
   open: number;
@@ -28,24 +29,30 @@ interface StockData {
   volume: number;
 }
 
-interface StockChartsProps {
-  timeUnit: 'D'; // 일봉 데이터를 처리하기 위한 명확한 타입 정의
-}
+// 날짜를 한국어 형식으로 변환하는 함수
+const formatDate = (dateString: string): string => {
+  const year = dateString.slice(0, 4);
+  const month = dateString.slice(4, 6);
+  const day = dateString.slice(6, 8);
+  return `${Number(month)}월 ${Number(day)}일`;
+};
 
-export default function StockCharts({ timeUnit }: StockChartsProps) {
+// 주식 차트 컴포넌트
+export default function StockCharts({ timeUnit }: { timeUnit: 'D' }) {
   const [symbol, setSymbol] = useState('000660');
   const [chartData, setChartData] = useState<StockData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [openDays, setOpenDays] = useState<string[]>([]); // 거래일 데이터를 배열로 저장
+  const [openDays, setOpenDays] = useState<string[]>([]);
 
+  // 개장일 데이터를 불러오는 함수
   const loadOpenDays = useCallback(async () => {
     try {
       const openDaysSet = await getOpenDays();
-      const openDaysArray = Array.from(openDaysSet); // Set을 배열로 변환
+      const openDaysArray = Array.from(openDaysSet);
       setOpenDays(openDaysArray);
     } catch (error) {
-      setError('Failed to load market calendar.');
+      setError('개장일 데이터를 불러오는 데 실패했습니다.');
     }
   }, []);
 
@@ -53,13 +60,14 @@ export default function StockCharts({ timeUnit }: StockChartsProps) {
     loadOpenDays();
   }, [loadOpenDays]);
 
+  // 주식 데이터를 불러오는 함수
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const today = new Date();
       const startDate = new Date();
-      startDate.setDate(today.getDate() - 100); // 100일 전부터 데이터 가져옴
+      startDate.setDate(today.getDate() - 100);
 
       const startFormatted = startDate
         .toISOString()
@@ -67,28 +75,49 @@ export default function StockCharts({ timeUnit }: StockChartsProps) {
         .replace(/-/g, '');
       const endFormatted = today.toISOString().split('T')[0].replace(/-/g, '');
 
-      const stockData = await fetchStockData(
+      let stockData = await fetchStockData(
         symbol,
         startFormatted,
         endFormatted,
-      ); // timeUnit 인수 제거
-
-      stockData.sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       );
 
-      // 데이터가 빈 경우에 대한 처리를 추가
+      // 개장일에 해당하는 데이터만 필터링
+      stockData = stockData.filter((data) =>
+        openDays.includes(data.date.replace(/-/g, '')),
+      );
+
+      // 날짜 변환 (월 일 형식)
+      stockData = stockData.map((data) => ({
+        ...data,
+        date: formatDate(data.date),
+      }));
+
+      // 날짜를 숫자로 변환하여 오름차순 정렬
+      stockData.sort((a, b) => {
+        const [monthA, dayA] = a.date
+          .split('월')
+          .map((part) => parseInt(part, 10));
+        const [monthB, dayB] = b.date
+          .split('월')
+          .map((part) => parseInt(part, 10));
+
+        if (monthA === monthB) {
+          return dayA - dayB;
+        }
+        return monthA - monthB;
+      });
+
       if (stockData.length === 0) {
-        throw new Error('No data available for the selected time period.');
+        throw new Error('선택한 기간에 대한 데이터가 없습니다.');
       }
 
       setChartData(stockData);
     } catch (error) {
-      setError('Failed to load stock data.');
+      setError('주식 데이터를 불러오는 데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [symbol]);
+  }, [symbol, openDays]);
 
   useEffect(() => {
     if (openDays.length > 0) {
@@ -119,9 +148,10 @@ export default function StockCharts({ timeUnit }: StockChartsProps) {
                 : { color: '#ff7285' };
             }}
           >
+            {/* 가격 시리즈 */}
             <Series
               pane="Price"
-              name="Price"
+              name="가격"
               argumentField="date"
               type="candlestick"
               openValueField="open"
@@ -129,19 +159,15 @@ export default function StockCharts({ timeUnit }: StockChartsProps) {
               lowValueField="low"
               closeValueField="close"
             />
+            {/* 거래량 시리즈 */}
             <Series
               pane="Volume"
-              name="Volume"
+              name="거래량" // 거래량 시리즈 명칭이 '거래량'으로 설정
               argumentField="date"
               valueField="volume"
               type="bar"
             />
-            <ArgumentAxis
-              argumentType="string" // Discrete 방식 대신 string 사용
-              tickInterval="day"
-              label={{ format: 'MMM dd' }} // 일봉이므로 일 단위 포맷
-            />
-
+            <ArgumentAxis argumentType="string" tickInterval="day" />
             <ValueAxis pane="Price" />
             <ValueAxis pane="Volume" position="right" />
             <Pane name="Price" />
@@ -152,7 +178,7 @@ export default function StockCharts({ timeUnit }: StockChartsProps) {
             <Tooltip
               enabled={true}
               shared={true}
-              contentRender={TooltipTemplate}
+              contentRender={TooltipTemplate} // 툴팁에 데이터 전달
             />
             <Crosshair enabled={true} />
             <Legend visible={false} />

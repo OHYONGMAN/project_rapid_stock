@@ -11,21 +11,13 @@ interface StockData {
     volume: number;
 }
 
-const parseDate = (dateString: string, timeString?: string): string => {
+const parseDate = (dateString: string): string => {
     const [year, month, day] = [
         dateString.slice(0, 4),
         dateString.slice(4, 6),
         dateString.slice(6, 8),
     ];
-    if (timeString) {
-        const [hours, minutes, seconds] = [
-            timeString.slice(0, 2),
-            timeString.slice(2, 4),
-            timeString.slice(4, 6),
-        ];
-        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
-    }
-    return `${year}-${month}-${day}T00:00:00Z`;
+    return `${year}-${month}-${day}`; // 시간 정보 없이 날짜만 변환
 };
 
 // 일봉 데이터를 100일 가져오기
@@ -56,10 +48,10 @@ export const fetchStockData = async (
 
         return data
             .filter((item: any) =>
-                openDays.has(item.date.split("T")[0].replace(/-/g, ""))
+                openDays.has(item.date.split("T")[0].replace(/-/g, "")) // 개장일만 필터링
             )
             .map((item: any): StockData => ({
-                date: parseDate(item.date, item.time),
+                date: item.date, // 여기서 날짜를 변환하지 않음
                 open: Number(item.open),
                 high: Number(item.high),
                 low: Number(item.low),
@@ -97,7 +89,7 @@ export const fetchMinuteData = async (symbol: string): Promise<StockData[]> => {
                 return currentTime >= openTime && currentTime <= closeTime;
             })
             .map((item: any): StockData => ({
-                date: parseDate(item.stck_bsop_date, item.stck_cntg_hour),
+                date: parseDate(item.stck_bsop_date),
                 open: Number(item.stck_oprc),
                 high: Number(item.stck_hgpr),
                 low: Number(item.stck_lwpr),
