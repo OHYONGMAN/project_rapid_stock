@@ -3,33 +3,27 @@ import Image from 'next/image';
 import stockup from '../../../public/images/ico-stockup.svg';
 import stockdown from '../../../public/images/ico-stockdown.svg';
 
-export default async function StockRank() {
+export default async function StockDividends() {
   const url =
-    'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/ranking/fluctuation';
+    'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/ranking/dividend-rate';
   const CLIENT_ID = process.env.NEXT_PUBLIC_KIS_API_KEY;
   const CLIENT_SECRET = process.env.NEXT_PUBLIC_KIS_API_SECRET;
 
-  const fetchUpStock = async () => {
+  const fetchStockDividends = async () => {
     const token = await getValidToken();
     if (!token) {
       console.error('유효한 토큰이 없습니다.');
       return null;
     }
     const params = new URLSearchParams({
-      fid_rsfl_rate2: '값', // 등락 비율2
-      fid_cond_mrkt_div_code: 'J', // 시장 분류 코드 (주식)
-      fid_cond_scr_div_code: '20170', // 화면 분류 코드
-      fid_input_iscd: '0001', // 전체 (코스피, 코스닥, 코스피200 등)
-      fid_rank_sort_cls_code: '0', // 상승율순
-      fid_input_cnt_1: '0', // 전체
-      fid_prc_cls_code: '0', // 저가대비
-      fid_input_price_1: '0', // 전체 가격
-      fid_input_price_2: '0', // 전체 가격
-      fid_vol_cnt: '0', // 전체 거래량
-      fid_trgt_cls_code: '0', // 전체
-      fid_trgt_exls_cls_code: '0', // 전체
-      fid_div_cls_code: '0', // 전체
-      fid_rsfl_rate1: '값', // 등락 비율1
+      CTS_AREA: '',
+      GB1: '0',
+      UPJONG: '0001',
+      GB2: '0',
+      GB3: '1',
+      F_DT: '20200101',
+      T_DT: '20240403',
+      GB4: '0',
     });
 
     try {
@@ -60,10 +54,10 @@ export default async function StockRank() {
     }
   };
 
-  const upStock = await fetchUpStock();
+  const stockDividends = await fetchStockDividends();
   return (
     <>
-      {upStock ? (
+      {stockDividends ? (
         <table className="w-full table-auto border-collapse text-center border-t-2 border-black">
           <thead>
             <tr>
@@ -75,7 +69,7 @@ export default async function StockRank() {
             </tr>
           </thead>
           <tbody>
-            {upStock.map((stock: any, index: number) => (
+            {stockDividends.map((stock: any, index: number) => (
               <tr key={index} className="border-b hover:bg-g-100">
                 <td className="py-4 px-2">{index + 1}</td>
                 <td className="py-4 px-2">{stock.hts_kor_isnm}</td>

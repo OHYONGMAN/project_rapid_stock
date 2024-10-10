@@ -42,7 +42,7 @@ export default async function StockRank() {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('주식 데이터:', data);
+        // console.log('주식 데이터:', data);
         return data.output.slice(0, 10);
       } else {
         const errorData = await response.json();

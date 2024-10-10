@@ -1,14 +1,16 @@
 import StockMarket from './components/StockMarket/StockMarket';
 import StockTable from './components/StockRank/StockTable';
-import StockUp from './components/StockRank/StockUp';
 
-export default function Home() {
+export default function Home({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   return (
     <div className="mx-auto w-[1442px] py-[60px] px-[80px]">
       <div className="flex">
         <div className="flex-1">
-          <StockTable />
-          <StockUp />
+          <StockTable searchParams={searchParams} />
         </div>
         <div className="w-96">
           <StockMarket />
