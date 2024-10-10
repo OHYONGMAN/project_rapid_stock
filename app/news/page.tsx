@@ -1,6 +1,10 @@
 // app/news/page.tsx
 
-import StockCharts from './components/StockCharts';
+import dynamic from 'next/dynamic';
+
+const StockCharts = dynamic(() => import('./components/StockCharts'), {
+  ssr: false,
+});
 
 export default function NewsPageLayout() {
   return (

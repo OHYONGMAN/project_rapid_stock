@@ -1,3 +1,5 @@
+// app/news/components/TooltipTemplate.tsx
+
 'use client';
 
 import React from 'react';

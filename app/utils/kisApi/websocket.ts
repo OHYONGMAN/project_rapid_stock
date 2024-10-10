@@ -1,7 +1,5 @@
 // app/utils/kisApi/websocket.ts
 
-import { isMarketOpen } from "@/app/utils/kisApi/holiday";
-
 let socket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let isConnecting = false;
@@ -69,12 +67,16 @@ export const connectWebSocket = async (
 
   socket.onmessage = (event) => {
     try {
-      const data = JSON.parse(event.data);
-      if (data && data.header && data.header.tr_id === "H0STCNT0") {
-        const stockData = parseStockData(data);
-        if (stockData) {
-          onMessage(stockData);
+      if (typeof event.data === "string" && event.data.trim().startsWith("{")) {
+        const data = JSON.parse(event.data);
+        if (data && data.header && data.header.tr_id === "H0STCNT0") {
+          const stockData = parseStockData(data);
+          if (stockData) {
+            onMessage(stockData);
+          }
         }
+      } else {
+        console.error("Unexpected WebSocket message format:", event.data);
       }
     } catch (error) {
       console.error("WebSocket 메시지 처리 중 에러:", error);

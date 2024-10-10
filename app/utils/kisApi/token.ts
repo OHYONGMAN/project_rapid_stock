@@ -41,11 +41,6 @@ const getNewToken = async (): Promise<string | null> => {
       }
 
       console.log("토큰 유효기간 (초):", data.expires_in);
-      console.log(
-        "새 토큰 발급 완료. 만료 시간:",
-        new Date(tokenExpiration).toLocaleString(),
-      );
-
       return accessToken;
     } else {
       const errorDetails = await response.json();

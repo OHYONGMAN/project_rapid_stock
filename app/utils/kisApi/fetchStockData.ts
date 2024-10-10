@@ -29,7 +29,7 @@ const parseDate = (dateString: string, timeString?: string): string => {
 
 export const fetchStockData = async (
     symbol: string,
-    timeUnit: "D" | "W" | "M" | "Y",
+    timeUnit: "D",
     startDate: string,
     endDate: string,
 ): Promise<StockData[]> => {

@@ -43,9 +43,23 @@ export const fetchHolidays = async (): Promise<HolidayInfo[]> => {
             data.filter((h) => h.opnd_yn === "Y").map((h) => h.bass_dt),
         );
         lastFetchTime = now;
+        console.log("Holidays fetched and cached:", cachedOpenDays.size);
         return cachedHolidays;
     } catch (error) {
         console.error("Failed to fetch holiday data:", error);
+        throw error;
+    }
+};
+
+export const getOpenDays = async (): Promise<Set<string>> => {
+    try {
+        if (cachedOpenDays.size === 0) {
+            await fetchHolidays();
+        }
+        console.log("Returning cached open days:", cachedOpenDays.size);
+        return cachedOpenDays;
+    } catch (error) {
+        console.error("Failed to get open days:", error);
         throw error;
     }
 };
@@ -63,17 +77,5 @@ export const isMarketOpen = async (date: Date): Promise<boolean> => {
     } catch (error) {
         console.error("Failed to check if market is open:", error);
         return false;
-    }
-};
-
-export const getOpenDays = async (): Promise<Set<string>> => {
-    try {
-        if (cachedOpenDays.size === 0) {
-            await fetchHolidays();
-        }
-        return cachedOpenDays;
-    } catch (error) {
-        console.error("Failed to get open days:", error);
-        return new Set();
     }
 };

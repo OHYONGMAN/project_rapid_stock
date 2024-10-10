@@ -9,9 +9,13 @@ export async function GET(req: NextRequest) {
     const symbol = searchParams.get("symbol");
     const timeUnit = searchParams.get("timeUnit");
 
-    if (!symbol || !timeUnit) {
+    if (!symbol || !timeUnit || (timeUnit !== "M1" && timeUnit !== "D")) {
+        console.error("Invalid parameters:", { symbol, timeUnit });
         return NextResponse.json(
-            { error: "Missing required parameters" },
+            {
+                error:
+                    "Invalid or missing parameters. Only M1 and D time units are supported.",
+            },
             { status: 400 },
         );
     }
@@ -27,9 +31,13 @@ export async function GET(req: NextRequest) {
             );
         }
 
+        console.log(
+            `Fetching stock data for symbol: ${symbol}, timeUnit: ${timeUnit}`,
+        );
+
         const today = new Date();
         const pastDate = new Date(today);
-        pastDate.setDate(today.getDate() - 365);
+        pastDate.setDate(today.getDate() - 100);
 
         const startDate = pastDate.toISOString().split("T")[0].replace(
             /-/g,
@@ -52,7 +60,7 @@ export async function GET(req: NextRequest) {
                 FID_PW_DATA_INCU_YN: "Y",
             });
             trId = "FHKST03010200";
-        } else {
+        } else if (timeUnit === "D") {
             url =
                 "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice";
             params = new URLSearchParams({
@@ -64,6 +72,12 @@ export async function GET(req: NextRequest) {
                 FID_ORG_ADJ_PRC: "0",
             });
             trId = "FHKST03010100";
+        } else {
+            console.error("Invalid time unit:", timeUnit);
+            return NextResponse.json(
+                { error: "Invalid time unit. Only M1 and D are supported." },
+                { status: 400 },
+            );
         }
 
         const headers = {
@@ -75,6 +89,10 @@ export async function GET(req: NextRequest) {
             custtype: "P",
         };
 
+        console.log("Sending request to:", url);
+        console.log("Request params:", params.toString());
+        console.log("Request headers:", headers);
+
         const response = await fetch(`${url}?${params}`, {
             method: "GET",
             headers,
@@ -82,10 +100,13 @@ export async function GET(req: NextRequest) {
 
         if (!response.ok) {
             console.error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error("Error response:", errorText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log("Received data:", data);
 
         if (data.rt_cd !== "0") {
             console.error(`API error: ${data.msg1}`);
@@ -110,11 +131,16 @@ export async function GET(req: NextRequest) {
             volume: parseInt(item.cntg_vol || item.acml_vol, 10),
         }));
 
+        console.log("Processed data:", processedData);
+
         return NextResponse.json(processedData);
     } catch (error) {
         console.error("Failed to fetch stock data", error);
         return NextResponse.json(
-            { error: "Internal server error" },
+            {
+                error: "Internal server error",
+                details: error instanceof Error ? error.message : String(error),
+            },
             { status: 500 },
         );
     }

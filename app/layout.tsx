@@ -1,3 +1,4 @@
+import 'devextreme/dist/css/dx.light.css';
 import '@/app/globals.css';
 import Footer from '@/app/components/Footer/Footer';
 import Header from '@/app/components/Header/Header';
