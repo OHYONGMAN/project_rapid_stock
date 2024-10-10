@@ -35,32 +35,34 @@ export async function GET(req: NextRequest) {
             `Fetching stock data for symbol: ${symbol}, timeUnit: ${timeUnit}`,
         );
 
-        const today = new Date();
-        const pastDate = new Date(today);
-        pastDate.setDate(today.getDate() - 100);
-
-        const startDate = pastDate.toISOString().split("T")[0].replace(
-            /-/g,
-            "",
-        );
-        const endDate = today.toISOString().split("T")[0].replace(/-/g, "");
-
         const holidays = await fetchHolidays();
 
         let url, params, trId;
 
         if (timeUnit === "M1") {
+            // 분봉 데이터는 당일 데이터만 가져옴
             url =
                 "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice";
             params = new URLSearchParams({
                 FID_ETC_CLS_CODE: "",
                 FID_COND_MRKT_DIV_CODE: "J",
                 FID_INPUT_ISCD: symbol,
-                FID_INPUT_HOUR_1: "090000",
+                FID_INPUT_HOUR_1: "090000", // 조회 시작 시각
                 FID_PW_DATA_INCU_YN: "Y",
             });
             trId = "FHKST03010200";
         } else if (timeUnit === "D") {
+            // 일봉 데이터는 최근 100일(휴장일 제외)을 가져옴
+            const today = new Date();
+            const pastDate = new Date(today);
+            pastDate.setDate(today.getDate() - 100);
+
+            const startDate = pastDate.toISOString().split("T")[0].replace(
+                /-/g,
+                "",
+            );
+            const endDate = today.toISOString().split("T")[0].replace(/-/g, "");
+
             url =
                 "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice";
             params = new URLSearchParams({
