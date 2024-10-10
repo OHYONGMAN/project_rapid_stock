@@ -24,7 +24,7 @@ export default function Table() {
         {tabs.map((tab, index) => (
           <button
             key={index}
-            className={`tab px-4 py-2 font-semibold rounded-lghover:bg-g-100 ${
+            className={`tab px-4 py-2 font-semibold rounded-lg hover:bg-g-100 ${
               activeTab === index ? 'text-bk' : 'text-g-700 hover:text-bk'
             }`}
             onClick={() => {
