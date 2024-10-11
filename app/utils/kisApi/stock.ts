@@ -1,7 +1,6 @@
 // app/utils/kisApi/stock.ts
 
-import { getOpenDays } from "@/app/utils/kisApi/holiday";
-
+// 주식 데이터 인터페이스 정의
 interface StockData {
     date: string;
     open: number;
@@ -11,93 +10,57 @@ interface StockData {
     volume: number;
 }
 
+// 날짜를 "YYYY-MM-DD" 형식으로 변환하는 함수
 const parseDate = (dateString: string): string => {
     const [year, month, day] = [
-        dateString.slice(0, 4),
-        dateString.slice(4, 6),
-        dateString.slice(6, 8),
+        dateString.slice(0, 4), // 연도 추출
+        dateString.slice(4, 6), // 월 추출
+        dateString.slice(6, 8), // 일 추출
     ];
-    return `${year}-${month}-${day}`; // 시간 정보 없이 날짜만 변환
+    return `${year}-${month}-${day}`; // 변환된 날짜 문자열 반환
 };
 
-// 일봉 데이터를 100일 가져오기
+// 주식 데이터를 API에서 받아오는 함수 (일봉/주봉/월봉 데이터를 요청)
 export const fetchStockData = async (
-    symbol: string,
-    startDate: string,
-    endDate: string,
+    symbol: string, // 종목 코드
+    startDate: string, // 시작 날짜
+    endDate: string, // 종료 날짜
+    timeUnit: "D" | "W" | "M", // 시간 단위 (일봉/주봉/월봉)
 ): Promise<StockData[]> => {
+    // API 요청에 필요한 파라미터 설정
     const params = new URLSearchParams({
-        symbol,
-        timeUnit: "D",
-        startDate,
-        endDate,
+        symbol, // 종목 코드
+        timeUnit, // 데이터의 시간 단위 (D, W, M)
+        startDate, // 시작 날짜
+        endDate, // 종료 날짜
     });
 
     try {
-        const openDays = await getOpenDays();
-
+        // 주식 데이터를 가져오기 위한 API 요청
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stock?${params}`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stock?${params}`, // API 엔드포인트 호출
         );
 
+        // 응답이 정상적이지 않을 경우 에러 처리
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP 오류 발생! 상태: ${response.status}`);
         }
 
+        // API로부터 받은 데이터를 JSON 형식으로 변환
         const data = await response.json();
 
-        return data
-            .filter((item: any) =>
-                openDays.has(item.date.split("T")[0].replace(/-/g, "")) // 개장일만 필터링
-            )
-            .map((item: any): StockData => ({
-                date: item.date, // 여기서 날짜를 변환하지 않음
-                open: Number(item.open),
-                high: Number(item.high),
-                low: Number(item.low),
-                close: Number(item.close),
-                volume: Number(item.volume),
-            }));
+        // 데이터를 StockData 형식으로 변환하여 반환
+        return data.map((item: any): StockData => ({
+            date: item.date, // 날짜 정보
+            open: Number(item.open), // 시가
+            high: Number(item.high), // 고가
+            low: Number(item.low), // 저가
+            close: Number(item.close), // 종가
+            volume: Number(item.volume), // 거래량
+        }));
     } catch (error) {
-        console.error("Failed to fetch stock data", error);
-        throw error;
-    }
-};
-
-// 분봉 데이터는 당일만 가져오기
-export const fetchMinuteData = async (symbol: string): Promise<StockData[]> => {
-    const params = new URLSearchParams({ symbol, timeUnit: "M1" });
-
-    try {
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stock?${params}`,
-        );
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        const openTime = 90000;
-        const closeTime = 153000;
-
-        return data
-            .filter((item: any) => {
-                const currentTime = parseInt(item.stck_cntg_hour, 10);
-
-                return currentTime >= openTime && currentTime <= closeTime;
-            })
-            .map((item: any): StockData => ({
-                date: parseDate(item.stck_bsop_date),
-                open: Number(item.stck_oprc),
-                high: Number(item.stck_hgpr),
-                low: Number(item.stck_lwpr),
-                close: Number(item.stck_prpr || item.stck_clpr),
-                volume: Number(item.cntg_vol || item.acml_vol),
-            }));
-    } catch (error) {
-        console.error("Failed to fetch minute data", error);
-        throw error;
+        // 데이터 요청 실패 시 에러 출력
+        console.error("주식 데이터 요청에 실패했습니다.", error);
+        throw error; // 에러 발생 시 상위 호출부로 전달
     }
 };

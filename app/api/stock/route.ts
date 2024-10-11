@@ -2,145 +2,111 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getValidToken } from "@/app/utils/kisApi/token";
-import { fetchHolidays } from "@/app/utils/kisApi/holiday";
 
+// GET 요청 처리 함수 (일봉/주봉/월봉 데이터를 조회)
 export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const symbol = searchParams.get("symbol");
-    const timeUnit = searchParams.get("timeUnit");
+    const { searchParams } = new URL(req.url); // URL 파라미터에서 symbol과 timeUnit 값을 추출
+    const symbol = searchParams.get("symbol"); // 주식 종목 코드를 받아옴
+    const timeUnit = searchParams.get("timeUnit"); // 데이터의 시간 단위를 받아옴
 
-    if (!symbol || !timeUnit || (timeUnit !== "M1" && timeUnit !== "D")) {
-        console.error("Invalid parameters:", { symbol, timeUnit });
+    // 잘못된 파라미터 확인
+    if (!symbol || !timeUnit || !["D", "W", "M"].includes(timeUnit)) {
+        console.error("잘못된 파라미터:", { symbol, timeUnit });
         return NextResponse.json(
             {
                 error:
-                    "Invalid or missing parameters. Only M1 and D time units are supported.",
+                    "잘못되거나 누락된 파라미터입니다. D (일봉), W (주봉), M (월봉) 시간 단위만 지원됩니다.",
             },
             { status: 400 },
         );
     }
 
     try {
-        const token = await getValidToken();
+        const token = await getValidToken(); // 유효한 API 접근 토큰을 받아옴
 
+        // 토큰이 없으면 에러 반환
         if (!token) {
-            console.error("Failed to get access token");
+            console.error("액세스 토큰 발급 실패");
             return NextResponse.json(
-                { error: "Failed to get access token" },
+                { error: "액세스 토큰 발급에 실패했습니다." },
                 { status: 500 },
             );
         }
 
-        console.log(
-            `Fetching stock data for symbol: ${symbol}, timeUnit: ${timeUnit}`,
+        // 최근 500일의 데이터를 요청할 날짜 계산 (일/주/월)
+        const today = new Date();
+        const pastDate = new Date(today);
+        pastDate.setDate(today.getDate() - 500);
+
+        const startDate = pastDate.toISOString().split("T")[0].replace(
+            /-/g,
+            "",
         );
+        const endDate = today.toISOString().split("T")[0].replace(/-/g, "");
 
-        const holidays = await fetchHolidays();
+        // 기간별 데이터를 요청하는 API URL과 파라미터 설정
+        const url =
+            "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice";
+        const params = new URLSearchParams({
+            FID_COND_MRKT_DIV_CODE: "J", // 시장 구분 코드
+            FID_INPUT_ISCD: symbol, // 주식 종목 코드
+            FID_INPUT_DATE_1: startDate, // 시작 날짜
+            FID_INPUT_DATE_2: endDate, // 끝 날짜
+            FID_PERIOD_DIV_CODE: timeUnit, // 시간 단위 (D:일봉, W:주봉, M:월봉)
+            FID_ORG_ADJ_PRC: "0", // 원래 가격을 사용하는지 여부
+        });
+        const trId = "FHKST03010100"; // 거래 ID
 
-        let url, params, trId;
-
-        if (timeUnit === "M1") {
-            // 분봉 데이터는 당일 데이터만 가져옴
-            url =
-                "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice";
-            params = new URLSearchParams({
-                FID_ETC_CLS_CODE: "",
-                FID_COND_MRKT_DIV_CODE: "J",
-                FID_INPUT_ISCD: symbol,
-                FID_INPUT_HOUR_1: "090000", // 조회 시작 시각
-                FID_PW_DATA_INCU_YN: "Y",
-            });
-            trId = "FHKST03010200";
-        } else if (timeUnit === "D") {
-            // 일봉 데이터는 최근 100일(휴장일 제외)을 가져옴
-            const today = new Date();
-            const pastDate = new Date(today);
-            pastDate.setDate(today.getDate() - 100);
-
-            const startDate = pastDate.toISOString().split("T")[0].replace(
-                /-/g,
-                "",
-            );
-            const endDate = today.toISOString().split("T")[0].replace(/-/g, "");
-
-            url =
-                "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice";
-            params = new URLSearchParams({
-                FID_COND_MRKT_DIV_CODE: "J",
-                FID_INPUT_ISCD: symbol,
-                FID_INPUT_DATE_1: startDate,
-                FID_INPUT_DATE_2: endDate,
-                FID_PERIOD_DIV_CODE: timeUnit,
-                FID_ORG_ADJ_PRC: "0",
-            });
-            trId = "FHKST03010100";
-        } else {
-            console.error("Invalid time unit:", timeUnit);
-            return NextResponse.json(
-                { error: "Invalid time unit. Only M1 and D are supported." },
-                { status: 400 },
-            );
-        }
-
+        // API 호출에 필요한 헤더 설정
         const headers = {
             "content-type": "application/json; charset=utf-8",
-            authorization: `Bearer ${token}`,
-            appkey: process.env.NEXT_PUBLIC_KIS_API_KEY!,
-            appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET!,
-            tr_id: trId,
-            custtype: "P",
+            authorization: `Bearer ${token}`, // API 토큰
+            appkey: process.env.NEXT_PUBLIC_KIS_API_KEY!, // 앱 키
+            appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET!, // 앱 시크릿
+            tr_id: trId, // 거래 ID
+            custtype: "P", // 고객 타입 (개인)
         };
 
-        console.log("Sending request to:", url);
-        console.log("Request params:", params.toString());
-        console.log("Request headers:", headers);
-
+        // API 호출
         const response = await fetch(`${url}?${params}`, {
             method: "GET",
             headers,
         });
 
+        // 호출 실패 시 에러 처리
         if (!response.ok) {
-            console.error(`HTTP error! status: ${response.status}`);
+            console.error(`HTTP 오류! 상태: ${response.status}`);
             const errorText = await response.text();
-            console.error("Error response:", errorText);
-            throw new Error(`HTTP error! status: ${response.status}`);
+            console.error("에러 응답:", errorText);
+            throw new Error(`HTTP 오류! 상태: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log("Received data:", data);
+        const data = await response.json(); // API 응답 데이터를 JSON으로 파싱
 
+        // API 오류 시 에러 메시지 반환
         if (data.rt_cd !== "0") {
-            console.error(`API error: ${data.msg1}`);
-            throw new Error(`API error: ${data.msg1}`);
+            console.error(`API 에러: ${data.msg1}`);
+            throw new Error(`API 에러: ${data.msg1}`);
         }
 
-        const filteredData = data.output2.filter((item: any) =>
-            holidays.some(
-                (holiday) =>
-                    holiday.bass_dt === item.stck_bsop_date &&
-                    holiday.opnd_yn === "Y",
-            )
-        );
-
-        const processedData = filteredData.map((item: any) => ({
-            date: item.stck_bsop_date, // 시간 정보 없이 날짜만 유지
-            time: item.stck_cntg_hour,
-            open: parseFloat(item.stck_oprc),
-            high: parseFloat(item.stck_hgpr),
-            low: parseFloat(item.stck_lwpr),
-            close: parseFloat(item.stck_prpr || item.stck_clpr),
-            volume: parseInt(item.cntg_vol || item.acml_vol, 10),
+        // 받은 데이터를 가공하여 필요한 형식으로 변환
+        const processedData = data.output2.map((item: any) => ({
+            date: item.stck_bsop_date, // 거래 일자
+            open: parseFloat(item.stck_oprc), // 시가
+            high: parseFloat(item.stck_hgpr), // 고가
+            low: parseFloat(item.stck_lwpr), // 저가
+            close: parseFloat(item.stck_prpr || item.stck_clpr), // 종가
+            volume: parseInt(item.cntg_vol || item.acml_vol, 10), // 거래량
         }));
 
-        console.log("Processed data:", processedData);
-
+        // 가공된 데이터를 JSON으로 반환
         return NextResponse.json(processedData);
     } catch (error) {
-        console.error("Failed to fetch stock data", error);
+        // API 호출 실패 시 에러 처리
+        console.error("주식 데이터 가져오기 실패:", error);
         return NextResponse.json(
             {
-                error: "Internal server error",
+                error: "서버 내부 오류",
                 details: error instanceof Error ? error.message : String(error),
             },
             { status: 500 },
