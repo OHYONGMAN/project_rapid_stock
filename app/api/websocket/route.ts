@@ -1,4 +1,4 @@
-// app/api/getWebSocketKey/route.ts
+// app/api/websocket/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 

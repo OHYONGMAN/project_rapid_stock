@@ -23,7 +23,7 @@ export const fetchHolidays = async (): Promise<HolidayInfo[]> => {
 
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/fetchHolidayInfo`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/holiday`,
         );
 
         if (!response.ok) {

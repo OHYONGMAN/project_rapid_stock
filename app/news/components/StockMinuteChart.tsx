@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchMinuteData } from '@/app/utils/kisApi/fetchStockData';
+import { fetchMinuteData } from '@/app/utils/kisApi/stock';
 import Chart, {
   ArgumentAxis,
   ValueAxis,
@@ -16,7 +16,7 @@ import Chart, {
   Crosshair,
   Legend,
 } from 'devextreme-react/chart';
-import TooltipTemplate from './TooltipTemplate';
+import StockChartTooltip from './StockChartTooltip';
 
 interface StockData {
   date: string;
@@ -120,7 +120,7 @@ export default function StockMinuteChart() {
             <Tooltip
               enabled={true}
               shared={true}
-              contentRender={TooltipTemplate}
+              contentRender={StockChartTooltip}
             />
             <Crosshair enabled={true} />
             <Legend visible={false} />

@@ -1,4 +1,4 @@
-// app/api/stockData/route.ts
+// app/api/stock/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { getValidToken } from "@/app/utils/kisApi/token";

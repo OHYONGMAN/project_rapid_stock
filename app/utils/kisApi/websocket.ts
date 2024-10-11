@@ -17,7 +17,7 @@ export const connectWebSocket = async (
   isConnecting = true;
 
   const approvalKey = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/getWebSocketKey`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/websocket`,
     {
       method: "POST",
     },

@@ -1,9 +1,9 @@
-// app/news/components/StockCharts.tsx
+// app/news/components/StockDailyChart.tsx
 
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchStockData } from '@/app/utils/kisApi/fetchStockData';
+import { fetchStockData } from '@/app/utils/kisApi/stock';
 import { getOpenDays } from '@/app/utils/kisApi/holiday';
 import Chart, {
   ArgumentAxis,
@@ -17,7 +17,7 @@ import Chart, {
   Crosshair,
   Legend,
 } from 'devextreme-react/chart';
-import TooltipTemplate from './TooltipTemplate';
+import StockChartTooltip from './StockChartTooltip';
 
 // 주식 데이터 인터페이스 정의
 interface StockData {
@@ -38,7 +38,7 @@ const formatDate = (dateString: string): string => {
 };
 
 // 주식 차트 컴포넌트
-export default function StockCharts({ timeUnit }: { timeUnit: 'D' }) {
+export default function StockDailyChart() {
   const [symbol, setSymbol] = useState('000660');
   const [chartData, setChartData] = useState<StockData[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -178,7 +178,7 @@ export default function StockCharts({ timeUnit }: { timeUnit: 'D' }) {
             <Tooltip
               enabled={true}
               shared={true}
-              contentRender={TooltipTemplate} // 툴팁에 데이터 전달
+              contentRender={StockChartTooltip} // 툴팁에 데이터 전달
             />
             <Crosshair enabled={true} />
             <Legend visible={false} />

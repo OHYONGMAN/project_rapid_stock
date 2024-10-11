@@ -1,4 +1,4 @@
-// app/api/fetchHolidayInfo/route.ts
+// app/api/holiday/route.ts
 
 import { NextResponse } from "next/server";
 import { getValidToken } from "@/app/utils/kisApi/token";

@@ -1,4 +1,4 @@
-// app/news/components/TooltipTemplate.tsx
+// app/news/components/StockChartTooltip.tsx
 
 'use client';
 
@@ -9,7 +9,7 @@ const formatNumber = new Intl.NumberFormat('ko-KR', {
   minimumFractionDigits: 0,
 }).format;
 
-export default function TooltipTemplate(pointInfo: any) {
+export default function StockChartTooltip(pointInfo: any) {
   // 거래량 정보 필터링
   const volume = pointInfo.points.filter(
     (point: { seriesName: string }) => point.seriesName === '거래량',

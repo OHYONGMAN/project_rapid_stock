@@ -1,4 +1,4 @@
-// app/utils/kisApi/fetchStockData.ts
+// app/utils/kisApi/stock.ts
 
 import { getOpenDays } from "@/app/utils/kisApi/holiday";
 
@@ -37,7 +37,7 @@ export const fetchStockData = async (
         const openDays = await getOpenDays();
 
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stockData?${params}`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stock?${params}`,
         );
 
         if (!response.ok) {
@@ -70,7 +70,7 @@ export const fetchMinuteData = async (symbol: string): Promise<StockData[]> => {
 
     try {
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stockData?${params}`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/stock?${params}`,
         );
 
         if (!response.ok) {
