@@ -151,10 +151,25 @@ export default function StockChart() {
           <Chart
             id="stock-chart"
             dataSource={chartData}
-            customizePoint={(pointInfo) => {
-              return pointInfo.data.close >= pointInfo.data.open
-                ? { color: '#1db2f5' }
-                : { color: '#ff7285' };
+            customizePoint={(pointInfo: any) => {
+              const isUp = pointInfo.data.close >= pointInfo.data.open;
+              return {
+                color: isUp ? '#ff7285' : '#1db2f5', // 상승 시 빨간색, 하락 시 투명
+                border: {
+                  color: isUp ? '#ff7285' : '#1db2f5', // 상승 시 빨간색 외곽선, 하락 시 파란색 외곽선
+                  visible: true,
+                  width: 2, // 외곽선 두께
+                },
+                hoverStyle: {
+                  border: {
+                    visible: true,
+                    color: isUp ? '#ff7285' : '#1db2f5',
+                    width: 2,
+                  },
+                },
+                width: 1, // 캔들 너비
+                opacity: isUp ? 1 : 1, // 하락 시 내부가 비도록 opacity 설정
+              };
             }}
           >
             <Series
@@ -166,6 +181,8 @@ export default function StockChart() {
               highValueField="high"
               lowValueField="low"
               closeValueField="close"
+              color="#ff7285" // 상승 시 기본 색상 설정 (빨간색)
+              reduction={{ color: '#1db2f5' }} // 하락 시 색상 설정 (파란색)
             />
             <Series
               pane="Volume"
