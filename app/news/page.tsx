@@ -1,135 +1,200 @@
 'use client';
 
-const licenseKey = process.env.NEXT_PUBLIC_DEVEXTREME_LICENSE_KEY;
-// devexteme licenseKey를 가져오는겁니다. (삭제금지)
-import config from 'devextreme/core/config';
-config({ licenseKey });
+import React, { useEffect, useRef, useCallback } from 'react';
+import { create } from 'zustand';
+import { parse } from 'date-fns'; // date-fns에서 parse 함수 임포트
 
-import React from 'react';
-import DataGrid from 'devextreme-react/data-grid';
-import CustomStore from 'devextreme/data/custom_store';
+// 데이터 항목의 구조를 정의하는 인터페이스
+interface DataItem {
+  id: string;
+  title: string;
+  description: string;
+  image?: string;
+  link: string;
+  date: string; // 날짜 문자열
+  relatedCompanies: { name: string; code: string }[];
+}
 
-const customDataSource = new CustomStore({
-  load: () => {
-    // 외부 JSON 파일을 public 폴더에서 가져오는 로직
-    return fetch('/combined_news_data.json') // public 폴더에 있는 JSON 파일을 불러옴
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('JSON 파일 로드 실패');
-        }
-        return response.json();
-      })
-      .catch(() => {
-        throw '데이터 로드 실패';
-      });
+// Zustand를 사용하여 상태 관리를 위한 인터페이스 정의
+interface DataState {
+  data: DataItem[]; // 뉴스 데이터 배열
+  page: number; // 현재 페이지 번호
+  hasMore: boolean; // 추가 데이터 여부
+  loading: boolean; // 로딩 상태
+  fetchData: () => Promise<void>; // 데이터를 가져오는 함수
+  refreshData: () => Promise<void>; // 데이터를 새로고침하는 함수
+}
+
+// 날짜를 기준으로 데이터를 내림차순(최신순)으로 정렬하는 함수
+const sortDataByDate = (data: DataItem[]) => {
+  return data.sort((a, b) => {
+    // 날짜 문자열을 정확하게 파싱하여 타임스탬프로 변환
+    const dateA = parse(a.date, 'yyyy-MM-dd HH:mm:ss', new Date()).getTime();
+    const dateB = parse(b.date, 'yyyy-MM-dd HH:mm:ss', new Date()).getTime();
+    // 내림차순 정렬
+    return dateB - dateA;
+  });
+};
+
+// Zustand 스토어를 생성하여 데이터 상태 관리
+const useDataStore = create<DataState>((set, get) => ({
+  data: [],
+  page: 1,
+  hasMore: true,
+  loading: false,
+  // 데이터를 비동기적으로 가져오는 함수
+  fetchData: async () => {
+    set({ loading: true }); // 로딩 시작
+    const page = get().page;
+    try {
+      const response = await fetch(`/api/news-crawl/crawl?page=${page}`);
+      if (!response.ok) throw new Error('API 요청 실패');
+      const result = await response.json();
+      if (result.length === 0) {
+        set({ hasMore: false }); // 더 이상 데이터 없음
+      } else {
+        set((state) => {
+          const updatedData = [...state.data, ...result];
+          const sortedData = sortDataByDate(updatedData); // 데이터 정렬
+          return { data: sortedData };
+        });
+        set({ page: page + 1 }); // 페이지 번호 증가
+      }
+    } catch (error) {
+      console.error('데이터 로드 실패:', error);
+    } finally {
+      set({ loading: false }); // 로딩 종료
+    }
   },
-});
+  // 데이터를 새로고침하는 함수
+  refreshData: async () => {
+    try {
+      const response = await fetch(`/api/news-crawl/crawl?page=1`);
+      if (!response.ok) throw new Error('API 요청 실패');
+      const result = await response.json();
+      if (result.length === 0) return;
+      const existingData = get().data;
+      // 기존 데이터와 새 데이터를 비교하여 변경 사항이 있으면 업데이트
+      if (JSON.stringify(existingData) !== JSON.stringify(result)) {
+        set({
+          data: sortDataByDate(result),
+          page: 2, // 페이지 번호 초기화
+          hasMore: true,
+        });
+      }
+    } catch (error) {
+      console.error('데이터 새로고침 실패:', error);
+    }
+  },
+}));
 
-// DataGrid 컴포넌트
-const Home = () => {
+// 메인 페이지 컴포넌트
+const Page = () => {
+  // Zustand 스토어에서 필요한 상태와 함수 가져오기
+  const { data, hasMore, loading, fetchData, refreshData } = useDataStore();
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // 주기적으로 데이터 새로고침 (10초마다)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshData();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 마지막 아이템을 감시하여 무한 스크롤 구현
+  const lastItemRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (observer.current) observer.current.disconnect(); // 기존 옵저버 해제
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore && !loading) {
+            fetchData(); // 다음 페이지 데이터 로드
+          }
+        },
+        { threshold: 1 },
+      );
+      if (node) observer.current.observe(node); // 새로운 노드 감시 시작
+    },
+    [hasMore, loading, fetchData],
+  );
+
   return (
-    <DataGrid
-      dataSource={customDataSource}
-      className="w-[1282px] m-auto h-screen p-5"
-      keyExpr="id"
-      columnAutoWidth={true}
-      showColumnHeaders={false}
-      sorting={{ mode: 'single' }} // Sorting 속성 사용
-      scrolling={{ mode: 'infinite' }} // Scrolling 속성으로 변경
-      loadPanel={{ enabled: false }} // LoadPanel 속성으로 변경
-      rowTemplate={(container, options) => {
-        const data = options.data;
-        const rowElement = document.createElement('div');
-
-        // 기본적으로 items-start로 상단 정렬
-        let rowClassName = 'custom-row flex w-[1250px] items-start p-4';
-
-        // 이미지가 있는지 확인
-        let imgElement = null;
-        let contentWidthClass = 'w-full'; // 기본적으로 전체 폭 사용
-
-        if (
-          data.image &&
-          data.image !== '' &&
-          data.image !== null &&
-          data.image !== undefined
-        ) {
-          imgElement = document.createElement('img');
-          imgElement.src = data.image;
-          imgElement.alt = 'article image';
-          imgElement.style.height = '70px';
-          imgElement.className = 'mr-14'; // 이미지와 내용 간의 간격 추가
-
-          // 이미지 스타일 추가
-          imgElement.style.objectFit = 'cover'; // 이미지가 영역을 꽉 채우도록 설정
-          imgElement.style.imageRendering = 'auto'; // 이미지 렌더링 최적화 (특정 환경에서 유리함)
-          imgElement.style.borderRadius = '8px'; // 모서리를 둥글게 처리 (선택 사항)
-          imgElement.style.filter = 'none'; // 혹시 뿌옇게 만드는 필터가 적용되었을 가능성 제거
-
-          rowElement.appendChild(imgElement);
-
-          // 이미지가 있을 때는 텍스트 영역을 좁게 설정
-          contentWidthClass = 'w-[950px]';
-        } else {
-          // 이미지가 없을 경우 items-center로 수직 정렬
-          rowClassName = 'custom-row flex w-[1250px] items-center p-4';
-        }
-
-        // 행의 클래스 지정 (이미지 여부에 따라 조정)
-        rowElement.className = rowClassName;
-
-        // 오른쪽에 제목과 내용 컨테이너 생성
-        const contentElement = document.createElement('div');
-        contentElement.className = `content flex-1 ${contentWidthClass} h-auto relative`; // 상대적 위치 설정, 폭 조정
-
-        // 상단에 제목 (링크)
-        const titleElement = document.createElement('a');
-        titleElement.href = data.link;
-        titleElement.target = '_blank'; // 새 탭에서 열기
-        titleElement.textContent = data.title;
-        titleElement.className = 'title font-bold text-lg mb-2 hover:underline'; // 제목 줄바꿈 없음
-        contentElement.appendChild(titleElement);
-
-        // 설명 (기사 내용) - 줄바꿈 처리
-        const descriptionElement = document.createElement('p');
-        descriptionElement.textContent = data.description;
-        descriptionElement.className = 'description text-sm break-words'; // 기사 내용 줄바꿈 처리
-        descriptionElement.style.wordBreak = 'break-word'; // 줄바꿈 스타일 추가
-        contentElement.appendChild(descriptionElement);
-
-        // 관련 테마 (연관된 회사) 별도 줄에 표시
-        if (data.relatedCompanies.length > 0) {
-          const relatedElement = document.createElement('div');
-          relatedElement.className = 'related-companies text-sm mt-2';
-          const relatedTitle = document.createElement('span');
-          relatedTitle.textContent = '관련 테마: ';
-          relatedTitle.className = 'font-semibold';
-          relatedElement.appendChild(relatedTitle);
-
-          data.relatedCompanies.forEach((company) => {
-            const companyLink = document.createElement('a');
-            companyLink.href = company.link;
-            companyLink.target = '_blank'; // 새 탭에서 열기
-            companyLink.textContent = company.name;
-            companyLink.className = 'ml-2 hover:underline text-blue-500';
-            relatedElement.appendChild(companyLink);
-          });
-
-          contentElement.appendChild(relatedElement);
-        }
-
-        // 시간은 별도 줄에 표시
-        const dateElement = document.createElement('div');
-        dateElement.textContent = data.date;
-        dateElement.className = 'date text-xs text-gray-500 text-right mt-2'; // 시간을 별도 줄에 표시
-        contentElement.appendChild(dateElement);
-
-        // 행에 컨텐츠 추가
-        rowElement.appendChild(contentElement);
-        container.appendChild(rowElement);
-      }}
-    ></DataGrid>
+    // 전체 컨테이너
+    <div className="w-[1282px] m-auto h-screen p-5 overflow-auto">
+      {data.map((item, index) => (
+        // 각 뉴스 아이템 렌더링
+        <div
+          key={item.id}
+          ref={index === data.length - 1 ? lastItemRef : null} // 마지막 아이템에 ref 적용
+          className={`custom-row flex w-[1250px] ${
+            item.image ? 'items-start' : 'items-center'
+          } p-4`}
+        >
+          {/* 이미지가 있을 경우에만 렌더링 */}
+          {item.image && (
+            <img
+              src={item.image}
+              alt="article image"
+              className="mr-14 h-[70px] w-[70px] object-cover rounded-lg"
+            />
+          )}
+          {/* 뉴스 내용 */}
+          <div
+            className={`content flex-1 ${
+              item.image ? 'w-[950px]' : 'w-full'
+            } h-auto relative`}
+          >
+            {/* 뉴스 제목 */}
+            <a
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="title font-bold text-lg mb-2 hover:underline"
+            >
+              {item.title}
+            </a>
+            {/* 뉴스 설명 */}
+            <p className="description text-sm break-words">
+              {item.description}
+            </p>
+            {/* 관련 테마가 있을 경우에만 렌더링 */}
+            {item.relatedCompanies.length > 0 && (
+              <div className="related-companies text-sm mt-2">
+                <span className="font-semibold">관련 테마:</span>
+                {item.relatedCompanies.map((company, idx) => (
+                  <a
+                    key={idx}
+                    href={`https://finance.naver.com/item/main.naver?code=${company.code}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 hover:underline text-blue-500"
+                  >
+                    {company.name}
+                  </a>
+                ))}
+              </div>
+            )}
+            {/* 뉴스 날짜 */}
+            <div className="date text-xs text-gray-500 text-right mt-2">
+              {item.date}
+            </div>
+          </div>
+        </div>
+      ))}
+      {/* 로딩 중일 때 표시 */}
+      {loading && <p className="text-center mt-4">로딩 중...</p>}
+      {/* 더 이상 데이터가 없을 경우 표시 */}
+      {!hasMore && !loading && (
+        <p className="text-center mt-4">더 이상 데이터가 없습니다.</p>
+      )}
+    </div>
   );
 };
 
-export default Home;
+export default Page;
