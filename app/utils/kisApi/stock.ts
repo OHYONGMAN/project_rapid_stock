@@ -10,27 +10,16 @@ interface StockData {
     volume: number;
 }
 
-// 날짜를 "YYYY-MM-DD" 형식으로 변환하는 함수
-const parseDate = (dateString: string): string => {
-    const [year, month, day] = [
-        dateString.slice(0, 4), // 연도 추출
-        dateString.slice(4, 6), // 월 추출
-        dateString.slice(6, 8), // 일 추출
-    ];
-    return `${year}-${month}-${day}`; // 변환된 날짜 문자열 반환
-};
-
-// 주식 데이터를 API에서 받아오는 함수 (일봉/주봉/월봉 데이터를 요청)
+// 주식 데이터를 API에서 받아오는 함수 (일봉 데이터를 요청)
 export const fetchStockData = async (
     symbol: string, // 종목 코드
     startDate: string, // 시작 날짜
     endDate: string, // 종료 날짜
-    timeUnit: "D" | "W" | "M", // 시간 단위 (일봉/주봉/월봉)
 ): Promise<StockData[]> => {
     // API 요청에 필요한 파라미터 설정
     const params = new URLSearchParams({
         symbol, // 종목 코드
-        timeUnit, // 데이터의 시간 단위 (D, W, M)
+        timeUnit: "D", // 일봉만 요청
         startDate, // 시작 날짜
         endDate, // 종료 날짜
     });

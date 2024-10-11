@@ -1,58 +1,76 @@
 // app/news/components/StockChartTooltip.tsx
 
-'use client';
-
 import React from 'react';
 
-// 숫자를 천 단위로 포맷팅하는 함수 (한국 원화 형식)
 const formatNumber = new Intl.NumberFormat('ko-KR', {
   minimumFractionDigits: 0,
 }).format;
 
-// 주식 차트에서 툴팁을 렌더링하는 컴포넌트
-export default function StockChartTooltip(pointInfo: any) {
-  // 거래량 데이터를 필터링하여 가져옴 (시리즈 이름이 '거래량'인 데이터를 추출)
-  const volume = pointInfo.points.filter(
-    (point: { seriesName: string }) => point.seriesName === '거래량',
-  )[0];
+interface StockChartTooltipProps {
+  data?: {
+    argument?: string;
+    closeValue?: number;
+    highValue?: number;
+    lowValue?: number;
+    openValue?: number;
+    seriesName?: string;
+    value?: number;
+  };
+  realTimeData?: {
+    price: number;
+    change: number;
+    changeRate: number;
+    volume: number;
+  } | null;
+}
 
-  // 가격 정보를 필터링하여 가져옴 (시리즈 이름이 '거래량'이 아닌 데이터를 추출)
-  const prices = pointInfo.points.filter(
-    (point: { seriesName: string }) => point.seriesName !== '거래량',
-  )[0];
+export default function StockChartTooltip({
+  data,
+  realTimeData,
+}: StockChartTooltipProps) {
+  if (!data) return null;
 
-  // 가격 정보가 없을 경우 예외 처리
-  if (!prices) return <div>데이터가 없습니다.</div>;
-
-  // 날짜 정보를 차트에서 받아서 포맷팅하지 않고 그대로 사용
-  const formattedDate = prices.argument;
+  const { argument, openValue, highValue, lowValue, closeValue, value } = data;
 
   return (
     <div className="tooltip-template">
-      {/* 날짜 출력 */}
-      <div>{formattedDate}</div>
-
-      {/* 시가, 고가, 저가, 종가 출력 */}
-      <div>
-        <span>시가: {formatNumber(prices.openValue)} 원</span>
-      </div>
-      <div>
-        <span>고가: {formatNumber(prices.highValue)} 원</span>
-      </div>
-      <div>
-        <span>저가: {formatNumber(prices.lowValue)} 원</span>
-      </div>
-      <div>
-        <span>종가: {formatNumber(prices.closeValue)} 원</span>
-      </div>
-
-      {/* 거래량 출력, 거래량 데이터가 없으면 'N/A' 표시 */}
-      <div>
-        <span>
-          거래량:{' '}
-          {volume && volume.value ? `${formatNumber(volume.value)} 주` : 'N/A'}
-        </span>
-      </div>
+      <div>{argument}</div>
+      {openValue !== undefined && (
+        <div>
+          <span>시가: {formatNumber(openValue)} 원</span>
+        </div>
+      )}
+      {highValue !== undefined && (
+        <div>
+          <span>고가: {formatNumber(highValue)} 원</span>
+        </div>
+      )}
+      {lowValue !== undefined && (
+        <div>
+          <span>저가: {formatNumber(lowValue)} 원</span>
+        </div>
+      )}
+      {closeValue !== undefined && (
+        <div>
+          <span>종가: {formatNumber(closeValue)} 원</span>
+        </div>
+      )}
+      {value !== undefined && (
+        <div>
+          <span>거래량: {formatNumber(value)} 주</span>
+        </div>
+      )}
+      {realTimeData && (
+        <div>
+          <strong>실시간 데이터</strong>
+          <div>현재가: {formatNumber(realTimeData.price)} 원</div>
+          <div>
+            변동: {formatNumber(realTimeData.change)} 원 (
+            {realTimeData.changeRate.toFixed(2)}%)
+          </div>
+          <div>거래량: {formatNumber(realTimeData.volume)} 주</div>
+        </div>
+      )}
     </div>
   );
 }

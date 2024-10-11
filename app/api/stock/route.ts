@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
         // 최근 500일의 데이터를 요청할 날짜 계산 (일/주/월)
         const today = new Date();
         const pastDate = new Date(today);
-        pastDate.setDate(today.getDate() - 500);
+        pastDate.setDate(today.getDate() - 100);
 
         const startDate = pastDate.toISOString().split("T")[0].replace(
             /-/g,

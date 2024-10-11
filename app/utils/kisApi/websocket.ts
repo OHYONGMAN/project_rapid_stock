@@ -75,16 +75,9 @@ export const connectWebSocket = async (
   // 서버로부터 메시지를 수신할 때 호출되는 콜백
   socket.onmessage = (event) => {
     try {
-      if (typeof event.data === "string" && event.data.trim().startsWith("{")) {
-        const data = JSON.parse(event.data);
-        if (data && data.header && data.header.tr_id === "H0STCNT0") {
-          const stockData = parseStockData(data); // 수신 데이터 파싱
-          if (stockData) {
-            onMessage(stockData); // 파싱된 데이터를 콜백으로 전달
-          }
-        }
-      } else {
-        console.error("웹소켓 메시지 형식 오류:", event.data);
+      const stockData = parseStockData(event.data);
+      if (stockData) {
+        onMessage(stockData);
       }
     } catch (error) {
       console.error("웹소켓 메시지 처리 중 오류:", error);
@@ -130,22 +123,45 @@ export const closeWebSocket = () => {
 // 수신한 주식 데이터를 파싱하는 함수
 const parseStockData = (data: any) => {
   try {
-    const { body } = data;
-    if (body && body.rt_cd === "0") {
-      // 수신 데이터에서 주식 관련 정보 추출
-      const { stck_prpr, stck_oprc, stck_hgpr, stck_lwpr, cntg_vol, acml_vol } =
-        body.output || {};
+    if (typeof data === "string" && data.startsWith("0|H0STCNT0|")) {
+      const [, , , stockData] = data.split("|");
+      const [
+        MKSC_SHRN_ISCD,
+        STCK_CNTG_HOUR,
+        STCK_PRPR,
+        PRDY_VRSS_SIGN,
+        PRDY_VRSS,
+        PRDY_CTRT,
+        ,
+        STCK_OPRC,
+        STCK_HGPR,
+        STCK_LWPR,
+        ,
+        ,
+        ,
+        ACML_VOL,
+      ] = stockData.split("^");
 
       return {
-        stck_prpr: parseFloat(stck_prpr) || 0, // 현재가
-        stck_oprc: parseFloat(stck_oprc) || 0, // 시가
-        stck_hgpr: parseFloat(stck_hgpr) || 0, // 고가
-        stck_lwpr: parseFloat(stck_lwpr) || 0, // 저가
-        cntg_vol: parseFloat(cntg_vol) || 0, // 체결량
-        acml_vol: parseFloat(acml_vol) || 0, // 누적 거래량
+        symbol: MKSC_SHRN_ISCD,
+        time: STCK_CNTG_HOUR,
+        price: parseFloat(STCK_PRPR),
+        change: parseFloat(PRDY_VRSS),
+        changeRate: parseFloat(PRDY_CTRT),
+        open: parseFloat(STCK_OPRC),
+        high: parseFloat(STCK_HGPR),
+        low: parseFloat(STCK_LWPR),
+        volume: parseFloat(ACML_VOL),
+        changeSign: PRDY_VRSS_SIGN,
       };
+    } else if (
+      typeof data === "object" && data.header &&
+      data.header.tr_id === "H0STCNT0"
+    ) {
+      console.log("웹소켓 연결 성공:", data);
+      return null;
     } else {
-      console.warn("주식 데이터 응답 오류:", body);
+      console.warn("알 수 없는 데이터 형식:", data);
       return null;
     }
   } catch (error) {
