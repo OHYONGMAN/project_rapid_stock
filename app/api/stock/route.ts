@@ -1,4 +1,4 @@
-// app/api/stock/route.ts
+// 주식 데이터 조회 API 엔드포인트
 
 import { NextRequest, NextResponse } from "next/server";
 import { getValidToken } from "@/app/utils/kisApi/token";
@@ -34,10 +34,11 @@ export async function GET(req: NextRequest) {
         }
 
         // 최근 500일의 데이터를 요청할 날짜 계산 (일/주/월)
-        const today = new Date();
-        const pastDate = new Date(today);
-        pastDate.setDate(today.getDate() - 100);
+        const today = new Date(); // 현재 날짜를 기준으로 설정
+        const pastDate = new Date(today); // 기준 날짜를 생성
+        pastDate.setDate(today.getDate() - 100); // 지난 100일의 데이터를 조회
 
+        // 날짜를 YYYYMMDD 형식으로 변환하여 API에 전달할 수 있도록 가공
         const startDate = pastDate.toISOString().split("T")[0].replace(
             /-/g,
             "",
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
 
         // API 호출에 필요한 헤더 설정
         const headers = {
-            "content-type": "application/json; charset=utf-8",
+            "content-type": "application/json; charset=utf-8", // 요청의 데이터 타입을 명시
             authorization: `Bearer ${token}`, // API 토큰
             appkey: process.env.NEXT_PUBLIC_KIS_API_KEY!, // 앱 키
             appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET!, // 앱 시크릿
@@ -70,7 +71,7 @@ export async function GET(req: NextRequest) {
         // API 호출
         const response = await fetch(`${url}?${params}`, {
             method: "GET",
-            headers,
+            headers, // 헤더 포함
         });
 
         // 호출 실패 시 에러 처리
@@ -89,8 +90,12 @@ export async function GET(req: NextRequest) {
             throw new Error(`API 에러: ${data.msg1}`);
         }
 
+        // 종목 이름 추출
+        const stockName = data.output1.hts_kor_isnm; // 종목명
+
         // 받은 데이터를 가공하여 필요한 형식으로 변환
         const processedData = data.output2.map((item: any) => ({
+            name: stockName, // 종목명
             date: item.stck_bsop_date, // 거래 일자
             open: parseFloat(item.stck_oprc), // 시가
             high: parseFloat(item.stck_hgpr), // 고가
