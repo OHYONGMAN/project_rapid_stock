@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 // 숫자 포맷팅을 위한 형식 지정 (한국 원화 스타일)
