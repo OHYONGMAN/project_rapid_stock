@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { connectWebSocket } from '@/app/utils/kisApi/websocket';
+import webSocketManager from '@/app/utils/kisApi/websocketManager';
 
 interface RealTimeData {
   symbol: string;
@@ -16,8 +16,6 @@ interface RealTimeData {
   low: number;
   volume: number;
   changeSign: string;
-  askPrice: number;
-  bidPrice: number;
 }
 
 const formatNumber = new Intl.NumberFormat('ko-KR', {
@@ -34,23 +32,10 @@ export default function StockTable() {
   }, []);
 
   useEffect(() => {
-    let disconnect: (() => void) | null = null;
-
-    const setupWebSocket = async () => {
-      try {
-        disconnect = await connectWebSocket(symbol, handleRealTimeData);
-      } catch (error) {
-        console.error('웹소켓 연결 중 오류:', error);
-        setError('웹소켓 연결에 실패했습니다.');
-      }
-    };
-
-    setupWebSocket();
+    webSocketManager.subscribe(symbol, handleRealTimeData);
 
     return () => {
-      if (disconnect) {
-        disconnect();
-      }
+      webSocketManager.unsubscribe(symbol, handleRealTimeData);
     };
   }, [symbol, handleRealTimeData]);
 

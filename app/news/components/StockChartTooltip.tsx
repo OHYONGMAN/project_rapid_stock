@@ -7,68 +7,58 @@ const formatNumber = new Intl.NumberFormat('ko-KR', {
 }).format;
 
 interface StockChartTooltipProps {
-  data?: {
+  data: {
     argument?: string;
-    closeValue?: number;
-    highValue?: number;
-    lowValue?: number;
-    openValue?: number;
-    seriesName?: string;
-    value?: number;
+    points?: Array<{
+      seriesName?: string;
+      value?: number;
+      originalValue?: number;
+      originalArgument?: string;
+      point?: {
+        data?: {
+          open?: number;
+          high?: number;
+          low?: number;
+          close?: number;
+        };
+      };
+    }>;
   };
-  realTimeData?: {
-    price: number;
-    change: number;
-    changeRate: number;
-    volume: number;
-  } | null;
 }
 
-export default function StockChartTooltip({
-  data,
-  realTimeData,
-}: StockChartTooltipProps) {
-  if (!data) return null;
+export default function StockChartTooltip({ data }: StockChartTooltipProps) {
+  if (!data || !data.points || data.points.length === 0) return null;
 
-  const { argument, openValue, highValue, lowValue, closeValue, value } = data;
+  const point = data.points[0];
+  const { open, high, low, close } = point.point?.data || {};
+  const volume = point.value;
 
   return (
     <div className="tooltip-template">
-      <div>{argument}</div>
-      {openValue !== undefined && (
+      <div>{data.argument}</div>
+      {open !== undefined && (
         <div>
-          <span>시가: {formatNumber(openValue)} 원</span>
+          <span>시가: {formatNumber(open)} 원</span>
         </div>
       )}
-      {highValue !== undefined && (
+      {high !== undefined && (
         <div>
-          <span>고가: {formatNumber(highValue)} 원</span>
+          <span>고가: {formatNumber(high)} 원</span>
         </div>
       )}
-      {lowValue !== undefined && (
+      {low !== undefined && (
         <div>
-          <span>저가: {formatNumber(lowValue)} 원</span>
+          <span>저가: {formatNumber(low)} 원</span>
         </div>
       )}
-      {closeValue !== undefined && (
+      {close !== undefined && (
         <div>
-          <span>종가: {formatNumber(closeValue)} 원</span>
+          <span>종가: {formatNumber(close)} 원</span>
         </div>
       )}
-      {value !== undefined && (
+      {volume !== undefined && (
         <div>
-          <span>거래량: {formatNumber(value)} 주</span>
-        </div>
-      )}
-      {realTimeData && (
-        <div>
-          <strong>실시간 데이터</strong>
-          <div>현재가: {formatNumber(realTimeData.price)} 원</div>
-          <div>
-            변동: {formatNumber(realTimeData.change)} 원 (
-            {realTimeData.changeRate.toFixed(2)}%)
-          </div>
-          <div>거래량: {formatNumber(realTimeData.volume)} 주</div>
+          <span>거래량: {formatNumber(volume)} 주</span>
         </div>
       )}
     </div>

@@ -2,9 +2,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchStockData } from '@/app/utils/kisApi/stock';
-import { connectWebSocket } from '@/app/utils/kisApi/websocket';
 import Chart, {
   ArgumentAxis,
   ValueAxis,
@@ -28,19 +27,6 @@ interface StockData {
   volume: number;
 }
 
-interface RealTimeData {
-  symbol: string;
-  time: string;
-  price: number;
-  change: number;
-  changeRate: number;
-  open: number;
-  high: number;
-  low: number;
-  volume: number;
-  changeSign: string;
-}
-
 const formatDate = (dateString: string): string => {
   const year = dateString.slice(0, 4);
   const month = dateString.slice(4, 6);
@@ -57,9 +43,9 @@ const sortByDate = (a: StockData, b: StockData) => {
 export default function StockChart() {
   const [symbol, setSymbol] = useState('005930');
   const [chartData, setChartData] = useState<StockData[]>([]);
-  const [realTimeData, setRealTimeData] = useState<RealTimeData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const chartRef = useRef<any>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -97,41 +83,7 @@ export default function StockChart() {
   }, [symbol]);
 
   useEffect(() => {
-    const setupWebSocket = async () => {
-      try {
-        await loadData();
-
-        const handleRealTimeData = (data: RealTimeData) => {
-          setRealTimeData(data);
-
-          setChartData((prevData) => {
-            const newData = [...prevData];
-            const lastIndex = newData.length - 1;
-            if (lastIndex >= 0) {
-              newData[lastIndex] = {
-                ...newData[lastIndex],
-                close: data.price,
-                high: Math.max(newData[lastIndex].high, data.price),
-                low: Math.min(newData[lastIndex].low, data.price),
-                volume: data.volume,
-              };
-            }
-            return newData;
-          });
-        };
-
-        const disconnect = await connectWebSocket(symbol, handleRealTimeData);
-
-        return () => {
-          disconnect();
-        };
-      } catch (error) {
-        console.error('웹소켓 연결 중 오류:', error);
-        setError('웹소켓 연결에 실패했습니다.');
-      }
-    };
-
-    setupWebSocket();
+    loadData();
   }, [symbol, loadData]);
 
   return (
@@ -150,15 +102,16 @@ export default function StockChart() {
         <div className="h-[400px] w-full">
           <Chart
             id="stock-chart"
+            ref={chartRef}
             dataSource={chartData}
             customizePoint={(pointInfo: any) => {
               const isUp = pointInfo.data.close >= pointInfo.data.open;
               return {
-                color: isUp ? '#ff7285' : '#1db2f5', // 상승 시 빨간색, 하락 시 투명
+                color: isUp ? '#ff7285' : '#1db2f5',
                 border: {
-                  color: isUp ? '#ff7285' : '#1db2f5', // 상승 시 빨간색 외곽선, 하락 시 파란색 외곽선
+                  color: isUp ? '#ff7285' : '#1db2f5',
                   visible: true,
-                  width: 2, // 외곽선 두께
+                  width: 2,
                 },
                 hoverStyle: {
                   border: {
@@ -167,8 +120,8 @@ export default function StockChart() {
                     width: 2,
                   },
                 },
-                width: 1, // 캔들 너비
-                opacity: isUp ? 1 : 1, // 하락 시 내부가 비도록 opacity 설정
+                width: 1,
+                opacity: isUp ? 1 : 1,
               };
             }}
           >
@@ -181,8 +134,6 @@ export default function StockChart() {
               highValueField="high"
               lowValueField="low"
               closeValueField="close"
-              color="#ff7285" // 상승 시 기본 색상 설정 (빨간색)
-              reduction={{ color: '#1db2f5' }} // 하락 시 색상 설정 (파란색)
             />
             <Series
               pane="Volume"
@@ -190,6 +141,7 @@ export default function StockChart() {
               argumentField="date"
               valueField="volume"
               type="bar"
+              color={'#ff7285'}
             />
             <ArgumentAxis argumentType="string" tickInterval="day" />
             <ValueAxis pane="Price" />
@@ -202,18 +154,7 @@ export default function StockChart() {
             <Tooltip
               enabled={true}
               shared={true}
-              contentRender={(props) => (
-                <StockChartTooltip
-                  data={
-                    props.originalArgument
-                      ? props.points.find(
-                          (p: any) => p.argument === props.originalArgument,
-                        )
-                      : undefined
-                  }
-                  realTimeData={realTimeData}
-                />
-              )}
+              contentRender={(props: any) => <StockChartTooltip data={props} />}
             />
             <Crosshair enabled={true} />
             <Legend visible={false} />
