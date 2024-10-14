@@ -1,7 +1,4 @@
-import { getValidToken } from '../../utils/kisApi/token';
-// import Image from 'next/image';
-// import stockup from '../../../public/images/ico-stockup.svg';
-// import stockdown from '../../../public/images/ico-stockdown.svg';
+import { getValidToken } from '../../api/token/router';
 
 export default async function StockCapitalization() {
   const url =
@@ -17,6 +14,7 @@ export default async function StockCapitalization() {
       return null;
     }
 
+    // API 요청에 필요한 쿼리 파라미터 설정
     const params = new URLSearchParams({
       fid_cond_mrkt_div_code: 'J', // 시장 분류 코드 (주식: J)
       fid_cond_scr_div_code: '20174', // 화면 분류 코드
@@ -30,6 +28,7 @@ export default async function StockCapitalization() {
     });
 
     try {
+      // API 요청 실행
       const response = await fetch(`${url}?${params.toString()}`, {
         method: 'GET',
         headers: {
@@ -37,8 +36,8 @@ export default async function StockCapitalization() {
           Authorization: `Bearer ${token}`,
           appkey: CLIENT_ID || '',
           appsecret: CLIENT_SECRET || '',
-          tr_id: 'FHPST01740000',
-          custtype: 'P',
+          tr_id: 'FHPST01740000', // API 거래 ID
+          custtype: 'P', // 개인 고객
         },
       });
 
@@ -68,6 +67,17 @@ export default async function StockCapitalization() {
               <tr key={index} className="border-b hover:bg-g-100">
                 <td className="py-4 px-2">{index + 1}</td>
                 <td className="py-4 px-2">{stock.hts_kor_isnm}</td>
+                <td className="py-4 px-2">{stock.stck_prpr}</td>
+                {/* <td className='py-4 px-2'>{stock.prdy_vrss}</td> */}
+                <td
+                  className={`py-4 px-2 ${
+                    stock.prdy_ctrt > 0 ? 'text-primary' : 'text-blue-500'
+                  }`}
+                >
+                  {stock.prdy_ctrt > 0
+                    ? `+${stock.prdy_ctrt}%`
+                    : `${stock.prdy_ctrt}%`}
+                </td>
               </tr>
             ))}
           </tbody>

@@ -1,6 +1,5 @@
 import StockRank from './StockRank';
-import StockUp from './StockDividends';
-import StockDividends from './StockDividends';
+import StockCapitalization from './StockCapitalization';
 
 type Tab = {
   name: string;
@@ -9,8 +8,7 @@ type Tab = {
 
 const tabs: Tab[] = [
   { name: '거래 상위', component: <StockRank /> },
-  { name: '상승', component: <StockUp /> },
-  { name: '시가총액 상위', component: <StockDividends /> },
+  { name: '시가총액 상위', component: <StockCapitalization /> },
 ];
 
 export default function Table({

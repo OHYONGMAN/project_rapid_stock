@@ -1,5 +1,3 @@
-import { isServer } from '../utils';
-
 let accessToken: string | null = null;
 let tokenExpiration: number | null = null;
 let isTokenRefreshing = false;
@@ -22,13 +20,6 @@ const getNewToken = async (): Promise<string | null> => {
       const data = await response.json();
       accessToken = data.access_token;
       tokenExpiration = Date.now() + data.expires_in * 1000 - 60000;
-
-      if (!isServer) {
-        if (accessToken) {
-          localStorage.setItem('accessToken', accessToken);
-        }
-        localStorage.setItem('tokenExpiration', tokenExpiration.toString());
-      }
 
       console.log(
         '새 토큰 발급 완료. 만료 시간:',
@@ -53,15 +44,6 @@ export const getValidToken = async (): Promise<string | null> => {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
     return accessToken;
-  }
-
-  if (!isServer) {
-    const storedToken = localStorage.getItem('accessToken');
-    const storedExpiration = localStorage.getItem('tokenExpiration');
-    if (storedToken && storedExpiration) {
-      accessToken = storedToken;
-      tokenExpiration = parseInt(storedExpiration, 10);
-    }
   }
 
   if (!accessToken || !tokenExpiration || Date.now() >= tokenExpiration) {
@@ -118,11 +100,6 @@ export const cleanupToken = async (): Promise<void> => {
     await revokeToken(accessToken);
     accessToken = null;
     tokenExpiration = null;
-
-    if (!isServer) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('tokenExpiration');
-    }
 
     console.log('토큰이 폐기되었습니다.');
   }

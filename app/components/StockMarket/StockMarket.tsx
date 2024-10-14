@@ -37,7 +37,7 @@ export default async function StockRank() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('인덱스 데이터:', data);
+        // console.log('인덱스 데이터:', data);
         return data.output;
       } else {
         const errorData = await response.json();
