@@ -1,8 +1,9 @@
+import { Metadata } from 'next';
+import React from 'react';
 import 'devextreme/dist/css/dx.light.css';
 import '@/app/globals.css';
 import Footer from '@/app/components/Footer/Footer';
 import Header from '@/app/components/Header/Header';
-import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Rapid Stock',
@@ -16,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko-KR">
-      <body className="flex flex-col min-h-full">
+      <body className="flex min-h-full flex-col">
         <Header
           links={[
             { name: '뉴스룸', url: '/news' },
@@ -24,7 +25,7 @@ export default function RootLayout({
             { name: '모의투자', url: '/stock' },
           ]}
         />
-        <main className="flex-grow">{children}</main>
+        <main className="grow">{children}</main>
         <Footer />
       </body>
     </html>

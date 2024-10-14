@@ -17,9 +17,9 @@ const StockTable = dynamic(() => import('./components/StockTable'), {
 export default function NewsPageLayout() {
   return (
     <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Stock News and Prices</h1>
-      <StockChart /> {/* 주식 차트 컴포넌트 렌더링 */}
+      <h1 className="mb-8 text-3xl font-bold">Stock News and Prices</h1>
       <StockTable /> {/* 주식 테이블 컴포넌트 렌더링 */}
+      <StockChart /> {/* 주식 차트 컴포넌트 렌더링 */}
     </main>
   );
 }

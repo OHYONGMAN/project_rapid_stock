@@ -12,7 +12,6 @@ import Chart, {
   ArgumentAxis,
   ValueAxis,
   Series,
-  ScrollBar,
   ZoomAndPan,
   LoadingIndicator,
   Pane,
@@ -33,7 +32,6 @@ interface StockData {
 
 // 날짜 포맷팅 함수 (YYYYMMDD 형식의 날짜를 MM월 DD일 형식으로 변환)
 const formatDate = (dateString: string): string => {
-  const year = dateString.slice(0, 4); // 연도 추출
   const month = dateString.slice(4, 6); // 월 추출
   const day = dateString.slice(6, 8); // 일 추출
   return `${Number(month)}월 ${Number(day)}일`; // "MM월 DD일" 형식으로 반환
@@ -246,22 +244,22 @@ export default function StockChart() {
 
   return (
     <div className="w-full">
-      <h1 className="text-3xl font-bold mb-4">Stock News and Prices</h1>
+      <h1 className="mb-4 text-3xl font-bold">Stock News and Prices</h1>
       {/* 종목 코드 입력 필드 */}
       <input
         type="text"
         value={symbol}
         onChange={(e) => setSymbol(e.target.value)} // 사용자 입력에 따라 종목 코드 변경
-        className="w-full p-2 mb-4 border rounded"
+        className="mb-4 w-full rounded border p-2"
         placeholder="종목 코드를 입력하세요"
       />
-      {error && <p className="text-red-500 mb-4">{error}</p>}{' '}
+      {error && <p className="mb-4 text-red-500">{error}</p>}{' '}
       {/* 에러 메시지 표시 */}
       {isLoading ? (
         <p>로딩 중...</p> /* 로딩 중일 때 표시 */
       ) : chartData.length > 0 ? (
         <div
-          className="h-[500px] w-full relative"
+          className="relative h-[500px] w-full"
           ref={containerRef}
           onMouseMove={handleChartHover} // 차트 위에서 마우스 움직임 처리
           onMouseLeave={handleMouseLeave} // 차트 밖으로 마우스가 나갈 때 처리
