@@ -56,27 +56,12 @@ const PriceInfo = React.memo(({ data }: { data: StockData | null }) => {
     new Intl.NumberFormat('ko-KR').format(num);
 
   return (
-    <div className="absolute top-2 left-2 p-2 bg-white bg-opacity-90 rounded shadow-md z-10">
-      <div className="text-sm font-semibold mb-1">{data.date}</div>{' '}
-      {/* 거래 일자 표시 */}
-      <div>시가: {formatNumber(data.open)}원</div> {/* 시가 표시 */}
-      <div>고가: {formatNumber(data.high)}원</div> {/* 고가 표시 */}
-      <div>저가: {formatNumber(data.low)}원</div> {/* 저가 표시 */}
-      <div>종가: {formatNumber(data.close)}원</div> {/* 종가 표시 */}
-    </div>
-  );
-});
-
-// 거래량 정보를 보여주는 컴포넌트 (해당 포인트의 거래량 데이터를 화면에 표시)
-const VolumeInfo = React.memo(({ data }: { data: StockData | null }) => {
-  if (!data) return null; // 데이터가 없으면 아무 것도 렌더링하지 않음
-
-  const formatNumber = (num: number) =>
-    new Intl.NumberFormat('ko-KR').format(num);
-
-  return (
-    <div className="absolute bottom-2 left-2 p-2 bg-white bg-opacity-90 rounded shadow-md z-10">
-      <div>거래량: {formatNumber(data.volume)}주</div> {/* 거래량 표시 */}
+    <div className="absolute -top-3 left-7 z-10 text-sm">
+      <span>시가: {formatNumber(data.open)}원</span> {/* 시가 표시 */}
+      <span>고가: {formatNumber(data.high)}원</span> {/* 고가 표시 */}
+      <span>저가: {formatNumber(data.low)}원</span> {/* 저가 표시 */}
+      <span>종가: {formatNumber(data.close)}원</span> {/* 종가 표시 */}
+      <span>거래량: {formatNumber(data.volume)}주</span> {/* 거래량 표시 */}
     </div>
   );
 });
@@ -283,8 +268,6 @@ export default function StockChart() {
         >
           <PriceInfo data={hoveredPoint} />{' '}
           {/* 선택된 포인트의 가격 정보 표시 */}
-          <VolumeInfo data={hoveredPoint} />{' '}
-          {/* 선택된 포인트의 거래량 정보 표시 */}
           {memoizedChart} {/* 메모이제이션된 차트 표시 */}
         </div>
       ) : (
