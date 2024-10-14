@@ -22,7 +22,7 @@ export default function Table({
   const ActiveComponent = tabs[activeTab]?.component || tabs[0].component;
 
   return (
-    <div className="max-w-4xl mx-auto mr-20">
+    <div className="mx-auto">
       <h2 className="text-2xl font-semibold mb-4">TOP 종목</h2>
 
       <div className="tabs flex">
