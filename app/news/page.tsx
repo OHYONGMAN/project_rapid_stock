@@ -66,7 +66,7 @@ const useDataStore = create<DataState>((set, get) => ({
       set({ loading: false }); // 로딩 종료
     }
   },
-  
+
   // 데이터를 새로고침하는 함수
   refreshData: async () => {
     try {

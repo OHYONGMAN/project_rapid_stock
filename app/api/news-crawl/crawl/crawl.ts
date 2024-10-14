@@ -28,37 +28,21 @@ main() : 함수를 이용하여 새로운 뉴스 데이터를 가져오고, 그 
 Code() : 함수를 이용하여 엑셀 파일에서 회사명과 종목코드를 가져와서, 뉴스 데이터의 키워드를 이용하여 종목코드를 찾아냅니다.
 */
 
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
 import fs from 'fs';
 import path from 'path';
-import XLSX from 'xlsx';
 import { fileURLToPath } from 'url';
 
 // __dirname 대체
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const COMBINED_FILE_PATH = path.join(__dirname, 'combined_news_data.json');
+const COMBINED_FILE_PATH = path.join(__dirname, 'data.json');
+const COMPANY_INFO_PATH = path.join(__dirname, 'companyInfo.json');
 
-// HTTP 요청 헤더 설정
-const axiosConfig: AxiosRequestConfig = {
-  headers: {
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
-    'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Cache-Control': 'no-cache',
-    Pragma: 'no-cache',
-  },
-};
-
-// 키워드 추출 API 요청의 타입 정의
-interface ApiPostResponse {
-  keyword: string[];
-}
-
-// 뉴스 데이터 타입 정의
+// 타입 정의
 interface NewsArticle {
   id: number;
   image: string;
@@ -67,8 +51,24 @@ interface NewsArticle {
   link: string;
   date: string;
   keyword: string[];
-  relatedCompanies: { name: string; code: string }[];
+  relatedCompanies?: { name: string; code: string }[];
 }
+
+interface CompanyInfo {
+  name: string;
+  code: string;
+}
+
+// HTTP 요청 헤더 설정
+const axiosConfig = {
+  headers: {
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
+    'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Cache-Control': 'no-cache',
+    Pragma: 'no-cache',
+  },
+};
 
 // 뉴스를 바탕으로 관련 키워드 추출
 const apiPost = async (summary: string): Promise<string[]> => {
@@ -116,14 +116,18 @@ const apiPost = async (summary: string): Promise<string[]> => {
     }
 
     const resJson = await result.json();
-    const keywordContent = resJson?.choices?.[0]?.message?.content;
+    const keywordContent =
+      resJson.choices &&
+      resJson.choices[0] &&
+      resJson.choices[0].message &&
+      resJson.choices[0].message.content;
 
     if (!keywordContent) {
       console.error('API 응답에 content가 없습니다.');
       return [];
     }
 
-    let parsed: ApiPostResponse;
+    let parsed;
     try {
       parsed = JSON.parse(keywordContent);
     } catch (parseError) {
@@ -131,7 +135,7 @@ const apiPost = async (summary: string): Promise<string[]> => {
       return [];
     }
 
-    const keyword = parsed.keyword;
+    const keyword: string[] = parsed.keyword;
 
     if (!Array.isArray(keyword)) {
       console.error('추출된 키워드가 배열이 아닙니다:', keyword);
@@ -148,11 +152,10 @@ const apiPost = async (summary: string): Promise<string[]> => {
 // 크롤링하여 뉴스 데이터 가져오기
 async function fetchNews(): Promise<NewsArticle[]> {
   try {
-    // URL에 타임스탬프 추가하여 새로운 요청으로 인식되도록 함
     const url = `https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=258&_=${new Date().getTime()}`;
     const response = await axios.get(url, {
-      responseType: 'arraybuffer', // 바이너리 형식으로 데이터를 받음
-      ...axiosConfig, // 헤더 추가
+      responseType: 'arraybuffer',
+      ...axiosConfig,
     });
 
     const decodedData = iconv.decode(response.data, 'euc-kr');
@@ -165,7 +168,6 @@ async function fetchNews(): Promise<NewsArticle[]> {
       const titleElement = $(element).next('dd.articleSubject').find('a');
       const title = titleElement.attr('title') || '';
       const link = titleElement.attr('href') || '';
-
       const date =
         $(element)
           .next('dd.articleSubject')
@@ -173,7 +175,6 @@ async function fetchNews(): Promise<NewsArticle[]> {
           .find('span.wdate')
           .text() || '';
 
-      // 링크에서 office_id와 article_id 추출
       const officeIdMatch = link.match(/office_id=([0-9]+)/);
       const articleIdMatch = link.match(/article_id=([0-9]+)/);
 
@@ -187,16 +188,12 @@ async function fetchNews(): Promise<NewsArticle[]> {
 
       const officeId = officeIdMatch[1];
       const articleId = articleIdMatch[1];
-
-      // 링크를 https://n.news.naver.com/mnews/article/{office_id}/{article_id} 형식으로 변환
       const cleanLink = `https://n.news.naver.com/mnews/article/${officeId}/${articleId}`;
 
       const summaryElement = $(element)
         .next('dd.articleSubject')
         .next('dd.articleSummary');
       let summary = summaryElement.text().trim() || '';
-
-      // 공백 및 불필요한 줄바꿈 제거
       summary = summary
         .replace(/[\n\t]+/g, ' ')
         .replace(/\s+/g, ' ')
@@ -204,14 +201,14 @@ async function fetchNews(): Promise<NewsArticle[]> {
 
       if (imageUrl && title && summary && cleanLink && date) {
         newsList.push({
-          id: index + 1, // id 값을 index로 설정
+          id: index + 1,
           image: imageUrl,
           title: title,
           summary: summary,
-          link: cleanLink, // 재구성된 링크 추가
+          link: cleanLink,
           date: date,
-          keyword: [], // 기본값으로 빈 배열 할당
-          relatedCompanies: [], // 기본값으로 빈 배열 할당
+          keyword: [],
+          relatedCompanies: [],
         });
       }
 
@@ -228,12 +225,19 @@ async function fetchNews(): Promise<NewsArticle[]> {
 }
 
 // JSON 파일 저장 함수
-function saveData(filePath: string, data: any) {
+function saveData(filePath: string, data: any): void {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+// 날짜 파싱 함수
+function parseDate(dateString: string): number {
+  // 날짜 문자열에서 숫자만 추출 (예: '2023.10.15 14:30' -> '202310151430')
+  const numericDate = dateString.replace(/\D/g, '');
+  return parseInt(numericDate, 10);
+}
+
 // 메인 함수
-export default async function main(): Promise<void> {
+async function main(): Promise<void> {
   console.log('뉴스 데이터 수집 시작:', new Date());
 
   try {
@@ -252,26 +256,23 @@ export default async function main(): Promise<void> {
       data.keyword = keywordsArray[index];
     });
 
-    // 엑셀 파일에서 회사명과 종목코드 가져오기
-    let companyMap: Record<string, string> = {};
+    // companyInfo.json 파일에서 회사명과 종목코드 가져오기
+    let companyMap: { [key: string]: string } = {};
     try {
-      const workbook = XLSX.readFile('companyInfo.xlsx');
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const companyInfo = fs.readFileSync(COMPANY_INFO_PATH, 'utf-8');
+      const companyData: CompanyInfo[] = JSON.parse(companyInfo);
 
       // 회사명과 종목코드를 매핑
-      const companyData: (string | number)[][] = XLSX.utils.sheet_to_json(
-        worksheet,
-        { header: 1 },
-      );
-      companyData.forEach((row) => {
-        const companyName = row[0] as string;
-        const companyCode = row[1] as string;
+      companyData.forEach((company) => {
+        const companyName = company.name;
+        const companyCode = company.code;
+
         if (companyName && companyCode) {
           companyMap[companyName.trim()] = companyCode;
         }
       });
     } catch (error) {
-      console.error('엑셀 파일 읽기 중 오류 발생:', error);
+      console.error('companyInfo.json 파일 읽기 중 오류 발생:', error);
     }
 
     // 각 뉴스 기사에 대해 매칭되는 회사 찾기
@@ -281,7 +282,7 @@ export default async function main(): Promise<void> {
           if (typeof keyword === 'string') {
             const trimmedKeyword = keyword.trim();
             if (companyMap[trimmedKeyword]) {
-              article.relatedCompanies.push({
+              article.relatedCompanies?.push({
                 name: trimmedKeyword,
                 code: companyMap[trimmedKeyword],
               });
@@ -292,21 +293,24 @@ export default async function main(): Promise<void> {
         });
       }
 
-      // relatedCompanies가 비어있지 않다면 유지, 비어있다면 제거
-      if (article.relatedCompanies.length === 0) {
-        if (article.relatedCompanies) {
-          delete article.relatedCompanies;
-        }
+      if (article.relatedCompanies && article.relatedCompanies.length === 0) {
+        delete article.relatedCompanies;
       }
     });
 
-    // combined_news_data.json 생성 (relatedCompanies가 있는 기사만 포함)
     const combinedData = newData.filter(
       (article) =>
         article.relatedCompanies && article.relatedCompanies.length > 0,
     );
 
-    // combined_news_data.json으로 저장
+    // 날짜 기준으로 정렬 (최신 뉴스가 상단에 오도록)
+    combinedData.sort((a, b) => {
+      const dateA = parseDate(a.date);
+      const dateB = parseDate(b.date);
+      return dateB - dateA; // 내림차순 정렬
+    });
+
+    // 데이터 저장
     saveData(COMBINED_FILE_PATH, combinedData);
 
     console.log('뉴스 데이터가 성공적으로 갱신되었습니다.', new Date());
@@ -315,8 +319,7 @@ export default async function main(): Promise<void> {
   }
 
   console.log('다음 수집까지 대기 중...');
-  // 다음 실행을 위한 setTimeout 설정 (5분 후)
-  setTimeout(main, 30000); // 300,000ms = 5분
+  setTimeout(main, 300000); // 300,000ms = 5분
 }
 
 // 첫 실행
