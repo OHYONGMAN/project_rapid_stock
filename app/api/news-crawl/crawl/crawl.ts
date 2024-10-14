@@ -10,26 +10,40 @@ apiPost() : 함수를 이용하여 뉴스 요약을 보내고, 그 결과를 받
 fetchNews() : 함수를 이용하여 네이버 금융 뉴스를 크롤링하여 데이터를 가져옵니다.
 saveData() : 함수를 이용하여 외부에 JSON 파일에 데이터를 저장합니다.
 main() : 함수를 이용하여 새로운 뉴스 데이터를 가져오고, 그 데이터를 저장합니다.
-<<<<<<< HEAD
-<<<<<<< HEAD
 Code() : 함수를 이용하여 엑셀 파일에서 회사명과 종목코드를 가져와서, 뉴스 데이터의 키워드를 이용하여 종목코드를 찾아냅니다.
-=======
->>>>>>> newsCrawling
-=======
->>>>>>> newsCrawling
 */
 
-const axios = require('axios');
-const cheerio = require('cheerio');
-const iconv = require('iconv-lite');
-const fs = require('fs');
-const path = require('path');
-const XLSX = require('xlsx');
+/* 
+1. 외부에 package.json을 배치하고, 필요한 패키지를 설치합니다.
+2. 이 파일 실행은 node index.js로 실행합니다. 
+3. 이 파일의 setInterval함수를 찾아 시간 조정을 해줍니다.
+4. news_data.json :        네이버 금융 뉴스를 크롤링하여 데이터를 가져오고, 그 데이터를 외부에  json 파일로 저장합니다.
+5. matching_results.json : 최종 기사와 매칭되는 회사명과 종목코드를 찾아냅니다.
+
+setInterval(main, 180000) : 5분에 한번 실행함! 너무 자주하면 네이버에서 차단되니 주의요함!!!
+apiPost() : 함수를 이용하여 뉴스 요약을 보내고, 그 결과를 받아서 관련 키워드를 추출합니다.
+fetchNews() : 함수를 이용하여 네이버 금융 뉴스를 크롤링하여 데이터를 가져옵니다.
+saveData() : 함수를 이용하여 외부에 JSON 파일에 데이터를 저장합니다.
+main() : 함수를 이용하여 새로운 뉴스 데이터를 가져오고, 그 데이터를 저장합니다.
+Code() : 함수를 이용하여 엑셀 파일에서 회사명과 종목코드를 가져와서, 뉴스 데이터의 키워드를 이용하여 종목코드를 찾아냅니다.
+*/
+
+import axios, { AxiosRequestConfig } from 'axios';
+import * as cheerio from 'cheerio';
+import iconv from 'iconv-lite';
+import fs from 'fs';
+import path from 'path';
+import XLSX from 'xlsx';
+import { fileURLToPath } from 'url';
+
+// __dirname 대체
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const COMBINED_FILE_PATH = path.join(__dirname, 'combined_news_data.json');
 
 // HTTP 요청 헤더 설정
-const axiosConfig = {
+const axiosConfig: AxiosRequestConfig = {
   headers: {
     'User-Agent':
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
@@ -39,8 +53,25 @@ const axiosConfig = {
   },
 };
 
+// 키워드 추출 API 요청의 타입 정의
+interface ApiPostResponse {
+  keyword: string[];
+}
+
+// 뉴스 데이터 타입 정의
+interface NewsArticle {
+  id: number;
+  image: string;
+  title: string;
+  summary: string;
+  link: string;
+  date: string;
+  keyword: string[];
+  relatedCompanies: { name: string; code: string }[];
+}
+
 // 뉴스를 바탕으로 관련 키워드 추출
-const apiPost = async (summary) => {
+const apiPost = async (summary: string): Promise<string[]> => {
   const data = [
     {
       role: 'system',
@@ -85,18 +116,14 @@ const apiPost = async (summary) => {
     }
 
     const resJson = await result.json();
-    const keywordContent =
-      resJson.choices &&
-      resJson.choices[0] &&
-      resJson.choices[0].message &&
-      resJson.choices[0].message.content;
+    const keywordContent = resJson?.choices?.[0]?.message?.content;
 
     if (!keywordContent) {
       console.error('API 응답에 content가 없습니다.');
       return [];
     }
 
-    let parsed;
+    let parsed: ApiPostResponse;
     try {
       parsed = JSON.parse(keywordContent);
     } catch (parseError) {
@@ -119,7 +146,7 @@ const apiPost = async (summary) => {
 };
 
 // 크롤링하여 뉴스 데이터 가져오기
-async function fetchNews() {
+async function fetchNews(): Promise<NewsArticle[]> {
   try {
     // URL에 타임스탬프 추가하여 새로운 요청으로 인식되도록 함
     const url = `https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=258&_=${new Date().getTime()}`;
@@ -131,7 +158,7 @@ async function fetchNews() {
     const decodedData = iconv.decode(response.data, 'euc-kr');
     const $ = cheerio.load(decodedData);
 
-    let newsList = [];
+    let newsList: NewsArticle[] = [];
 
     $('dl > dt.thumb').each((index, element) => {
       const imageUrl = $(element).find('img').attr('src') || '';
@@ -201,12 +228,12 @@ async function fetchNews() {
 }
 
 // JSON 파일 저장 함수
-function saveData(filePath, data) {
+function saveData(filePath: string, data: any) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 // 메인 함수
-async function main() {
+export default async function main(): Promise<void> {
   console.log('뉴스 데이터 수집 시작:', new Date());
 
   try {
@@ -226,16 +253,19 @@ async function main() {
     });
 
     // 엑셀 파일에서 회사명과 종목코드 가져오기
-    let companyMap = {};
+    let companyMap: Record<string, string> = {};
     try {
       const workbook = XLSX.readFile('companyInfo.xlsx');
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
       // 회사명과 종목코드를 매핑
-      const companyData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const companyData: (string | number)[][] = XLSX.utils.sheet_to_json(
+        worksheet,
+        { header: 1 },
+      );
       companyData.forEach((row) => {
-        const companyName = row[0];
-        const companyCode = row[1];
+        const companyName = row[0] as string;
+        const companyCode = row[1] as string;
         if (companyName && companyCode) {
           companyMap[companyName.trim()] = companyCode;
         }
@@ -264,7 +294,9 @@ async function main() {
 
       // relatedCompanies가 비어있지 않다면 유지, 비어있다면 제거
       if (article.relatedCompanies.length === 0) {
-        delete article.relatedCompanies;
+        if (article.relatedCompanies) {
+          delete article.relatedCompanies;
+        }
       }
     });
 
@@ -284,7 +316,7 @@ async function main() {
 
   console.log('다음 수집까지 대기 중...');
   // 다음 실행을 위한 setTimeout 설정 (5분 후)
-  setTimeout(main, 180000); // 180,000ms = 3분
+  setTimeout(main, 30000); // 300,000ms = 5분
 }
 
 // 첫 실행

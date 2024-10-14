@@ -13,9 +13,17 @@
     "@aspnet/signalr": "1.0.27",
     "@devextreme/runtime": "3.0.13",
     "@microsoft/signalr": "^8.0.7",
+    "@nestjs/common": "^9.x.x",
+    "@nestjs/core": "^9.x.x",
+    "@nestjs/platform-express": "^9.x.x",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
+    "@vendia/serverless-express": "^4.12.6",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "csv-parse": "^5.0.0",
+    "date-fns": "^4.1.0",
     "devexpress-diagram": "2.2.11",
     "devexpress-gantt": "4.1.56",
     "devextreme": "^24.1.6",
@@ -23,6 +31,8 @@
     "devextreme-quill": "1.7.1",
     "devextreme-react": "^24.1.6",
     "es6-object-assign": "1.1.0",
+    "exceljs": "^4.4.0",
+    "iconv-lite": "^0.6.3",
     "inferno": "7.4.11",
     "inferno-clone-vnode": "latest",
     "inferno-compat": "latest",
@@ -36,28 +46,26 @@
     "next": "14.2.13",
     "prettier": "^3.3.3",
     "prop-types": "15.8.1",
+    "puppeteer": "^1.20.0",
     "react": "^18",
     "react-dom": "^18",
     "rrule": "2.6.4",
-    "tslib": "2.6.1",
-    "zustand": "^5.0.0-rc.2",
-    "axios": "^1.7.7",
-    "cheerio": "^1.0.0",
-    "csv-parse": "^5.0.0",
-    "exceljs": "^4.4.0",
-    "iconv-lite": "^0.6.3",
-    "puppeteer": "^1.20.0",
     "string-similarity": "^4.0.4",
+    "tslib": "2.6.1",
     "xls-to-json": "^2.1.1",
     "xlsjs": "^1.0.1",
 <<<<<<< HEAD
     "xlsx": "^0.18.5"
 =======
     "xlsx": "^0.18.5",
+<<<<<<< HEAD
     "@vendia/serverless-express": "^4.12.6",
     "@nestjs/core": "^9.x.x",
     "@nestjs/common": "^9.x.x",
     "@nestjs/platform-express": "^9.x.x"
+>>>>>>> newsCrawling
+=======
+    "zustand": "^5.0.0-rc.2"
 >>>>>>> newsCrawling
   },
   "devDependencies": {
@@ -73,6 +81,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
     "eslint-plugin-tailwindcss": "^3.17.4",
+    "gh-pages": "^6.1.1",
     "globals": "^15.9.0",
 <<<<<<< HEAD
     "postcss": "^8.4.47",
@@ -81,8 +90,14 @@
 =======
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+<<<<<<< HEAD
     "typescript": "^5",
     "gh-pages": "^6.1.1"
 >>>>>>> newsCrawling
   }
+=======
+    "typescript": "^5"
+  },
+  "type": "module"
+>>>>>>> newsCrawling
 }

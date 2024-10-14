@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko-kr">
-      <body>
+      <body className="dx-viewport">
         <Header
           links={[
             { name: '뉴스룸', url: '/news' },
