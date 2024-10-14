@@ -55,8 +55,8 @@ interface NewsArticle {
 }
 
 interface CompanyInfo {
-  name: string;
-  code: string;
+  companyName: string;
+  companyCode: string;
 }
 
 // HTTP 요청 헤더 설정
@@ -237,7 +237,7 @@ function parseDate(dateString: string): number {
 }
 
 // 메인 함수
-async function main(): Promise<void> {
+export default async function main(): Promise<void> {
   console.log('뉴스 데이터 수집 시작:', new Date());
 
   try {
@@ -264,8 +264,8 @@ async function main(): Promise<void> {
 
       // 회사명과 종목코드를 매핑
       companyData.forEach((company) => {
-        const companyName = company.name;
-        const companyCode = company.code;
+        const companyName = company.companyName;
+        const companyCode = company.companyCode;
 
         if (companyName && companyCode) {
           companyMap[companyName.trim()] = companyCode;
