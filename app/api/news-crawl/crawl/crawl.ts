@@ -1,50 +1,20 @@
-/* 
-1. 외부에 package.json을 배치하고, 필요한 패키지를 설치합니다.
-2. 이 파일 실행은 node index.js로 실행합니다. 
-3. 이 파일의 setInterval함수를 찾아 시간 조정을 해줍니다.
-4. news_data.json :        네이버 금융 뉴스를 크롤링하여 데이터를 가져오고, 그 데이터를 외부에  json 파일로 저장합니다.
-5. matching_results.json : 최종 기사와 매칭되는 회사명과 종목코드를 찾아냅니다.
-
-setInterval(main, 180000) : 5분에 한번 실행함! 너무 자주하면 네이버에서 차단되니 주의요함!!!
-apiPost() : 함수를 이용하여 뉴스 요약을 보내고, 그 결과를 받아서 관련 키워드를 추출합니다.
-fetchNews() : 함수를 이용하여 네이버 금융 뉴스를 크롤링하여 데이터를 가져옵니다.
-saveData() : 함수를 이용하여 외부에 JSON 파일에 데이터를 저장합니다.
-main() : 함수를 이용하여 새로운 뉴스 데이터를 가져오고, 그 데이터를 저장합니다.
-Code() : 함수를 이용하여 엑셀 파일에서 회사명과 종목코드를 가져와서, 뉴스 데이터의 키워드를 이용하여 종목코드를 찾아냅니다.
-*/
-
-/* 
-1. 외부에 package.json을 배치하고, 필요한 패키지를 설치합니다.
-2. 이 파일 실행은 node index.js로 실행합니다. 
-3. 이 파일의 setInterval함수를 찾아 시간 조정을 해줍니다.
-4. news_data.json :        네이버 금융 뉴스를 크롤링하여 데이터를 가져오고, 그 데이터를 외부에  json 파일로 저장합니다.
-5. matching_results.json : 최종 기사와 매칭되는 회사명과 종목코드를 찾아냅니다.
-
-setInterval(main, 180000) : 5분에 한번 실행함! 너무 자주하면 네이버에서 차단되니 주의요함!!!
-apiPost() : 함수를 이용하여 뉴스 요약을 보내고, 그 결과를 받아서 관련 키워드를 추출합니다.
-fetchNews() : 함수를 이용하여 네이버 금융 뉴스를 크롤링하여 데이터를 가져옵니다.
-saveData() : 함수를 이용하여 외부에 JSON 파일에 데이터를 저장합니다.
-main() : 함수를 이용하여 새로운 뉴스 데이터를 가져오고, 그 데이터를 저장합니다.
-Code() : 함수를 이용하여 엑셀 파일에서 회사명과 종목코드를 가져와서, 뉴스 데이터의 키워드를 이용하여 종목코드를 찾아냅니다.
-*/
-
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { supabase } from '@/app/lib/supabaseClient';
 
 // __dirname 대체
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const COMBINED_FILE_PATH = path.join(__dirname, 'data.json');
+
 const COMPANY_INFO_PATH = path.join(__dirname, 'companyInfo.json');
 
 // 타입 정의
 interface NewsArticle {
-  num: number;
   image: string;
   title: string;
   summary: string;
@@ -70,7 +40,7 @@ const axiosConfig = {
   },
 };
 
-// 뉴스를 바탕으로 관련 키워드 추출
+// API 호출로 관련 키워드 추출 함수
 const apiPost = async (summary: string): Promise<string[]> => {
   const data = [
     {
@@ -100,6 +70,7 @@ const apiPost = async (summary: string): Promise<string[]> => {
   });
 
   const url = `https://open-api.jejucodingcamp.workers.dev/`;
+
   try {
     const result = await fetch(url, {
       method: 'POST',
@@ -149,7 +120,7 @@ const apiPost = async (summary: string): Promise<string[]> => {
   }
 };
 
-// 크롤링하여 뉴스 데이터 가져오기
+// 뉴스 크롤링 함수
 async function fetchNews(): Promise<NewsArticle[]> {
   try {
     const url = `https://finance.naver.com/news/news_list.naver?mode=LSS2D&section_id=101&section_id2=258&_=${new Date().getTime()}`;
@@ -201,7 +172,6 @@ async function fetchNews(): Promise<NewsArticle[]> {
 
       if (imageUrl && title && summary && cleanLink && date) {
         newsList.push({
-          num: index + 1,
           image: imageUrl,
           title: title,
           summary: summary,
@@ -224,9 +194,68 @@ async function fetchNews(): Promise<NewsArticle[]> {
   }
 }
 
-// JSON 파일 저장 함수
-function saveData(filePath: string, data: any): void {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+// Supabase에 데이터를 저장하는 함수 (중복 체크 및 upsert 추가)
+async function saveToSupabase(newsData: NewsArticle[]): Promise<void> {
+  try {
+    // 뉴스 기사 제목과 링크를 기준으로 중복 체크
+    const titles = newsData.map((article) => article.title);
+    const links = newsData.map((article) => article.link);
+
+    // Supabase에서 동일한 제목과 링크가 있는 기사를 가져옴
+    const { data: existingNews, error: fetchError } = await supabase
+      .from('news')
+      .select('title, link')
+      .or(`title.in.(${titles.join(',')}),link.in.(${links.join(',')})`);
+
+    if (fetchError) {
+      console.error(
+        'Supabase에서 기존 데이터를 가져오는 중 오류 발생:',
+        fetchError.message,
+      );
+      return;
+    }
+
+    // 이미 존재하는 제목과 링크의 기사를 필터링
+    const existingTitleLinkSet = new Set(
+      existingNews.map((news) => `${news.title}|${news.link}`),
+    );
+
+    // 중복되지 않은 새로운 기사를 필터링
+    const newArticles = newsData.filter(
+      (article) =>
+        !existingTitleLinkSet.has(`${article.title}|${article.link}`),
+    );
+
+    if (newArticles.length === 0) {
+      console.log('중복된 데이터가 있어 새로 저장할 데이터가 없습니다.');
+      return;
+    }
+
+    // 중복되지 않은 데이터를 Supabase에 저장
+    const { data, error } = await supabase.from('news').upsert(
+      newArticles.map((article) => ({
+        image: article.image,
+        title: article.title,
+        summary: article.summary,
+        link: article.link,
+        date: article.date,
+        keyword: article.keyword,
+        relatedCompanies: article.relatedCompanies
+          ? article.relatedCompanies
+          : [],
+      })),
+    ); // 제목과 링크 중복시 추가되지 않도록 설정
+
+    if (error) {
+      console.error('Supabase 저장 중 오류 발생:', error.message);
+    } else {
+      console.log(
+        'Supabase에 중복되지 않은 데이터가 성공적으로 저장되었습니다.',
+      );
+    }
+  } catch (error) {
+    console.error('Supabase에 데이터를 저장하는 중 오류 발생:', error);
+  }
 }
 
 // 날짜 파싱 함수
@@ -310,8 +339,8 @@ export default async function main(): Promise<void> {
       return dateB - dateA; // 내림차순 정렬
     });
 
-    // 데이터 저장
-    saveData(COMBINED_FILE_PATH, combinedData);
+    // Supabase에 데이터 저장
+    await saveToSupabase(combinedData);
 
     console.log('뉴스 데이터가 성공적으로 갱신되었습니다.', new Date());
   } catch (error) {
@@ -319,7 +348,7 @@ export default async function main(): Promise<void> {
   }
 
   console.log('다음 수집까지 대기 중...');
-  setTimeout(main, 1200000); // 300,000ms = 5분
+  setTimeout(main, 180000); // 300,000ms = 5분
 }
 
 // 첫 실행
