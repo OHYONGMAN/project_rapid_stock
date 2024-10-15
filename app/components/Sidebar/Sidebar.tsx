@@ -1,28 +1,20 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import icoProfile from '../../../public/images/ico-profile.svg';
+import React, { useState } from 'react';
 import icoCloseArr from '../../../public/images/ico-closeArr.svg';
 import icoOpenArr from '../../../public/images/ico-openArr.svg';
+import Chats from './components/Chats';
+import UserInfo from './components/UserInfo'; // UserInfo 컴포넌트 임포트
 
 export default function SideBar() {
-  const [message, setMessage] = useState<string>('');
-  const [selectedButton, setSelectedButton] = useState<string>('recent'); // 현재 선택된 버튼 상태 추가
-  const [isOpen, setIsOpen] = useState<boolean>(false); // 사이드바 열림/닫힘 상태 추가
+  const [selectedButton, setSelectedButton] = useState<string>('recent');
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null); // 사용자 이메일 상태
 
-  // handleSubmit 함수의 타입 지정
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log(message);
-    setMessage('');
-  };
-
-  // onChange 함수의 타입 지정
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-    console.log(e.target.value);
+  // 사용자 이메일 업데이트
+  const handleUserChange = (email: string | null) => {
+    setUserEmail(email);
   };
 
   return (
@@ -45,23 +37,13 @@ export default function SideBar() {
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* 로그인 섹션 */}
-        <section className="flex flex-col gap-4 pt-[60px]">
-          <p className="text-xl">
-            로그인하고
-            <br />
-            관심 뉴스 속보를 받아보세요!
-          </p>
-          <Link
-            href="/login"
-            className="px-[100px] py-[10px] bg-g-300 rounded-lg"
-          >
-            로그인하기
-          </Link>
-        </section>
-
         {/* 리스트 섹션 */}
-        <section>
+        <section className="pt-[36px] ">
+          {userEmail ? (
+            <p className="text-center">{userEmail}님 환영합니다.</p>
+          ) : (
+            <p className="text-center">환영합니다.</p>
+          )}
           <div>
             {/* 최근 리스트 버튼 */}
             <button
@@ -83,40 +65,29 @@ export default function SideBar() {
               관심 리스트
             </button>
           </div>
-          <p className="pt-3">로그인 후 조회 가능합니다.</p>
+
+          {/* 로그인 상태에 따라 표시할 텍스트 */}
+          <div className="pt-3">
+            {userEmail ? (
+              <>
+                <div>삼성전자</div>
+                <div>삼성전자</div>
+                <div>삼성전자</div>
+                <div>삼성전자</div>
+                <div>삼성전자</div>
+              </>
+            ) : (
+              <>
+                <p>로그인 후 조회 가능합니다.</p>
+              </>
+            )}
+          </div>
         </section>
 
-        {/* 실시간 채팅 섹션 */}
-        <section className="w-[360px] h-[656px]">
-          <h3>실시간 채팅</h3>
-          <ul>
-            <li>
-              <div className="flex justify-between">
-                <Image src={icoProfile} alt="프로필 아이콘" />
-                <h4>오용민</h4>
-                <span>09.24 14:32:40</span>
-              </div>
-              <p className="mt-2 py-3 px-4 bg-white rounded-lg">
-                내 롤티어 아이언. 주식 이름도 아이언. 날 먹여주리라 믿는다
-              </p>
-            </li>
-          </ul>
-          <form className="flex mt-4" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              className="flex-grow px-4 py-2 border rounded-l-lg"
-              placeholder="글을 작성해주세요."
-              value={message}
-              onChange={handleChange}
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-r-lg"
-            >
-              전송
-            </button>
-          </form>
-        </section>
+        {/* UserInfo 컴포넌트 */}
+        <UserInfo onUserChange={handleUserChange} />
+
+        <Chats />
       </aside>
     </div>
   );

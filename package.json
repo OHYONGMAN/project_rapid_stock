@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate-types": "npx supabase gen types typescript --project-id [Rapid Stock] --schema public > types_db.ts"
   },
   "dependencies": {
     "@aspnet/signalr": "1.0.27",
