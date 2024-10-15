@@ -1,267 +1,280 @@
 [
   {
-    "id": 1,
-    "image": "https://imgnews.pstatic.net/image/thumb70/014/2024/10/14/5253010.jpg",
-    "title": "키움증권, 싱가포르서 자산운용사 설립 인가",
-    "summary": "키움증권이 싱가포르에서 자산운용사를 설립할 수 있게 됐다. 14일 증권업계에 따르면 키움증권은 지난 11일 싱가포르통화청(MAS)으로부터 현지 ... 파이낸셜뉴스 | 2024-10-14 15:58",
-    "link": "https://n.news.naver.com/mnews/article/014/0005253010",
-    "date": "2024-10-14 15:58",
+    "num": 2,
+    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/15/5859201.jpg",
+    "title": "[특징주]윙입푸드, 나스닥 ADR 상장 절차 연기…8%대↓",
+    "summary": "윙입푸드(900340)가 장 초반 급락하고 있다. 추진 중인 나스닥 미국 예탁 증서(ADR·American Depositary Receipt) ... 이데일리 | 2024-10-15 09:30",
+    "link": "https://n.news.naver.com/mnews/article/018/0005859201",
+    "date": "2024-10-15 09:30",
     "keyword": [
-      "키움증권"
+      "윙입푸드"
     ],
     "relatedCompanies": [
       {
-        "name": "키움증권",
-        "code": "039490"
+        "name": "윙입푸드",
+        "code": "900340"
       }
     ]
   },
   {
-    "id": 3,
-    "image": "https://imgnews.pstatic.net/image/thumb70/421/2024/10/14/7842772.jpg",
-    "title": "2600선 재탈환한 코스피",
-    "summary": "코스피 지수가 기관의 매수세에 힘 입어 1% 이상 상승한 14일 오후 서울 중구 하나은행 딜링룸 전광판에 종가가 표시되고 있다. 이날 코스피 지... 뉴스1 | 2024-10-14 15:58",
-    "link": "https://n.news.naver.com/mnews/article/421/0007842772",
-    "date": "2024-10-14 15:58",
+    "num": 3,
+    "image": "https://imgnews.pstatic.net/image/thumb70/417/2024/10/15/1032478.jpg",
+    "title": "STX-강원랜드, 중남미에 카지노 장비 독점 공급",
+    "summary": "글로벌 종합상사 STX가 강원랜드와 협력해 중남미 지역에 국산 카지노 장비를 정식 수출한다. STX와 강원랜드는 전날 강원 정선군 하이원그랜드호... 머니S | 2024-10-15 09:29",
+    "link": "https://n.news.naver.com/mnews/article/417/0001032478",
+    "date": "2024-10-15 09:29",
     "keyword": [
-      "하나금융지주",
-      "삼성전자",
-      "SK하이닉스",
-      "LG화학",
-      "현대차"
+      "STX",
+      "강원랜드"
     ],
     "relatedCompanies": [
       {
-        "name": "하나금융지주",
-        "code": "086790"
+        "name": "STX",
+        "code": "011810"
       },
       {
-        "name": "삼성전자",
-        "code": "005930"
+        "name": "강원랜드",
+        "code": "035250"
+      }
+    ]
+  },
+  {
+    "num": 4,
+    "image": "https://imgnews.pstatic.net/image/thumb70/014/2024/10/15/5253360.jpg",
+    "title": "[fn마켓워치]롯데손보,리파이낸싱 성공...4600억원 규모",
+    "summary": "롯데손해보험이 약 4600억원 규모 리파이낸싱(자본재조달)에 성공했다. 1000억원 이상 오버부킹(초과청약)을 통해서다. 상시매각 체제로 전환,... 파이낸셜뉴스 | 2024-10-15 09:29",
+    "link": "https://n.news.naver.com/mnews/article/014/0005253360",
+    "date": "2024-10-15 09:29",
+    "keyword": [
+      "롯데손해보험",
+      "롯데지주"
+    ],
+    "relatedCompanies": [
+      {
+        "name": "롯데손해보험",
+        "code": "000400"
       },
+      {
+        "name": "롯데지주",
+        "code": "004990"
+      }
+    ]
+  },
+  {
+    "num": 5,
+    "image": "https://imgnews.pstatic.net/image/thumb70/015/2024/10/15/5044210.jpg",
+    "title": "'수요 부진' 우려가 국제유가 끌어 내리자…석유테마주 급락",
+    "summary": "석유테마주가 급락하고 있다. 국제유가가 어두운 수요 전망으로 인해 하락하면서다. 15일 오전 9시20분 현재 중앙에너비스는 전일 대비 2550원... 한국경제 | 2024-10-15 09:29",
+    "link": "https://n.news.naver.com/mnews/article/015/0005044210",
+    "date": "2024-10-15 09:29",
+    "keyword": [
+      "중앙에너비스"
+    ],
+    "relatedCompanies": [
+      {
+        "name": "중앙에너비스",
+        "code": "000440"
+      }
+    ]
+  },
+  {
+    "num": 6,
+    "image": "https://imgnews.pstatic.net/image/thumb70/138/2024/10/15/2184349.jpg",
+    "title": "삼성증권, 금융업계 최초 유튜브 구독자 200만명 돌파",
+    "summary": "삼성증권 공식 유튜브 채널(Samsung POP)의 구독자가 지난 10일 기준 업계 최초로 200만명을 돌파했다. 15일 삼성증권에 따르면 국내... 디지털데일리 | 2024-10-15 09:29",
+    "link": "https://n.news.naver.com/mnews/article/138/0002184349",
+    "date": "2024-10-15 09:29",
+    "keyword": [
+      "삼성증권"
+    ],
+    "relatedCompanies": [
+      {
+        "name": "삼성증권",
+        "code": "016360"
+      }
+    ]
+  },
+  {
+    "num": 7,
+    "image": "https://imgnews.pstatic.net/image/thumb70/003/2024/10/15/12839359.jpg",
+    "title": "SK하이닉스, 엔비디아 신고가에 상승 출발[핫스탁]",
+    "summary": "SK하이닉스가 15일 장 초반 강세를 나타내고 있다. SK하이닉스는 이날 오전 9시14분 현재 전 거래일보다 1.71% 오른 19만700원에 거... 뉴시스 | 2024-10-15 09:28",
+    "link": "https://n.news.naver.com/mnews/article/003/0012839359",
+    "date": "2024-10-15 09:28",
+    "keyword": [
+      "SK하이닉스"
+    ],
+    "relatedCompanies": [
       {
         "name": "SK하이닉스",
         "code": "000660"
-      },
-      {
-        "name": "LG화학",
-        "code": "051910"
       }
     ]
   },
   {
-    "id": 6,
-    "image": "https://imgnews.pstatic.net/image/thumb70/421/2024/10/14/7842765.jpg",
-    "title": "코스피, 2600선 재탈환",
-    "summary": "코스피 지수가 기관의 매수세에 힘 입어 1% 이상 상승한 14일 오후 서울 중구 하나은행 딜링룸 전광판에 종가가 표시되고 있다. 이날 코스피 지... 뉴스1 | 2024-10-14 15:55",
-    "link": "https://n.news.naver.com/mnews/article/421/0007842765",
-    "date": "2024-10-14 15:55",
+    "num": 8,
+    "image": "https://imgnews.pstatic.net/image/thumb70/277/2024/10/15/5484247.jpg",
+    "title": "삼성증권, 금융업계 최초 유튜브 구독자 200만명 돌파",
+    "summary": "삼성증권은 지난 10일 공식 유튜브 채널인 '삼성팝(Samsung POP)' 구독자가 금융업계 최초로 200만명을 돌파했다고 15일 밝혔다. 국... 아시아경제 | 2024-10-15 09:27",
+    "link": "https://n.news.naver.com/mnews/article/277/0005484247",
+    "date": "2024-10-15 09:27",
     "keyword": [
-      "하나금융지주",
-      "삼성전자",
-      "SK하이닉스",
-      "LG화학",
-      "KB금융"
+      "삼성증권"
     ],
     "relatedCompanies": [
       {
-        "name": "하나금융지주",
-        "code": "086790"
-      },
+        "name": "삼성증권",
+        "code": "016360"
+      }
+    ]
+  },
+  {
+    "num": 9,
+    "image": "https://imgnews.pstatic.net/image/thumb70/021/2024/10/15/2665239.jpg",
+    "title": "“삼성전자, 초장기 투자시에만 저가매수해야”…사실상 ‘사지 마라’ 보고서",
+    "summary": "상상인증권은 14일 삼성전자 주가 급락에 따른 저가매수 전략은 초장기 투자자에만 국한되는 전략이라며 \"시간과 기회비용 모두가 중요한 상대수익률에... 문화일보 | 2024-10-15 09:27",
+    "link": "https://n.news.naver.com/mnews/article/021/0002665239",
+    "date": "2024-10-15 09:27",
+    "keyword": [
+      "삼성전자"
+    ],
+    "relatedCompanies": [
       {
         "name": "삼성전자",
         "code": "005930"
-      },
-      {
-        "name": "SK하이닉스",
-        "code": "000660"
-      },
-      {
-        "name": "LG화학",
-        "code": "051910"
-      },
-      {
-        "name": "KB금융",
-        "code": "105560"
       }
     ]
   },
   {
-    "id": 7,
-    "image": "https://imgnews.pstatic.net/image/thumb70/648/2024/10/14/29704.jpg",
-    "title": "에스티젠바이오, 송도바이오공장 美 GMP 인증",
-    "summary": "동아쏘시오그룹의 자회사 에스티젠바이오는 동아에스티의 스텔라라 바이오시밀러 '이뮬도사'의 원료와 완제의약품을 생산하는 송도바이오공장이 미국 식품의... 비즈워치 | 2024-10-14 15:54",
-    "link": "https://n.news.naver.com/mnews/article/648/0000029704",
-    "date": "2024-10-14 15:54",
+    "num": 10,
+    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/15/5859198.jpg",
+    "title": "[특징주]엔비디아발 훈풍에 소부장株 강세",
+    "summary": "엔비디아발 훈풍에 국내 반도체 소부장(소재·부품·장비) 관련주가 강세다. 15일 엠피닥터에 따르면 오전 9시 23분 현재 미래반도체(254490... 이데일리 | 2024-10-15 09:27",
+    "link": "https://n.news.naver.com/mnews/article/018/0005859198",
+    "date": "2024-10-15 09:27",
     "keyword": [
-      "동아에스티",
-      "에스티젠바이오"
+      "엔비디아",
+      "미래반도체",
+      "소부장"
     ],
     "relatedCompanies": [
       {
-        "name": "동아에스티",
-        "code": "170900"
+        "name": "미래반도체",
+        "code": "254490"
       }
     ]
   },
   {
-    "id": 8,
-    "image": "https://imgnews.pstatic.net/image/thumb70/421/2024/10/14/7842739.jpg",
-    "title": "코스피, 외인·기관 매수세에 상승 마감",
-    "summary": "코스피 지수가 기관의 매수세에 힘 입어 1% 이상 상승한 14일 오후 서울 중구 하나은행 딜링룸 전광판에 종가가 표시되고 있다. 이날 코스피 지... 뉴스1 | 2024-10-14 15:52",
-    "link": "https://n.news.naver.com/mnews/article/421/0007842739",
-    "date": "2024-10-14 15:52",
+    "num": 12,
+    "image": "https://imgnews.pstatic.net/image/thumb70/421/2024/10/15/7843856.jpg",
+    "title": "AI 덕분에 핵발전 급물살, 구글도 원자력발전 기업과 계약",
+    "summary": "인공지능(AI) 덕분에 원자력발전이 새로운 에너지원으로 급부상하고 있다고 월스트리트저널(WSJ)이 14일(현지시간) 보도했다. 비트코인 등 암호... 뉴스1 | 2024-10-15 09:26",
+    "link": "https://n.news.naver.com/mnews/article/421/0007843856",
+    "date": "2024-10-15 09:26",
     "keyword": [
-      "하나금융지주"
+      "두산중공업",
+      "한전KPS",
+      "한국전력",
+      "현대중공업",
+      "대우건설"
     ],
     "relatedCompanies": [
       {
-        "name": "하나금융지주",
-        "code": "086790"
+        "name": "한전KPS",
+        "code": "051600"
+      },
+      {
+        "name": "대우건설",
+        "code": "047040"
       }
     ]
   },
   {
-    "id": 9,
-    "image": "https://imgnews.pstatic.net/image/thumb70/648/2024/10/14/29703.jpg",
-    "title": "키움증권, 싱가포르 자산운용사 세운다…자본금 103억 납입",
-    "summary": "키움증권이 인도네시아에 이어 싱가포르에도 진출한다. 키움증권은 14일 싱가포르통화청(MAS)으로부터 현지 자산운용사 설립 본인가를 획득했다고 밝... 비즈워치 | 2024-10-14 15:52",
-    "link": "https://n.news.naver.com/mnews/article/648/0000029703",
-    "date": "2024-10-14 15:52",
+    "num": 13,
+    "image": "https://imgnews.pstatic.net/image/thumb70/011/2024/10/15/4402732.jpg",
+    "title": "“CJ ENM, 3분기 실적 시장 기대치 밑돌아…목표가 18% 하향”",
+    "summary": "NH투자증권(005940)이 CJ ENM(035760)에 대해 프로야구 폐막에 따른 티빙 지표 둔화, 방송광고·음악 부문 부진 등으로 3분기 실... 서울경제 | 2024-10-15 09:26",
+    "link": "https://n.news.naver.com/mnews/article/011/0004402732",
+    "date": "2024-10-15 09:26",
     "keyword": [
-      "키움증권"
+      "NH투자증권",
+      "CJ ENM"
     ],
     "relatedCompanies": [
       {
-        "name": "키움증권",
-        "code": "039490"
+        "name": "NH투자증권",
+        "code": "005940"
+      },
+      {
+        "name": "CJ ENM",
+        "code": "035760"
       }
     ]
   },
   {
-    "id": 11,
-    "image": "https://imgnews.pstatic.net/image/thumb70/015/2024/10/14/5043696.jpg",
-    "title": "코스피, 미 인플레 우려 완화·금리인하 훈풍에 2620선 회복",
-    "summary": "코스피지수가 미국 인플레이션 우려 완화와 한국은행의 금리인하 훈풍에 1%대 강세를 나타내며 2620선을 회복했다. 14일 코스피지수는 전 거래일... 한국경제 | 2024-10-14 15:51",
-    "link": "https://n.news.naver.com/mnews/article/015/0005043696",
-    "date": "2024-10-14 15:51",
+    "num": 15,
+    "image": "https://imgnews.pstatic.net/image/thumb70/119/2024/10/15/2881477.jpg",
+    "title": "키움證 “눈높이 낮아지는 3Q 어닝시즌…선별적 접근 필요”",
+    "summary": "3분기 어닝시즌이 시작된 가운데 기업들의 실적 발표 전후로 남은 하반기 그리고 내년에 대한 실적 눈높이가 낮아질 가능성이 높다는 전망이 제기된다... 데일리안 | 2024-10-15 09:23",
+    "link": "https://n.news.naver.com/mnews/article/119/0002881477",
+    "date": "2024-10-15 09:23",
     "keyword": [
       "삼성전자",
+      "LG전자",
       "SK하이닉스",
       "현대차",
-      "LG화학",
-      "포스코홀딩스"
+      "카카오"
     ],
     "relatedCompanies": [
       {
         "name": "삼성전자",
         "code": "005930"
+      },
+      {
+        "name": "LG전자",
+        "code": "066570"
       },
       {
         "name": "SK하이닉스",
         "code": "000660"
       },
       {
-        "name": "LG화학",
-        "code": "051910"
+        "name": "카카오",
+        "code": "035720"
       }
     ]
   },
   {
-    "id": 12,
-    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/14/5858823.jpg",
-    "title": "[포토]외국인·기관 '사자' 코스피 2620대로",
-    "summary": "코스피가 기관과 외국인의 순매수세에 상승마감한 14일 서울 중구 하나은행 인피티니에서 딜러들이 업무를 보고 있다. 이날 코스피는 전 거래일 대비... 이데일리 | 2024-10-14 15:50",
-    "link": "https://n.news.naver.com/mnews/article/018/0005858823",
-    "date": "2024-10-14 15:50",
+    "num": 19,
+    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/15/5859191.jpg",
+    "title": "[특징주]씨이랩, AI 인프라 플랫폼 구축 계약에 급등",
+    "summary": "씨이랩(189330)이 강세를 보인다. 인공지능(AI) 인프라 플랫폼 구축 계약 소식이 투심을 자극한 것으로 보인다. 15일 엠피닥터에 따르면 ... 이데일리 | 2024-10-15 09:22",
+    "link": "https://n.news.naver.com/mnews/article/018/0005859191",
+    "date": "2024-10-15 09:22",
     "keyword": [
-      "하나금융지주"
+      "씨이랩"
     ],
     "relatedCompanies": [
       {
-        "name": "하나금융지주",
-        "code": "086790"
+        "name": "씨이랩",
+        "code": "189330"
       }
     ]
   },
   {
-    "id": 13,
-    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/14/5858822.jpg",
-    "title": "[포토]코스피, 외인·기관 매수세에 상승 마감",
-    "summary": "코스피가 기관과 외국인의 순매수세에 상승마감한 14일 서울 중구 하나은행 인피티니에서 딜러들이 업무를 보고 있다. 이날 코스피는 전 거래일 대비... 이데일리 | 2024-10-14 15:50",
-    "link": "https://n.news.naver.com/mnews/article/018/0005858822",
-    "date": "2024-10-14 15:50",
+    "num": 20,
+    "image": "https://imgnews.pstatic.net/image/thumb70/011/2024/10/15/4402731.jpg",
+    "title": "[특징주] 식량 가격 비상에 고려산업, 장중 주가 15% 급등",
+    "summary": "러시아가 흑해 곡물 수출로인 우크라이나 오데사에 대한 공격을 재개했다는 소식이 전해지며 사료 제조 및 판매업을 영위하고 있는 고려산업(00214... 서울경제 | 2024-10-15 09:22",
+    "link": "https://n.news.naver.com/mnews/article/011/0004402731",
+    "date": "2024-10-15 09:22",
     "keyword": [
-      "하나금융지주",
-      "삼성전자",
-      "LG화학"
+      "고려산업"
     ],
     "relatedCompanies": [
       {
-        "name": "하나금융지주",
-        "code": "086790"
-      },
-      {
-        "name": "삼성전자",
-        "code": "005930"
-      },
-      {
-        "name": "LG화학",
-        "code": "051910"
-      }
-    ]
-  },
-  {
-    "id": 14,
-    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/14/5858821.jpg",
-    "title": "[포토]코스피, 1% 올라 2,620대 회복",
-    "summary": "코스피가 기관과 외국인의 순매수세에 상승마감한 14일 서울 중구 하나은행 인피티니에서 딜러들이 업무를 보고 있다. 이날 코스피는 전 거래일 대비... 이데일리 | 2024-10-14 15:50",
-    "link": "https://n.news.naver.com/mnews/article/018/0005858821",
-    "date": "2024-10-14 15:50",
-    "keyword": [
-      "하나금융지주",
-      "삼성전자",
-      "SK하이닉스",
-      "LG화학",
-      "KB금융"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "하나금융지주",
-        "code": "086790"
-      },
-      {
-        "name": "삼성전자",
-        "code": "005930"
-      },
-      {
-        "name": "SK하이닉스",
-        "code": "000660"
-      },
-      {
-        "name": "LG화학",
-        "code": "051910"
-      },
-      {
-        "name": "KB금융",
-        "code": "105560"
-      }
-    ]
-  },
-  {
-    "id": 16,
-    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/14/5858819.jpg",
-    "title": "[포토]코스피, 1% 올라 2,620대 회복…코스닥은 하락",
-    "summary": "코스피가 기관과 외국인의 순매수세에 상승마감한 14일 서울 중구 하나은행 인피티니에서 딜러들이 업무를 보고 있다. 이날 코스피는 전 거래일 대비... 이데일리 | 2024-10-14 15:50",
-    "link": "https://n.news.naver.com/mnews/article/018/0005858819",
-    "date": "2024-10-14 15:50",
-    "keyword": [
-      "하나금융지주"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "하나금융지주",
-        "code": "086790"
+        "name": "고려산업",
+        "code": "002140"
       }
     ]
   }

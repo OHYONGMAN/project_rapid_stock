@@ -44,7 +44,7 @@ const COMPANY_INFO_PATH = path.join(__dirname, 'companyInfo.json');
 
 // 타입 정의
 interface NewsArticle {
-  id: number;
+  num: number;
   image: string;
   title: string;
   summary: string;
@@ -201,7 +201,7 @@ async function fetchNews(): Promise<NewsArticle[]> {
 
       if (imageUrl && title && summary && cleanLink && date) {
         newsList.push({
-          id: index + 1,
+          num: index + 1,
           image: imageUrl,
           title: title,
           summary: summary,
@@ -319,7 +319,7 @@ export default async function main(): Promise<void> {
   }
 
   console.log('다음 수집까지 대기 중...');
-  setTimeout(main, 300000); // 300,000ms = 5분
+  setTimeout(main, 1200000); // 300,000ms = 5분
 }
 
 // 첫 실행

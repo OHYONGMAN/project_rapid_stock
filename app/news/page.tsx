@@ -98,6 +98,11 @@ const Page = () => {
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
     fetchData();
+    // 서버의 API 라우트를 호출하여 크롤링 작업을 실행
+    fetch('/api/news-crawl')
+      .then((response) => response.json())
+      .then((data) => console.log(data.message))
+      .catch((error) => console.error('Error:', error));
   }, []);
 
   // 주기적으로 데이터 새로고침 (10초마다)
