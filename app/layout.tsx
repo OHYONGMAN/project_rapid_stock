@@ -4,6 +4,7 @@ import 'devextreme/dist/css/dx.light.css';
 import '@/app/globals.css';
 import Footer from '@/app/components/Footer/Footer';
 import Header from '@/app/components/Header/Header';
+import SideBar from './components/Sidebar/Sidebar.tsx';
 
 export const metadata: Metadata = {
   title: 'Rapid Stock',
@@ -26,6 +27,7 @@ export default function RootLayout({
           ]}
         />
         <main className="grow">{children}</main>
+        <SideBar />
         <Footer />
       </body>
     </html>

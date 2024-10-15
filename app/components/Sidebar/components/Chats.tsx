@@ -76,37 +76,41 @@ export default function Chat() {
   }, [messages]);
 
   return (
-    <section className="flex flex-col h-[650px] w-[360px] mt-10 before:content-[''] before:-translate-y-10 before:h-[2px] before:w-[360px] before:bg-g-400">
-      <h3 className="text-xl font-bold mb-2">실시간 채팅</h3>
+    <section className="mt-10 flex h-[650px] w-[360px] flex-col before:h-[2px] before:w-[360px] before:-translate-y-10 before:bg-g-400 before:content-['']">
+      <h3 className="mb-2 text-xl font-bold">실시간 채팅</h3>
 
       {/* UserInfo 컴포넌트 추가 */}
       <UserInfo onUserChange={setUserEmail} />
 
       {/* 채팅 메시지 출력 */}
-      <div className="overflow-y-auto h-[500px] mb-4">
-        {messages.map((message) => (
-          <div key={message.id} className="mb-2">
-            <div className="flex justify-between">
-              <span className="font-semibold">{message.user_id}</span>
-              <span>
-                {new Date(message.created_at).toLocaleString('ko-KR', {
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
+      <div className="mb-4 h-[500px] overflow-y-auto">
+        {Array.isArray(messages) && messages.length > 0 ? (
+          messages.map((message) => (
+            <div key={message.id} className="mb-2">
+              <div className="flex justify-between">
+                <span className="font-semibold">{message.user_id}</span>
+                <span>
+                  {new Date(message.created_at).toLocaleString('ko-KR', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </div>
+              <p>{message.content}</p>
             </div>
-            <p>{message.content}</p>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>메시지가 없습니다.</p> // 메시지가 없을 경우에 대한 처리
+        )}
         <div ref={messagesEndRef} /> {/* 스크롤을 위한 참조 div */}
       </div>
 
       {/* 새 메시지 입력 */}
       <form
         onSubmit={sendMessage}
-        className="flex items-center w-full max-w-lg"
+        className="flex w-full max-w-lg items-center"
       >
         <input
           type="text"
@@ -116,11 +120,11 @@ export default function Chat() {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           disabled={!userEmail} // 로그인하지 않은 경우 입력을 비활성화
-          className={`flex-grow px-4 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring focus:border-blue-300 ${!userEmail ? 'bg-gray-200' : ''}`} // 비활성화 시 배경색 변경
+          className={`grow rounded-l border border-gray-300 px-4 py-2 focus:border-blue-300 focus:outline-none focus:ring ${!userEmail ? 'bg-gray-200' : ''}`} // 비활성화 시 배경색 변경
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-600"
+          className="rounded-r bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
           disabled={!userEmail} // 로그인하지 않은 경우 버튼 비활성화
         >
           전송
