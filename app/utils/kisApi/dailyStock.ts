@@ -29,7 +29,7 @@ export const fetchStockData = async (
   try {
     // 주식 데이터를 가져오기 위한 API 요청
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/stock?${params}`, // 백엔드 API 엔드포인트 호출
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/dailyStock?${params}`, // 백엔드 API 엔드포인트 호출
     );
 
     // 응답이 정상적이지 않을 경우 에러 처리

@@ -7,7 +7,7 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
-import { fetchStockData } from '@/app/utils/kisApi/stock';
+import { fetchStockData } from '@/app/utils/kisApi/dailyStock';
 import Chart, {
   ArgumentAxis,
   ValueAxis,
