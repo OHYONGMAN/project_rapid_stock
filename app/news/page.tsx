@@ -63,7 +63,6 @@ const MyPage: React.FC = () => {
     }
   }, [page]);
 
-  // Intersection Observer 설정
   useEffect(() => {
     if (loading || !hasMore) return; // 로딩 중이거나 더 불러올 데이터가 없으면 실행하지 않음
 

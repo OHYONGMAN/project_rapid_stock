@@ -4,7 +4,7 @@ import iconv from 'iconv-lite';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { supabase } from '@/app/lib/supabaseClient';
+import { supabase } from '@/app/utils/supabase';
 
 // __dirname 대체
 const __filename = fileURLToPath(import.meta.url);
