@@ -173,3 +173,44 @@ const revokeToken = async (token: string): Promise<void> => {
     console.error('토큰 폐기 중 에러 발생:', error);
   }
 };
+
+export const cleanupToken = async (): Promise<void> => {
+  if (accessToken) {
+    await revokeToken(accessToken);
+    accessToken = null;
+    tokenExpiration = null;
+
+    if (!isServer) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('tokenExpiration');
+    }
+
+    console.log('토큰이 폐기되었습니다.');
+  }
+};
+
+export const getWebSocketKey = async (): Promise<string | null> => {
+  try {
+    const response = await fetch('/api/getWebSocketKey', {
+      method: 'POST',
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.approval_key) {
+        console.log('웹소켓 접속키 발급 성공:', data.approval_key);
+        return data.approval_key;
+      } else {
+        console.error('웹소켓 접속키 발급 실패: 응답에 approval_key가 없음');
+        return null;
+      }
+    } else {
+      const errorData = await response.json();
+      console.error('웹소켓 접속키 발급 실패:', errorData);
+      return null;
+    }
+  } catch (error) {
+    console.error('웹소켓 접속키 발급 중 에러 발생:', error);
+    return null;
+  }
+};
