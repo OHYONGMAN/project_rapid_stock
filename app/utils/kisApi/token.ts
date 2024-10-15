@@ -6,6 +6,9 @@ import { isServer } from '../utils'; // 서버 환경 여부를 판단하는 유
 let accessToken: string | null = null; // 발급된 액세스 토큰 저장
 let tokenExpiration: number | null = null; // 토큰 만료 시간 (Unix Timestamp)
 let isTokenRefreshing = false; // 토큰 갱신 중인지 여부
+let tokenRefreshTimeout: NodeJS.Timeout | null = null; // 토큰 갱신 타이머
+
+const REFRESH_MARGIN = 5 * 60 * 1000; // 5분 전에 갱신 시도
 
 // 새로운 액세스 토큰을 발급하는 함수
 const getNewToken = async (): Promise<string | null> => {
@@ -63,6 +66,23 @@ const getNewToken = async (): Promise<string | null> => {
   }
 };
 
+// 토큰 갱신을 스케줄링하는 함수
+const scheduleTokenRefresh = () => {
+  if (tokenRefreshTimeout) {
+    clearTimeout(tokenRefreshTimeout);
+  }
+
+  if (tokenExpiration) {
+    const timeUntilRefresh = tokenExpiration - Date.now() - REFRESH_MARGIN;
+    tokenRefreshTimeout = setTimeout(
+      async () => {
+        await getValidToken();
+      },
+      Math.max(0, timeUntilRefresh),
+    );
+  }
+};
+
 // 유효한 토큰을 가져오는 함수
 export const getValidToken = async (): Promise<string | null> => {
   // 이미 토큰을 갱신 중인 경우 대기
@@ -85,8 +105,13 @@ export const getValidToken = async (): Promise<string | null> => {
   }
 
   // 유효한 토큰이 있을 경우 그대로 반환
-  if (accessToken && tokenExpiration && Date.now() < tokenExpiration) {
+  if (
+    accessToken &&
+    tokenExpiration &&
+    Date.now() < tokenExpiration - REFRESH_MARGIN
+  ) {
     console.log('유효한 토큰이 있습니다. 기존 토큰을 사용합니다.');
+    scheduleTokenRefresh();
     return accessToken;
   }
 
@@ -96,6 +121,9 @@ export const getValidToken = async (): Promise<string | null> => {
 
   try {
     const token = await getNewToken(); // 새로운 토큰 발급
+    if (token) {
+      scheduleTokenRefresh();
+    }
     return token;
   } finally {
     isTokenRefreshing = false; // 토큰 갱신 플래그 해제
@@ -145,3 +173,8 @@ export const makeAuthorizedRequest = async (url: string, options: any) => {
 
   return response.json(); // 응답 JSON 반환
 };
+
+// 초기 토큰 갱신 예약 (클라이언트 사이드에서만 실행)
+if (!isServer) {
+  getValidToken();
+}

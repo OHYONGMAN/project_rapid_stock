@@ -1,15 +1,13 @@
-// API 라우트에서 클라이언트에게 데이터를 전달
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getValidToken } from '@/app/utils/kisApi/token';
 
 interface ApiResponse {
   output: {
-    stck_prpr: string; // 현재가
+    stck_prpr: string; // 주식 현재가
     prdy_vrss: string; // 전일 대비
     prdy_ctrt: string; // 전일 대비율
-    cntg_vol: string; // 거래량
-  }[];
+    acml_vol: string; // 누적 거래량
+  };
   rt_cd: string;
   msg_cd: string;
   msg1: string;
@@ -37,7 +35,7 @@ export async function GET(req: NextRequest) {
     }
 
     const url =
-      'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-ccnl';
+      'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price';
     const params = new URLSearchParams({
       FID_COND_MRKT_DIV_CODE: 'J',
       FID_INPUT_ISCD: symbol,
@@ -48,8 +46,8 @@ export async function GET(req: NextRequest) {
       authorization: `Bearer ${token}`,
       appkey: process.env.NEXT_PUBLIC_KIS_API_KEY!,
       appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET!,
-      tr_id: 'FHKST01010300',
-      custtype: 'P', // 개인 고객 타입
+      tr_id: 'FHKST01010100',
+      custtype: 'P',
     };
 
     const response = await fetch(`${url}?${params}`, {
@@ -62,21 +60,23 @@ export async function GET(req: NextRequest) {
     }
 
     const data: ApiResponse = await response.json();
+    console.log('API 응답:', data);
 
     if (data.rt_cd !== '0') {
       throw new Error(`API 에러: ${data.msg1}`);
     }
 
-    // 필요한 정보만 가공하여 반환
-    const processedData = data.output.map((item) => ({
-      currentPrice: item.stck_prpr,
-      priceChange: item.prdy_vrss,
-      priceChangeRate: item.prdy_ctrt,
-      volume: item.cntg_vol,
-    }));
+    const processedData = {
+      currentPrice: data.output.stck_prpr,
+      priceChange: data.output.prdy_vrss,
+      priceChangeRate: data.output.prdy_ctrt,
+      totalVolume: data.output.acml_vol,
+    };
 
+    console.log('가공된 데이터:', processedData);
     return NextResponse.json(processedData);
   } catch (error) {
+    console.error('API 처리 중 오류:', error);
     return NextResponse.json(
       { error: '주식 데이터 가져오기 실패', details: error.message },
       { status: 500 },

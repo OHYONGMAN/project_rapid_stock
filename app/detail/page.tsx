@@ -1,25 +1,28 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 
 // 컴포넌트 동적 로딩 설정 (서버 사이드 렌더링 제외)
-// 이는 'devextreme-react'와 같은 클라이언트 전용 라이브러리를 사용할 때 필요
 const StockChart = dynamic(() => import('./components/StockChart'), {
-  ssr: false, // 서버 사이드 렌더링 비활성화
+  ssr: false,
 });
 
 const StockTable = dynamic(() => import('./components/StockTable'), {
-  ssr: false, // 서버 사이드 렌더링 비활성화
+  ssr: false,
 });
 
-// 뉴스 페이지 컴포넌트 정의
 export default function NewsPageLayout() {
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+
+  const handleSymbolSelect = (symbol: string) => {
+    setSelectedSymbol((prevSymbol) => (prevSymbol === symbol ? null : symbol));
+  };
+
   return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Stock News and Prices</h1>
-      <StockTable /> {/* 주식 테이블 컴포넌트 렌더링 */}
-      <StockChart /> {/* 주식 차트 컴포넌트 렌더링 */}
-    </main>
+    <div className="w-full">
+      <StockTable onSymbolSelect={handleSymbolSelect} />
+      {selectedSymbol && <StockChart symbol={selectedSymbol} />}
+    </div>
   );
 }
