@@ -10,17 +10,14 @@ export const fetchTodayStockData = async (
 ): Promise<StockData> => {
   try {
     const params = new URLSearchParams({ symbol });
-    console.log('API 요청 URL:', `/api/todayStock?${params}`);
 
     const response = await fetch(`/api/todayStock?${params}`);
-    console.log('API 응답 상태:', response.status, response.statusText);
 
     if (!response.ok) {
       throw new Error(`HTTP 오류! 상태: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('API 응답 데이터:', data);
 
     return data;
   } catch (error) {

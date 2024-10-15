@@ -60,7 +60,6 @@ export async function GET(req: NextRequest) {
     }
 
     const data: ApiResponse = await response.json();
-    console.log('API 응답:', data);
 
     if (data.rt_cd !== '0') {
       throw new Error(`API 에러: ${data.msg1}`);
@@ -73,7 +72,6 @@ export async function GET(req: NextRequest) {
       totalVolume: data.output.acml_vol,
     };
 
-    console.log('가공된 데이터:', processedData);
     return NextResponse.json(processedData);
   } catch (error) {
     console.error('API 처리 중 오류:', error);

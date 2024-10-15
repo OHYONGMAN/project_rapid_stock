@@ -18,7 +18,6 @@ export default function StockTable({ onSymbolSelect }: StockTableProps) {
   const loadInitialData = useCallback(async () => {
     try {
       const data = await fetchTodayStockData(symbol);
-      console.log('받아온 데이터:', data);
       setStockData(data);
       setError(null);
     } catch (err) {
