@@ -25,7 +25,7 @@ interface DataState {
   refreshData: () => Promise<void>; // 데이터를 새로고침하는 함수
 }
 
-// 날짜를 기준으로 데이터를 내림차순(최신순)으로 정렬하는 함수git
+// 날짜를 기준으로 데이터를 내림차순(최신순)으로 정렬하는 함수
 const sortDataByDate = (data: DataItem[]) => {
   return data.sort((a, b) => {
     // 날짜 문자열을 정확하게 파싱하여 타임스탬프로 변환

@@ -1,280 +1,104 @@
 [
   {
-    "num": 2,
-    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/15/5859201.jpg",
-    "title": "[특징주]윙입푸드, 나스닥 ADR 상장 절차 연기…8%대↓",
-    "summary": "윙입푸드(900340)가 장 초반 급락하고 있다. 추진 중인 나스닥 미국 예탁 증서(ADR·American Depositary Receipt) ... 이데일리 | 2024-10-15 09:30",
-    "link": "https://n.news.naver.com/mnews/article/018/0005859201",
-    "date": "2024-10-15 09:30",
+    "num": 1,
+    "image": "https://imgnews.pstatic.net/image/thumb70/014/2024/10/15/5253449.jpg",
+    "title": "크레오에스지, 美 FDA 임상 2상용 '에이즈 백신' 생산 최적화 성공",
+    "summary": "크레오에스지는 세계 최초 에이즈 백신 ‘SAV001-H’의 미국 식품의약국(FDA) 임상 2상 시료의 생산 테스트를 성공적으로 완료했다고 15일... 파이낸셜뉴스 | 2024-10-15 10:59",
+    "link": "https://n.news.naver.com/mnews/article/014/0005253449",
+    "date": "2024-10-15 10:59",
     "keyword": [
-      "윙입푸드"
+      "크레오에스지",
+      "SAV001-H",
+      "FDA"
     ],
     "relatedCompanies": [
       {
-        "name": "윙입푸드",
-        "code": "900340"
+        "name": "크레오에스지",
+        "code": "040350"
       }
     ]
   },
   {
     "num": 3,
-    "image": "https://imgnews.pstatic.net/image/thumb70/417/2024/10/15/1032478.jpg",
-    "title": "STX-강원랜드, 중남미에 카지노 장비 독점 공급",
-    "summary": "글로벌 종합상사 STX가 강원랜드와 협력해 중남미 지역에 국산 카지노 장비를 정식 수출한다. STX와 강원랜드는 전날 강원 정선군 하이원그랜드호... 머니S | 2024-10-15 09:29",
-    "link": "https://n.news.naver.com/mnews/article/417/0001032478",
-    "date": "2024-10-15 09:29",
+    "image": "https://imgnews.pstatic.net/image/thumb70/001/2024/10/15/14983385.jpg",
+    "title": "부산항 상황 반영 '컨' 운임지수 발표 100회…시황 분석에 기여",
+    "summary": "국내 해운·물류업계 수익성 관리에 역할 2년만에 블룸버그 등재…코트라 플랫폼으로도 서비스 우리 컨테이너선 시장 특성을 반영한 'KOBC 컨테이너... 연합뉴스 | 2024-10-15 10:58",
+    "link": "https://n.news.naver.com/mnews/article/001/0014983385",
+    "date": "2024-10-15 10:58",
     "keyword": [
-      "STX",
-      "강원랜드"
+      "코스코",
+      "현대상선",
+      "HMM",
+      "SM상선",
+      "대선조선"
     ],
     "relatedCompanies": [
       {
-        "name": "STX",
-        "code": "011810"
-      },
-      {
-        "name": "강원랜드",
-        "code": "035250"
-      }
-    ]
-  },
-  {
-    "num": 4,
-    "image": "https://imgnews.pstatic.net/image/thumb70/014/2024/10/15/5253360.jpg",
-    "title": "[fn마켓워치]롯데손보,리파이낸싱 성공...4600억원 규모",
-    "summary": "롯데손해보험이 약 4600억원 규모 리파이낸싱(자본재조달)에 성공했다. 1000억원 이상 오버부킹(초과청약)을 통해서다. 상시매각 체제로 전환,... 파이낸셜뉴스 | 2024-10-15 09:29",
-    "link": "https://n.news.naver.com/mnews/article/014/0005253360",
-    "date": "2024-10-15 09:29",
-    "keyword": [
-      "롯데손해보험",
-      "롯데지주"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "롯데손해보험",
-        "code": "000400"
-      },
-      {
-        "name": "롯데지주",
-        "code": "004990"
-      }
-    ]
-  },
-  {
-    "num": 5,
-    "image": "https://imgnews.pstatic.net/image/thumb70/015/2024/10/15/5044210.jpg",
-    "title": "'수요 부진' 우려가 국제유가 끌어 내리자…석유테마주 급락",
-    "summary": "석유테마주가 급락하고 있다. 국제유가가 어두운 수요 전망으로 인해 하락하면서다. 15일 오전 9시20분 현재 중앙에너비스는 전일 대비 2550원... 한국경제 | 2024-10-15 09:29",
-    "link": "https://n.news.naver.com/mnews/article/015/0005044210",
-    "date": "2024-10-15 09:29",
-    "keyword": [
-      "중앙에너비스"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "중앙에너비스",
-        "code": "000440"
+        "name": "HMM",
+        "code": "011200"
       }
     ]
   },
   {
     "num": 6,
-    "image": "https://imgnews.pstatic.net/image/thumb70/138/2024/10/15/2184349.jpg",
-    "title": "삼성증권, 금융업계 최초 유튜브 구독자 200만명 돌파",
-    "summary": "삼성증권 공식 유튜브 채널(Samsung POP)의 구독자가 지난 10일 기준 업계 최초로 200만명을 돌파했다. 15일 삼성증권에 따르면 국내... 디지털데일리 | 2024-10-15 09:29",
-    "link": "https://n.news.naver.com/mnews/article/138/0002184349",
-    "date": "2024-10-15 09:29",
+    "image": "https://imgnews.pstatic.net/image/thumb70/001/2024/10/15/14983382.jpg",
+    "title": "한화자산운용 \"자산 연관성 고도 분석해 디딤펀드 안정성↑\"",
+    "summary": "한화자산운용은 자사 디딤펀드인 '한화 디딤안정성장'에 관해 주식 등 투자 대상의 분석 기법을 고도화해 안정성을 강화했다고 15일 밝혔다. 한화자... 연합뉴스 | 2024-10-15 10:57",
+    "link": "https://n.news.naver.com/mnews/article/001/0014983382",
+    "date": "2024-10-15 10:57",
     "keyword": [
-      "삼성증권"
+      "한화자산운용",
+      "한화투자증권"
     ],
     "relatedCompanies": [
       {
-        "name": "삼성증권",
-        "code": "016360"
-      }
-    ]
-  },
-  {
-    "num": 7,
-    "image": "https://imgnews.pstatic.net/image/thumb70/003/2024/10/15/12839359.jpg",
-    "title": "SK하이닉스, 엔비디아 신고가에 상승 출발[핫스탁]",
-    "summary": "SK하이닉스가 15일 장 초반 강세를 나타내고 있다. SK하이닉스는 이날 오전 9시14분 현재 전 거래일보다 1.71% 오른 19만700원에 거... 뉴시스 | 2024-10-15 09:28",
-    "link": "https://n.news.naver.com/mnews/article/003/0012839359",
-    "date": "2024-10-15 09:28",
-    "keyword": [
-      "SK하이닉스"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "SK하이닉스",
-        "code": "000660"
-      }
-    ]
-  },
-  {
-    "num": 8,
-    "image": "https://imgnews.pstatic.net/image/thumb70/277/2024/10/15/5484247.jpg",
-    "title": "삼성증권, 금융업계 최초 유튜브 구독자 200만명 돌파",
-    "summary": "삼성증권은 지난 10일 공식 유튜브 채널인 '삼성팝(Samsung POP)' 구독자가 금융업계 최초로 200만명을 돌파했다고 15일 밝혔다. 국... 아시아경제 | 2024-10-15 09:27",
-    "link": "https://n.news.naver.com/mnews/article/277/0005484247",
-    "date": "2024-10-15 09:27",
-    "keyword": [
-      "삼성증권"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "삼성증권",
-        "code": "016360"
-      }
-    ]
-  },
-  {
-    "num": 9,
-    "image": "https://imgnews.pstatic.net/image/thumb70/021/2024/10/15/2665239.jpg",
-    "title": "“삼성전자, 초장기 투자시에만 저가매수해야”…사실상 ‘사지 마라’ 보고서",
-    "summary": "상상인증권은 14일 삼성전자 주가 급락에 따른 저가매수 전략은 초장기 투자자에만 국한되는 전략이라며 \"시간과 기회비용 모두가 중요한 상대수익률에... 문화일보 | 2024-10-15 09:27",
-    "link": "https://n.news.naver.com/mnews/article/021/0002665239",
-    "date": "2024-10-15 09:27",
-    "keyword": [
-      "삼성전자"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "삼성전자",
-        "code": "005930"
-      }
-    ]
-  },
-  {
-    "num": 10,
-    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/15/5859198.jpg",
-    "title": "[특징주]엔비디아발 훈풍에 소부장株 강세",
-    "summary": "엔비디아발 훈풍에 국내 반도체 소부장(소재·부품·장비) 관련주가 강세다. 15일 엠피닥터에 따르면 오전 9시 23분 현재 미래반도체(254490... 이데일리 | 2024-10-15 09:27",
-    "link": "https://n.news.naver.com/mnews/article/018/0005859198",
-    "date": "2024-10-15 09:27",
-    "keyword": [
-      "엔비디아",
-      "미래반도체",
-      "소부장"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "미래반도체",
-        "code": "254490"
-      }
-    ]
-  },
-  {
-    "num": 12,
-    "image": "https://imgnews.pstatic.net/image/thumb70/421/2024/10/15/7843856.jpg",
-    "title": "AI 덕분에 핵발전 급물살, 구글도 원자력발전 기업과 계약",
-    "summary": "인공지능(AI) 덕분에 원자력발전이 새로운 에너지원으로 급부상하고 있다고 월스트리트저널(WSJ)이 14일(현지시간) 보도했다. 비트코인 등 암호... 뉴스1 | 2024-10-15 09:26",
-    "link": "https://n.news.naver.com/mnews/article/421/0007843856",
-    "date": "2024-10-15 09:26",
-    "keyword": [
-      "두산중공업",
-      "한전KPS",
-      "한국전력",
-      "현대중공업",
-      "대우건설"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "한전KPS",
-        "code": "051600"
-      },
-      {
-        "name": "대우건설",
-        "code": "047040"
-      }
-    ]
-  },
-  {
-    "num": 13,
-    "image": "https://imgnews.pstatic.net/image/thumb70/011/2024/10/15/4402732.jpg",
-    "title": "“CJ ENM, 3분기 실적 시장 기대치 밑돌아…목표가 18% 하향”",
-    "summary": "NH투자증권(005940)이 CJ ENM(035760)에 대해 프로야구 폐막에 따른 티빙 지표 둔화, 방송광고·음악 부문 부진 등으로 3분기 실... 서울경제 | 2024-10-15 09:26",
-    "link": "https://n.news.naver.com/mnews/article/011/0004402732",
-    "date": "2024-10-15 09:26",
-    "keyword": [
-      "NH투자증권",
-      "CJ ENM"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "NH투자증권",
-        "code": "005940"
-      },
-      {
-        "name": "CJ ENM",
-        "code": "035760"
-      }
-    ]
-  },
-  {
-    "num": 15,
-    "image": "https://imgnews.pstatic.net/image/thumb70/119/2024/10/15/2881477.jpg",
-    "title": "키움證 “눈높이 낮아지는 3Q 어닝시즌…선별적 접근 필요”",
-    "summary": "3분기 어닝시즌이 시작된 가운데 기업들의 실적 발표 전후로 남은 하반기 그리고 내년에 대한 실적 눈높이가 낮아질 가능성이 높다는 전망이 제기된다... 데일리안 | 2024-10-15 09:23",
-    "link": "https://n.news.naver.com/mnews/article/119/0002881477",
-    "date": "2024-10-15 09:23",
-    "keyword": [
-      "삼성전자",
-      "LG전자",
-      "SK하이닉스",
-      "현대차",
-      "카카오"
-    ],
-    "relatedCompanies": [
-      {
-        "name": "삼성전자",
-        "code": "005930"
-      },
-      {
-        "name": "LG전자",
-        "code": "066570"
-      },
-      {
-        "name": "SK하이닉스",
-        "code": "000660"
-      },
-      {
-        "name": "카카오",
-        "code": "035720"
+        "name": "한화투자증권",
+        "code": "003530"
       }
     ]
   },
   {
     "num": 19,
-    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/15/5859191.jpg",
-    "title": "[특징주]씨이랩, AI 인프라 플랫폼 구축 계약에 급등",
-    "summary": "씨이랩(189330)이 강세를 보인다. 인공지능(AI) 인프라 플랫폼 구축 계약 소식이 투심을 자극한 것으로 보인다. 15일 엠피닥터에 따르면 ... 이데일리 | 2024-10-15 09:22",
-    "link": "https://n.news.naver.com/mnews/article/018/0005859191",
-    "date": "2024-10-15 09:22",
+    "image": "https://imgnews.pstatic.net/image/thumb70/008/2024/10/15/5100652.jpg",
+    "title": "\"세계 3대 자동차 시장 공략\" 금호에이치티, 인도 공장 준공 허가",
+    "summary": "금호에이치티는 인도 첸나이 SMT(표면실장기술) 공장의 모든 인허가 및 인증 절차를 성공적으로 마무리하고 준공 허가를 받았다고 15일 밝혔다. ... 머니투데이 | 2024-10-15 10:55",
+    "link": "https://n.news.naver.com/mnews/article/008/0005100652",
+    "date": "2024-10-15 10:55",
     "keyword": [
-      "씨이랩"
+      "금호에이치티"
     ],
     "relatedCompanies": [
       {
-        "name": "씨이랩",
-        "code": "189330"
+        "name": "금호에이치티",
+        "code": "214330"
       }
     ]
   },
   {
     "num": 20,
-    "image": "https://imgnews.pstatic.net/image/thumb70/011/2024/10/15/4402731.jpg",
-    "title": "[특징주] 식량 가격 비상에 고려산업, 장중 주가 15% 급등",
-    "summary": "러시아가 흑해 곡물 수출로인 우크라이나 오데사에 대한 공격을 재개했다는 소식이 전해지며 사료 제조 및 판매업을 영위하고 있는 고려산업(00214... 서울경제 | 2024-10-15 09:22",
-    "link": "https://n.news.naver.com/mnews/article/011/0004402731",
-    "date": "2024-10-15 09:22",
+    "image": "https://imgnews.pstatic.net/image/thumb70/018/2024/10/15/5859306.jpg",
+    "title": "원·달러 환율, 장중 1360원 돌파…두 달 만에 ‘최고’",
+    "summary": "원·달러 환율이 장중 1360원을 돌파했다. 15일 환율 상황. (사진=엠피닥터) 15일 서울외국환중개에 따르면 환율은 오전 10시 44분 기준... 이데일리 | 2024-10-15 10:53",
+    "link": "https://n.news.naver.com/mnews/article/018/0005859306",
+    "date": "2024-10-15 10:53",
     "keyword": [
-      "고려산업"
+      "신한금융지주",
+      "KB금융",
+      "하나금융지주",
+      "우리금융지주"
     ],
     "relatedCompanies": [
       {
-        "name": "고려산업",
-        "code": "002140"
+        "name": "KB금융",
+        "code": "105560"
+      },
+      {
+        "name": "하나금융지주",
+        "code": "086790"
+      },
+      {
+        "name": "우리금융지주",
+        "code": "316140"
       }
     ]
   }
