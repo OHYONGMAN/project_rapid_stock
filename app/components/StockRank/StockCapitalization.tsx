@@ -1,4 +1,4 @@
-import { getValidToken } from '../../api/token/router';
+import { getValidToken } from '../../api/token/route';
 
 export default async function StockCapitalization() {
   const url =
@@ -61,16 +61,16 @@ export default async function StockCapitalization() {
   return (
     <>
       {topStock ? (
-        <table className="w-full table-auto border-collapse text-center border-t-2 border-black">
+        <table className="w-full table-auto border-collapse border-t-2 border-black text-center">
           <tbody>
             {topStock.map((stock: any, index: number) => (
               <tr key={index} className="border-b hover:bg-g-100">
-                <td className="py-4 px-2">{index + 1}</td>
-                <td className="py-4 px-2">{stock.hts_kor_isnm}</td>
-                <td className="py-4 px-2">{stock.stck_prpr}</td>
+                <td className="px-2 py-4">{index + 1}</td>
+                <td className="px-2 py-4">{stock.hts_kor_isnm}</td>
+                <td className="px-2 py-4">{stock.stck_prpr}</td>
                 {/* <td className='py-4 px-2'>{stock.prdy_vrss}</td> */}
                 <td
-                  className={`py-4 px-2 ${
+                  className={`px-2 py-4 ${
                     stock.prdy_ctrt > 0 ? 'text-primary' : 'text-blue-500'
                   }`}
                 >
