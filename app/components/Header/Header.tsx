@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
   };
 
   return (
-    <header className="border-g-400 border-b">
+    <header className="border-b border-g-400">
       <div className="container mx-auto flex items-center justify-between py-6">
         <h1>
           <Link href="/">
@@ -42,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
         </nav>
         <form
           onSubmit={handleSearch}
-          className="bg-g-100 flex h-[45px] w-5/12 rounded-full px-6 py-2.5"
+          className="flex h-[45px] w-5/12 rounded-full bg-g-100 px-6 py-2.5"
         >
           <input
             type="text"

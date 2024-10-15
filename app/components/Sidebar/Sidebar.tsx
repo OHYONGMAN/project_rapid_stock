@@ -22,7 +22,7 @@ export default function SideBar() {
       {/* 토글 버튼 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-[29px] right-[36px] z-50 hover:bg-g-200 rounded-lg"
+        className="fixed right-[36px] top-[29px] z-50 rounded-lg hover:bg-g-200"
       >
         {isOpen ? (
           <Image src={icoCloseArr} alt="닫기" />
@@ -33,7 +33,7 @@ export default function SideBar() {
 
       {/* 사이드바 */}
       <aside
-        className={`fixed flex flex-col gap-10 items-center top-0 right-0 w-[480px] h-full bg-g-100 transition-transform duration-300 ${
+        className={`fixed right-0 top-0 flex h-full w-[480px] flex-col items-center gap-10 bg-g-100 transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -47,7 +47,7 @@ export default function SideBar() {
           <div>
             {/* 최근 리스트 버튼 */}
             <button
-              className={`w-[180px] h-[52px] box-border ${
+              className={`box-border h-[52px] w-[180px] ${
                 selectedButton === 'recent' ? 'border-b-4 border-black' : ''
               }`}
               onClick={() => setSelectedButton('recent')}
@@ -57,7 +57,7 @@ export default function SideBar() {
 
             {/* 관심 리스트 버튼 */}
             <button
-              className={`w-[180px] h-[52px] box-border ${
+              className={`box-border h-[52px] w-[180px] ${
                 selectedButton === 'interest' ? 'border-b-4 border-black' : ''
               }`}
               onClick={() => setSelectedButton('interest')}
