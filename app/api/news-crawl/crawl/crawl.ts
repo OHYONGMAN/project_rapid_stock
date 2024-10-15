@@ -1,33 +1,3 @@
-/* 
-1. 외부에 package.json을 배치하고, 필요한 패키지를 설치합니다.
-2. 이 파일 실행은 node index.js로 실행합니다. 
-3. 이 파일의 setInterval함수를 찾아 시간 조정을 해줍니다.
-4. news_data.json :        네이버 금융 뉴스를 크롤링하여 데이터를 가져오고, 그 데이터를 외부에  json 파일로 저장합니다.
-5. matching_results.json : 최종 기사와 매칭되는 회사명과 종목코드를 찾아냅니다.
-
-setInterval(main, 180000) : 5분에 한번 실행함! 너무 자주하면 네이버에서 차단되니 주의요함!!!
-apiPost() : 함수를 이용하여 뉴스 요약을 보내고, 그 결과를 받아서 관련 키워드를 추출합니다.
-fetchNews() : 함수를 이용하여 네이버 금융 뉴스를 크롤링하여 데이터를 가져옵니다.
-saveData() : 함수를 이용하여 외부에 JSON 파일에 데이터를 저장합니다.
-main() : 함수를 이용하여 새로운 뉴스 데이터를 가져오고, 그 데이터를 저장합니다.
-Code() : 함수를 이용하여 엑셀 파일에서 회사명과 종목코드를 가져와서, 뉴스 데이터의 키워드를 이용하여 종목코드를 찾아냅니다.
-*/
-
-/* 
-1. 외부에 package.json을 배치하고, 필요한 패키지를 설치합니다.
-2. 이 파일 실행은 node index.js로 실행합니다. 
-3. 이 파일의 setInterval함수를 찾아 시간 조정을 해줍니다.
-4. news_data.json :        네이버 금융 뉴스를 크롤링하여 데이터를 가져오고, 그 데이터를 외부에  json 파일로 저장합니다.
-5. matching_results.json : 최종 기사와 매칭되는 회사명과 종목코드를 찾아냅니다.
-
-setInterval(main, 180000) : 5분에 한번 실행함! 너무 자주하면 네이버에서 차단되니 주의요함!!!
-apiPost() : 함수를 이용하여 뉴스 요약을 보내고, 그 결과를 받아서 관련 키워드를 추출합니다.
-fetchNews() : 함수를 이용하여 네이버 금융 뉴스를 크롤링하여 데이터를 가져옵니다.
-saveData() : 함수를 이용하여 외부에 JSON 파일에 데이터를 저장합니다.
-main() : 함수를 이용하여 새로운 뉴스 데이터를 가져오고, 그 데이터를 저장합니다.
-Code() : 함수를 이용하여 엑셀 파일에서 회사명과 종목코드를 가져와서, 뉴스 데이터의 키워드를 이용하여 종목코드를 찾아냅니다.
-*/
-
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
@@ -39,6 +9,7 @@ import { supabase } from '@/app/lib/supabaseClient';
 // __dirname 대체
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 const COMPANY_INFO_PATH = path.join(__dirname, 'companyInfo.json');
 
