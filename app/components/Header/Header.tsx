@@ -16,19 +16,19 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
   };
 
   return (
-    <header className="border-b border-g-400">
+    <header className="border-g-400 border-b">
       <div className="container mx-auto flex items-center justify-between py-6">
         <h1>
           <Link href="/">
             <img
               src="/images/logo.svg"
               alt="rapid stock"
-              className="w-[190px] h-[34px]"
+              className="h-[34px] w-[190px]"
             />
           </Link>
         </h1>
         <nav>
-          <ul className="flex gap-12 md:gap-4 text-lg font-semibold">
+          <ul className="flex gap-12 text-lg font-semibold md:gap-4">
             {links.length > 0 ? (
               links.map((link) => (
                 <li key={`${link.name}-${link.url}`}>
@@ -42,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
         </nav>
         <form
           onSubmit={handleSearch}
-          className="flex w-5/12 h-[45px] rounded-full bg-g-100 px-6 py-2.5"
+          className="bg-g-100 flex h-[45px] w-5/12 rounded-full px-6 py-2.5"
         >
           <input
             type="text"

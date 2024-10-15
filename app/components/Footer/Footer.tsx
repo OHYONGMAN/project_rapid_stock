@@ -10,12 +10,12 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bottom-0 left-0 w-full bg-g-100 text-g-600">
-      <div className="container flex mx-auto py-12">
+    <footer className="bg-g-100 text-g-600 bottom-0 left-0 w-full">
+      <div className="container mx-auto flex py-12">
         <img
           src="images/logo-gray.svg"
           alt="rapid stock"
-          className="w-[235px] h-[43px] object-cover mr-20"
+          className="mr-20 h-[43px] w-[235px] object-cover"
         />
         <div>
           <ul className="grid grid-cols-3 gap-x-12">
