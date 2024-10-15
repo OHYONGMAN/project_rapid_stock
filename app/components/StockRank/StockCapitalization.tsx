@@ -1,4 +1,4 @@
-import { getValidToken } from '../../api/token/router';
+import { getValidToken } from '../../utils/kisApi/token';
 
 export default async function StockCapitalization() {
   const url =

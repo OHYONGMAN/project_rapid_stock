@@ -55,7 +55,7 @@ export default async function StockRank() {
   const indexData = await Promise.all(indexDataPromises);
 
   return (
-    <div className="w-[460px] mx-auto mx-20">
+    <div>
       <h2 className="text-2xl font-semibold mb-4">오늘의 증시</h2>
       {indexData ? (
         <div className="flex flex-col gap-4">
