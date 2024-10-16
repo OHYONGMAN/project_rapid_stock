@@ -32,7 +32,7 @@ export default function RootLayout({
           {/* 메인 콘텐츠 */}
           <main
             className={`flex min-h-full flex-col grow transition-all duration-300 ${
-              isSideBarOpen ? 'mr-0' : 'ml-0'
+              isSideBarOpen ? 'mx-[80px]' : 'ml-0'
             }`}
           >
             {children}

@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bottom-0 left-0 w-full bg-g-100 text-g-600">
+    <footer className="bottom-0 left-0 w-full bg-g-100 text-g-600 mt-[80px]">
       <div className="container mx-auto flex py-12">
         <img
           src="images/logo-gray.svg"
