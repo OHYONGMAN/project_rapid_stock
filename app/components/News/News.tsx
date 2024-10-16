@@ -49,7 +49,12 @@ export default function MainNews() {
             />
             <div className="flex flex-col gap-2">
               <Link href={`/news/${news.id}`}>
-                <h3 className="font-semibold">{news.title}</h3>
+                <h3
+                  className="font-semibold"
+                  onClick={() => handleNewsClick(news.id, news.title)}
+                >
+                  {news.title}
+                </h3>
               </Link>
               <p>{news.date}</p>
               <div>{news.keyword.join(', ')}</div>

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../utils/supabase.ts';
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/Image';
 import { useSearchParams } from 'next/navigation';
 
 declare global {
@@ -134,11 +134,17 @@ const News: React.FC = () => {
         <li className="mt-10 flex flex-col" key={news.id}>
           <div className="flex justify-between">
             <div className="flex">
-              <Image src={news.image} alt="뉴스 이미지" />
+              <Image
+                src={news.image}
+                alt="뉴스 이미지"
+                width={100}
+                height={50}
+                objectFit="cover"
+              />
               <Link href={`/news/${news.id}`}>
                 <h2
                   className="ml-4 cursor-pointer text-xl font-bold"
-                  onClick={() => handleNewsClick(news.id, news.title)} // 뉴스 클릭 시 ID와 타이틀 함께 저장
+                  onClick={() => handleNewsClick(news.id, news.title)}
                 >
                   {news.title}
                 </h2>
@@ -146,12 +152,15 @@ const News: React.FC = () => {
             </div>
             <div>
               <p>{news.date}</p>
-              <div></div>
             </div>
           </div>
           <p className="mt-3 font-semibold">
-            관련종목:{' '}
-            <span className=" text-blue-600">{news.keyword.join(' ')}</span>
+            <span className="m-3">관련종목</span>
+            {news.keyword.map((keyword, index) => (
+              <span key={index} className="mr-2">
+                {keyword}
+              </span>
+            ))}
           </p>
         </li>
       ))}

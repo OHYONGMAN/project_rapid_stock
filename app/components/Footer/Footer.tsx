@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
     <footer className="bottom-0 left-0 mt-[80px] w-full bg-g-100 text-g-600">
       <div className="container mx-auto flex py-12">
         <Image
-          src="images/logo-gray.svg"
+          src="/images/logo-gray.svg"
           alt="rapid stock"
           width={235}
           height={43}
