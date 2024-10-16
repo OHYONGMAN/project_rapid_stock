@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../utils/supabase';
+import Link from 'next/link';
 
 interface NewsItem {
   id: number;
@@ -11,7 +12,7 @@ interface NewsItem {
   keyword: string[];
 }
 
-const MyPage: React.FC = () => {
+const News: React.FC = () => {
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1); // 페이지 상태
@@ -93,7 +94,12 @@ const MyPage: React.FC = () => {
           <div className="flex justify-between">
             <div className="flex">
               <img src={news.image} alt="뉴스 이미지" />
-              <h2 className=" ml-4 text-xl font-bold">{news.title}</h2>
+              {/* Link 컴포넌트를 사용하여 개별 뉴스 페이지로 이동 */}
+              <Link href={`/news/${news.id}`}>
+                <h2 className="ml-4 text-xl font-bold cursor-pointer">
+                  {news.title}
+                </h2>
+              </Link>
             </div>
             <div>
               <p>{news.date}</p>
@@ -120,4 +126,4 @@ const MyPage: React.FC = () => {
   );
 };
 
-export default MyPage;
+export default News;
