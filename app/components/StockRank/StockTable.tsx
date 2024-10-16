@@ -14,7 +14,7 @@ const tabs: Tab[] = [
   { name: '시가총액 상위', component: <StockCapitalization /> },
 ];
 
-export default function Table({
+export default function StockTable({
   searchParams,
 }: {
   searchParams: { tab?: string };
@@ -30,7 +30,7 @@ export default function Table({
         {tabs.map((tab, index) => (
           <a
             key={index}
-            href={`?tab=${index}`} // URL을 변경하여 서버에서 새로운 탭 로드
+            href={`?tab=${index}`}
             className={`tab rounded-lg px-4 py-2 font-semibold hover:bg-g-100 ${
               activeTab === index ? 'text-bk' : 'text-g-700 hover:text-bk'
             }`}

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   fetchTodayStockData,
   StockData,
-} from '../../utils/kisApi/todayStock.ts';
+} from '../../../utils/kisApi/todayStock.ts';
 
 interface StockTableProps {
   onSymbolSelect: (symbol: string) => void;

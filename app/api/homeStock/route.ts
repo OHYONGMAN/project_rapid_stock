@@ -1,9 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getValidToken } from '../../utils/kisApi/token.ts';
 
+const MAX_RETRIES = 3;
+const TIMEOUT = 10000; // 10 seconds
+
+type DataType =
+  | 'indexPrice'
+  | 'stockCapitalization'
+  | 'topStock'
+  | 'stockDividends';
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries = MAX_RETRIES,
+): Promise<Response> {
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), TIMEOUT);
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(id);
+    return response;
+  } catch (err) {
+    if (retries > 0) {
+      console.log(`Retrying... (${MAX_RETRIES - retries + 1}/${MAX_RETRIES})`);
+      return fetchWithRetry(url, options, retries - 1);
+    }
+    throw err;
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const dataType = searchParams.get('type');
+  const dataType = searchParams.get('type') as DataType | null;
 
   if (!dataType) {
     return NextResponse.json(
@@ -26,27 +58,55 @@ export async function GET(req: NextRequest) {
     let params: URLSearchParams;
     let trId: string;
 
+    const headers = {
+      'content-type': 'application/json; charset=utf-8',
+      authorization: `Bearer ${token}`,
+      appkey: process.env.NEXT_PUBLIC_KIS_API_KEY!,
+      appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET!,
+      tr_id: '',
+      custtype: 'P',
+    };
+
     switch (dataType) {
-      case 'indexPrice':
+      case 'indexPrice': {
         url =
           'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-index-price';
-        params = new URLSearchParams({
-          FID_COND_MRKT_DIV_CODE: 'U',
-          FID_INPUT_ISCD: '0001', // 코스피 지수
-        });
         trId = 'FHPUP02100000';
-        break;
-      case 'stockCapitalization':
+        headers.tr_id = trId;
+
+        const indexCodes = ['0001', '1001', '2001']; // 코스피, 코스닥, 코스피200
+        const promises = indexCodes.map((code) =>
+          fetchWithRetry(
+            `${url}?FID_COND_MRKT_DIV_CODE=U&FID_INPUT_ISCD=${code}`,
+            {
+              method: 'GET',
+              headers,
+            },
+          ).then((res) => res.json()),
+        );
+        const results = await Promise.all(promises);
+        return NextResponse.json(results.map((r) => r.output[0]));
+      }
+
+      case 'stockCapitalization': {
         url =
           'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/ranking/market-cap';
         params = new URLSearchParams({
           FID_COND_MRKT_DIV_CODE: 'J',
           FID_COND_SCR_DIV_CODE: '20174',
           FID_INPUT_ISCD: '0000',
+          FID_DIV_CLS_CODE: '0',
+          FID_TRGT_CLS_CODE: '0',
+          FID_TRGT_EXLS_CLS_CODE: '0',
+          FID_INPUT_PRICE_1: '',
+          FID_INPUT_PRICE_2: '',
+          FID_VOL_CNT: '',
         });
         trId = 'FHPST01740000';
         break;
-      case 'topStock':
+      }
+
+      case 'topStock': {
         url =
           'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/volume-rank';
         params = new URLSearchParams({
@@ -64,7 +124,9 @@ export async function GET(req: NextRequest) {
         });
         trId = 'FHPST01710000';
         break;
-      case 'stockDividends':
+      }
+
+      case 'stockDividends': {
         url =
           'https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/ranking/dividend-rate';
         params = new URLSearchParams({
@@ -77,25 +139,13 @@ export async function GET(req: NextRequest) {
           T_DT: '20240101',
           GB4: '0',
         });
-        trId = 'HHKDB13470100'; // 변경된 tr_id
+        trId = 'HHKDB13470100';
         break;
-      default:
-        return NextResponse.json(
-          { error: '잘못된 데이터 타입입니다.' },
-          { status: 400 },
-        );
+      }
     }
 
-    const headers = {
-      'content-type': 'application/json; charset=utf-8',
-      authorization: `Bearer ${token}`,
-      appkey: process.env.NEXT_PUBLIC_KIS_API_KEY!,
-      appsecret: process.env.NEXT_PUBLIC_KIS_API_SECRET!,
-      tr_id: trId,
-      custtype: 'P',
-    };
-
-    const response = await fetch(`${url}?${params}`, {
+    headers.tr_id = trId;
+    const response = await fetchWithRetry(`${url}?${params}`, {
       method: 'GET',
       headers,
     });
@@ -118,13 +168,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data.output || []);
   } catch (error) {
     console.error('API 처리 중 오류:', error);
-
-    const errorMessage =
-      error instanceof Error ? error.message : '알 수 없는 오류';
-
-    return NextResponse.json(
-      { error: '데이터 가져오기 실패', details: errorMessage },
-      { status: 500 },
-    );
+    let errorMessage = '데이터 가져오기 실패';
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+      if ('cause' in error && error.cause instanceof Error) {
+        errorMessage += ` (${error.cause.message})`;
+      }
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
