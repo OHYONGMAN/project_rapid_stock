@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { supabase } from '@/app/utils/supabase';
+import { supabase } from '../../../utils/supabase.ts';
 
 const UserInfo: React.FC<{ onUserChange: (email: string | null) => void }> = ({
   onUserChange,

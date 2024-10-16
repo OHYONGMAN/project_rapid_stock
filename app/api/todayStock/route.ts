@@ -75,8 +75,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(processedData);
   } catch (error) {
     console.error('API 처리 중 오류:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : '알 수 없는 오류';
     return NextResponse.json(
-      { error: '주식 데이터 가져오기 실패', details: error.message },
+      { error: '주식 데이터 가져오기 실패', details: errorMessage },
       { status: 500 },
     );
   }

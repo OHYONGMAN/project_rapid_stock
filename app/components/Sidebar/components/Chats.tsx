@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/app/utils/supabase';
-import UserInfo from './UserInfo'; // UserInfo 컴포넌트 import
+import { supabase } from '../../../utils/supabase.ts';
+import UserInfo from './UserInfo.tsx'; // UserInfo 컴포넌트 import
 
 // 메시지 타입 정의
 type Message = {
@@ -98,7 +98,9 @@ export default function Chat() {
                   })}
                 </span>
               </div>
-              <p className="bg-white px-[16px] py-[12px] rounded-xl">{message.content}</p>
+              <p className="rounded-xl bg-white px-[16px] py-[12px]">
+                {message.content}
+              </p>
             </div>
           ))
         ) : (

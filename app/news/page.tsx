@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../utils/supabase.ts';
 
 interface NewsItem {
   id: number;

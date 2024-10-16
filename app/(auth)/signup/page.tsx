@@ -1,6 +1,6 @@
 'use client';
 
-import { supabase } from '@/app/utils/supabase';
+import { supabase } from '../../utils/supabase.ts';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -60,14 +60,14 @@ const SignupForm = () => {
   };
 
   return (
-    <div className="flex items-start justify-center h-screen mt-10 bg-white">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-[980px] max-h-[640px] grid grid-cols-2">
+    <div className="mt-10 flex h-screen items-start justify-center bg-white">
+      <div className="grid max-h-[640px] w-full max-w-[980px] grid-cols-2 rounded-lg bg-white shadow-xl">
         {/* 왼쪽 - 회원가입 폼 */}
         <div className="p-4">
-          <h1 className="text-2xl font-bold mb-2 text-black">
+          <h1 className="mb-2 text-2xl font-bold text-black">
             Welcome to Rapid Stock!
           </h1>
-          <p className="text-gray-600 mb-10">
+          <p className="mb-10 text-gray-600">
             가장 빠르게 주식 뉴스를 전달드립니다.
           </p>
 
@@ -76,33 +76,33 @@ const SignupForm = () => {
 
           <form className="space-y-6" onSubmit={signupHandler}>
             <div>
-              <label className="text-black font-medium">이메일</label>
+              <label className="font-medium text-black">이메일</label>
               <input
                 type="email"
                 placeholder="이메일을 입력해주세요."
-                className="w-full h-12 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
-              <label className="text-black font-medium">비밀번호</label>
+              <label className="font-medium text-black">비밀번호</label>
               <input
                 type="password"
                 placeholder="비밀번호를 입력해주세요."
-                className="w-full h-12 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div>
-              <label className="text-black font-medium">닉네임</label>
+              <label className="font-medium text-black">닉네임</label>
               <input
                 type="text"
                 placeholder="닉네임을 입력해주세요."
-                className="w-full h-12 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-12 w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -111,7 +111,7 @@ const SignupForm = () => {
 
             <button
               type="submit"
-              className="w-full h-12 bg-black text-white rounded-md hover:bg-gray-800 transition duration-200"
+              className="h-12 w-full rounded-md bg-black text-white transition duration-200 hover:bg-gray-800"
             >
               회원가입
             </button>
@@ -119,7 +119,7 @@ const SignupForm = () => {
         </div>
 
         {/* 오른쪽 - 로고 이미지 */}
-        <div className="flex items-center justify-center bg-gray-50 p-8 rounded-r-lg">
+        <div className="flex items-center justify-center rounded-r-lg bg-gray-50 p-8">
           <div className="text-center">
             <Image
               src="/images/logo.svg"

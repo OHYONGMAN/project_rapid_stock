@@ -1,5 +1,6 @@
-import StockMarket from './components/StockMarket/StockMarket';
-import StockTable from './components/StockRank/StockTable';
+import React from 'react';
+import StockMarket from './components/StockMarket/StockMarket.tsx';
+import StockTable from './components/StockRank/StockTable.tsx';
 
 export default function Home({
   searchParams,

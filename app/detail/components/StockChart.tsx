@@ -64,7 +64,6 @@ interface StockChartProps {
 
 export default function StockChart({ symbol }: StockChartProps) {
   const [chartData, setChartData] = useState<StockData[]>([]);
-  const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const chartRef = useRef<any>(null);
@@ -93,7 +92,6 @@ export default function StockChart({ symbol }: StockChartProps) {
       );
 
       if (stockData.length > 0) {
-        setName(stockData[0].name || '종목 이름 없음');
         setHoveredPoint(stockData[stockData.length - 1]);
       }
 

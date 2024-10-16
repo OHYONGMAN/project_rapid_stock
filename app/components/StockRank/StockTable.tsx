@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import StockRank from './StockRank.tsx';
 import StockCapitalization from './StockCapitalization.tsx';
 

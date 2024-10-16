@@ -1,6 +1,6 @@
-import { supabase } from '@/app/utils/supabase';
+import { supabase } from '../supabase.ts';
 
-const logoutHandler = async () => {
+export const logoutHandler = async () => {
   const { error } = await supabase.auth.signOut();
   if (error) {
     console.error('Error logging out:', error);
@@ -9,7 +9,3 @@ const logoutHandler = async () => {
     window.location.reload();
   }
 };
-
-// 로그아웃을 호출하거나 이벤트에 연결
-
-export { logoutHandler };

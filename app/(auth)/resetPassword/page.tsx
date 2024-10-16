@@ -1,7 +1,7 @@
 'use client'; // this is a client component
 
 import { useState } from 'react';
-import { supabase } from '@/app/utils/supabase';
+import { supabase } from '../../utils/supabase.ts';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState(''); // 이메일 상태 관리

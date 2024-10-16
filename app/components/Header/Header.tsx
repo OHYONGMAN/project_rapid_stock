@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { logoutHandler } from '@/app/(auth)/logout/page';
-import UserInfo from '../Sidebar/components/UserInfo'; //
+import { logoutHandler } from '../../utils/auth/logout.ts';
+import UserInfo from '../Sidebar/components/UserInfo.tsx';
 
 interface HeaderProps {
   links?: { name: string; url: string }[];
@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
           </Link>
         </h1>
         <nav>
-          <ul className="flex gap-12 md:gap-4 text-lg font-semibold">
+          <ul className="flex gap-12 text-lg font-semibold md:gap-4">
             {links.map((link) => (
               <li key={`${link.name}-${link.url}`}>
                 <Link href={link.url}>{link.name}</Link>

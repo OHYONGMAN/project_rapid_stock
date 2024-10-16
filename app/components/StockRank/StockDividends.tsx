@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { fetchStockData, StockData } from '../../utils/kisApi/homeStock.ts';
