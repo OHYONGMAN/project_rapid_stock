@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getValidToken } from '@/app/utils/kisApi/token';
+import { getValidToken } from '../../utils/kisApi/token.ts';
 
 interface ApiResponse {
   output: {

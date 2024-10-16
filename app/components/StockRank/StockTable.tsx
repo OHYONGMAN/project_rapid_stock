@@ -1,5 +1,7 @@
-import StockRank from './StockRank';
-import StockCapitalization from './StockCapitalization';
+'use client';
+
+import StockRank from './StockRank.tsx';
+import StockCapitalization from './StockCapitalization.tsx';
 
 type Tab = {
   name: string;
@@ -21,14 +23,14 @@ export default function Table({
 
   return (
     <div className="mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">TOP 종목</h2>
+      <h2 className="mb-4 text-2xl font-semibold">TOP 종목</h2>
 
       <div className="tabs flex">
         {tabs.map((tab, index) => (
           <a
             key={index}
             href={`?tab=${index}`} // URL을 변경하여 서버에서 새로운 탭 로드
-            className={`tab px-4 py-2 font-semibold rounded-lg hover:bg-g-100 ${
+            className={`tab rounded-lg px-4 py-2 font-semibold hover:bg-g-100 ${
               activeTab === index ? 'text-bk' : 'text-g-700 hover:text-bk'
             }`}
           >

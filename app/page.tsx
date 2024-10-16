@@ -11,7 +11,7 @@ export default function Home({
       <div className="w-full">
         <StockTable searchParams={searchParams} />
       </div>
-      <div className="w-96">
+      <div className="w-[40vw]">
         <StockMarket />
       </div>
     </div>

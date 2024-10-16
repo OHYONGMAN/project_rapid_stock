@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import React from 'react';
 import 'devextreme/dist/css/dx.light.css';
-import '@/app/globals.css';
-import Footer from '@/app/components/Footer/Footer';
-import Header from '@/app/components/Header/Header';
+import './globals.css';
+import Footer from './components/Footer/Footer.tsx';
+import Header from './components/Header/Header.tsx';
 import SideBar from './components/Sidebar/Sidebar.tsx';
 
 export const metadata: Metadata = {

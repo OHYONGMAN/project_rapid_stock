@@ -1,7 +1,7 @@
 // 주식 데이터 조회 API 엔드포인트
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getValidToken } from '@/app/utils/kisApi/token';
+import { getValidToken } from '../../utils/kisApi/token.ts';
 
 // GET 요청 처리 함수 (일봉/주봉/월봉 데이터를 조회)
 export async function GET(req: NextRequest) {

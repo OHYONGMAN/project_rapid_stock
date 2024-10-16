@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchTodayStockData, StockData } from '@/app/utils/kisApi/todayStock';
+import {
+  fetchTodayStockData,
+  StockData,
+} from '../../utils/kisApi/todayStock.ts';
 
 interface StockTableProps {
   onSymbolSelect: (symbol: string) => void;
