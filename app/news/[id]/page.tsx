@@ -42,7 +42,7 @@ export default function NewsDetailPage() {
   };
 
   return (
-    <div className="w-full">
+    <div className="px-20">
       {newsId && <StockNews newsId={newsId} />}
       {newsDetail && (
         <StockTable
