@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import icoCloseArr from '../../../public/images/ico-closeArr.svg';
 import icoOpenArr from '../../../public/images/ico-openArr.svg';
 import Chats from './components/Chats';
@@ -10,11 +10,35 @@ import UserInfo from './components/UserInfo'; // UserInfo 컴포넌트 임포트
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null); // 사용자 이메일 상태
+  const [recentNews, setRecentNews] = useState<{ id: number; title: string }[]>(
+    [],
+  ); // 뉴스 ID와 타이틀을 저장
 
   // 사용자 이메일 업데이트
   const handleUserChange = (email: string | null) => {
     setUserEmail(email);
   };
+
+  // 로컬 스토리지에서 최근 본 뉴스 가져오기
+  const loadRecentNews = () => {
+    const storedNewsHistory = JSON.parse(
+      localStorage.getItem('newsHistory') || '[]',
+    );
+    setRecentNews(storedNewsHistory);
+  };
+
+  // 컴포넌트가 마운트될 때 최근 본 뉴스 로드 및 전역 함수 설정
+  useEffect(() => {
+    loadRecentNews();
+
+    // 전역에서 호출할 수 있도록 함수 정의
+    window.updateRecentNews = loadRecentNews;
+
+    return () => {
+      // 컴포넌트가 언마운트될 때 전역 함수 삭제
+      delete window.updateRecentNews;
+    };
+  }, []);
 
   return (
     <div>
@@ -37,7 +61,7 @@ export default function SideBar() {
         }`}
       >
         {/* 리스트 섹션 */}
-        <section className="pt-[36px] ">
+        <section className="pt-[36px]">
           {userEmail ? (
             <p className="text-center">{userEmail}님 환영합니다.</p>
           ) : (
@@ -46,11 +70,20 @@ export default function SideBar() {
           <div className="w-[360px] pt-5">
             <h3 className="mb-2 text-xl font-bold">최근 본 뉴스</h3>
             <ul>
-              <li>삼성전자</li>
-              <li>삼성전자</li>
-              <li>삼성전자</li>
-              <li>삼성전자</li>
-              <li>삼성전자</li>
+              {/* 최근 본 뉴스 타이틀 표시 */}
+              {recentNews.length > 0 ? (
+                recentNews.map((news) => (
+                  <li key={news.id}>
+                    <a className="hover:text-red-500" href={`/news/${news.id}`}>
+                      {news.title.length > 28
+                        ? `${news.title.slice(0, 28)}...`
+                        : news.title}
+                    </a>
+                  </li>
+                ))
+              ) : (
+                <li>최근 본 뉴스가 없습니다.</li>
+              )}
             </ul>
           </div>
         </section>
