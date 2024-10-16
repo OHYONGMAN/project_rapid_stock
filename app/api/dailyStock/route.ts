@@ -3,6 +3,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getValidToken } from '../../utils/kisApi/token.ts';
 
+interface StockItem {
+  stck_bsop_date: string;
+  stck_oprc: string;
+  stck_hgpr: string;
+  stck_lwpr: string;
+  stck_prpr?: string;
+  stck_clpr?: string;
+  cntg_vol?: string;
+  acml_vol?: string;
+}
+
 // GET 요청 처리 함수 (일봉/주봉/월봉 데이터를 조회)
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url); // URL 파라미터에서 symbol과 timeUnit 값을 추출
@@ -91,14 +102,14 @@ export async function GET(req: NextRequest) {
     const stockName = data.output1.hts_kor_isnm; // 종목명
 
     // 받은 데이터를 가공하여 필요한 형식으로 변환
-    const processedData = data.output2.map((item: any) => ({
+    const processedData = data.output2.map((item: StockItem) => ({
       name: stockName, // 종목명
       date: item.stck_bsop_date, // 거래 일자
       open: parseFloat(item.stck_oprc), // 시가
       high: parseFloat(item.stck_hgpr), // 고가
       low: parseFloat(item.stck_lwpr), // 저가
-      close: parseFloat(item.stck_prpr || item.stck_clpr), // 종가
-      volume: parseInt(item.cntg_vol || item.acml_vol, 10), // 거래량
+      close: parseFloat(item.stck_prpr ?? item.stck_clpr ?? '0'), // 종가
+      volume: parseInt(item.cntg_vol || item.acml_vol || '0', 10), // 거래량
     }));
 
     // 가공된 데이터를 JSON으로 반환

@@ -85,7 +85,32 @@ export async function GET(req: NextRequest) {
           ).then((res) => res.json()),
         );
         const results = await Promise.all(promises);
-        return NextResponse.json(results.map((r) => r.output[0]));
+
+        console.log('API 응답 결과:', JSON.stringify(results, null, 2));
+
+        const mappedResults = results.map((r, index) => {
+          console.log(`${indexCodes[index]} 결과:`, r);
+          if (r && r.output && typeof r.output === 'object') {
+            return r.output;
+          } else {
+            console.error(`${indexCodes[index]}에 대한 유효하지 않은 응답:`, r);
+            return null;
+          }
+        });
+
+        console.log('매핑된 결과:', mappedResults);
+
+        const validResults = mappedResults.filter((item) => item !== null);
+
+        if (validResults.length === 0) {
+          console.error('모든 API 응답이 유효하지 않습니다.');
+          return NextResponse.json(
+            { error: '유효한 데이터를 받지 못했습니다.' },
+            { status: 500 },
+          );
+        }
+
+        return NextResponse.json(validResults);
       }
 
       case 'stockCapitalization': {

@@ -14,11 +14,16 @@ export default function StockMarket() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const formatNumber = (num: string) => {
+    return new Intl.NumberFormat('ko-KR').format(Number(num));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const data = await fetchStockData('indexPrice');
+        console.log('Received data:', data);
         setIndexData(data as IndexPriceData[]);
       } catch (error) {
         console.error('인덱스 데이터 요청 중 에러 발생:', error);
@@ -50,34 +55,44 @@ export default function StockMarket() {
             <h3 className="flex-1 text-left font-semibold">
               {indexNames[index]}
             </h3>
-            <p className="text-right">{data.bstp_nmix_prpr}</p>
+            <p className="text-right">
+              {data?.bstp_nmix_prpr
+                ? formatNumber(data.bstp_nmix_prpr)
+                : '데이터 없음'}
+            </p>
             <div className="ml-2 flex w-16 items-center justify-between">
-              {parseFloat(data.bstp_nmix_prdy_vrss) > 0 ? (
+              {data?.bstp_nmix_prdy_vrss &&
+              parseFloat(data.bstp_nmix_prdy_vrss) > 0 ? (
                 <div className="flex w-full items-center text-primary">
                   <Image src={stockup} alt="상승" width={16} height={16} />
                   <p className="flex-1 text-right">
-                    {data.bstp_nmix_prdy_vrss}
+                    {formatNumber(data.bstp_nmix_prdy_vrss)}
                   </p>
                 </div>
-              ) : (
+              ) : data?.bstp_nmix_prdy_vrss ? (
                 <div className="flex w-full items-center text-blue-500">
                   <Image src={stockdown} alt="하락" width={16} height={16} />
                   <p className="flex-1 text-right">
-                    {data.bstp_nmix_prdy_vrss}
+                    {formatNumber(data.bstp_nmix_prdy_vrss)}
                   </p>
                 </div>
+              ) : (
+                <p>데이터 없음</p>
               )}
             </div>
             <p
               className={`w-16 text-right ${
+                data?.bstp_nmix_prdy_ctrt &&
                 parseFloat(data.bstp_nmix_prdy_ctrt) > 0
                   ? 'text-primary'
                   : 'text-blue-500'
               }`}
             >
-              {parseFloat(data.bstp_nmix_prdy_ctrt) > 0
-                ? `+${data.bstp_nmix_prdy_ctrt}%`
-                : `${data.bstp_nmix_prdy_ctrt}%`}
+              {data?.bstp_nmix_prdy_ctrt
+                ? parseFloat(data.bstp_nmix_prdy_ctrt) > 0
+                  ? `+${data.bstp_nmix_prdy_ctrt}%`
+                  : `${data.bstp_nmix_prdy_ctrt}%`
+                : '데이터 없음'}
             </p>
           </div>
         ))}

@@ -11,6 +11,10 @@ export default function StockRank() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const formatNumber = (num: string) => {
+    return new Intl.NumberFormat('ko-KR').format(Number(num));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,21 +53,21 @@ export default function StockRank() {
           <tr key={index} className="border-b hover:bg-g-100">
             <td className="px-2 py-4">{stock.data_rank}</td>
             <td className="px-2 py-4">{stock.hts_kor_isnm}</td>
-            <td className="px-2 py-4">{stock.stck_prpr}</td>
+            <td className="px-2 py-4">{formatNumber(stock.stck_prpr)}</td>
             <td className="px-2 py-4">
               {parseFloat(stock.prdy_vrss) > 0 ? (
                 <div className="flex items-center justify-center text-primary">
                   <Image src={stockup} alt="상승" width={16} height={16} />
-                  <span className="ml-2">{stock.prdy_vrss}</span>
+                  <span className="ml-2">{formatNumber(stock.prdy_vrss)}</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center text-blue-500">
                   <Image src={stockdown} alt="하락" width={16} height={16} />
-                  <span className="ml-2">{stock.prdy_vrss}</span>
+                  <span className="ml-2">{formatNumber(stock.prdy_vrss)}</span>
                 </div>
               )}
             </td>
-            <td className="px-2 py-4">{stock.acml_vol}</td>
+            <td className="px-2 py-4">{formatNumber(stock.acml_vol)}</td>
           </tr>
         ))}
       </tbody>

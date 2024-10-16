@@ -13,6 +13,10 @@ export default function StockDividends() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const formatNumber = (num: string) => {
+    return new Intl.NumberFormat('ko-KR').format(Number(num));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -52,8 +56,10 @@ export default function StockDividends() {
           <tr key={index} className="border-b hover:bg-g-100">
             <td className="px-2 py-4">{stock.rank}</td>
             <td className="px-2 py-4">{stock.isin_name}</td>
-            <td className="px-2 py-4">{stock.stck_prpr}</td>
-            <td className="px-2 py-4">{stock.per_sto_divi_amt}</td>
+            <td className="px-2 py-4">{formatNumber(stock.stck_prpr)}</td>
+            <td className="px-2 py-4">
+              {formatNumber(stock.per_sto_divi_amt)}
+            </td>
             <td className="px-2 py-4">{stock.divi_rate}%</td>
             <td className="px-2 py-4">{stock.divi_kind}</td>
           </tr>

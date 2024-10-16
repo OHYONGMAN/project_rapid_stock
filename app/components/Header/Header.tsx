@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { logoutHandler } from '../../utils/auth/logout.ts';
 import UserInfo from '../Sidebar/components/UserInfo.tsx';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   links?: { name: string; url: string }[];
@@ -12,29 +14,32 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ links = [] }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const router = useRouter(); // useRouter를 사용하여 URL 이동
 
   // 사용자 이메일 업데이트
   const handleUserChange = (email: string | null) => {
     setUserEmail(email);
   };
 
+  // 검색어 처리 함수
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(searchTerm); // 현재 상태에서는 콘솔에만 출력
-    // 추후 검색 기능 로직 추가 가능
+    if (searchTerm.trim() !== '') {
+      router.push(`/news?search=${encodeURIComponent(searchTerm)}`); // 검색어를 쿼리 파라미터로 추가
+    }
   };
 
   return (
     <header className="border-b border-g-400">
-      <UserInfo onUserChange={handleUserChange} />{' '}
-      {/* UserInfo 컴포넌트 사용 */}
+      <UserInfo onUserChange={handleUserChange} />
       <div className="container mx-auto flex items-center justify-between py-6">
         <h1>
           <Link href="/">
-            <img
+            <Image
               src="/images/logo.svg"
               alt="rapid stock"
-              className="h-[34px] w-[190px]"
+              width={190}
+              height={34}
             />
           </Link>
         </h1>
@@ -59,10 +64,11 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button type="submit" className="h-full" aria-label="검색하기">
-            <img
+            <Image
               src="/images/ico-search.svg"
               alt="검색 아이콘"
-              className="size-4.5"
+              width={18}
+              height={18}
             />
           </button>
         </form>

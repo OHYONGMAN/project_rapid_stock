@@ -2,7 +2,15 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../utils/supabase.ts';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+declare global {
+  interface Window {
+    updateRecentNews?: () => void;
+  }
+}
 
 interface NewsItem {
   id: number;
@@ -15,11 +23,15 @@ interface NewsItem {
 const News: React.FC = () => {
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1); // 페이지 상태
-  const observerRef = useRef<HTMLDivElement | null>(null); // Intersection Observer용 ref
-  const itemsPerPage = 10; // 페이지 당 아이템 수
-  const [hasMore, setHasMore] = useState<boolean>(true); // 더 불러올 데이터가 있는지 확인하는 상태
+  const [page, setPage] = useState<number>(1);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const itemsPerPage = 10;
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
+  const searchParams = useSearchParams();
+  const searchTerm = searchParams.get('search') || undefined;
+
+  // 뉴스 데이터 불러오기
   useEffect(() => {
     const fetchData = async (page: number) => {
       setLoading(true);
@@ -31,41 +43,37 @@ const News: React.FC = () => {
         .from('news')
         .select('*')
         .order('date', { ascending: false })
-        .range(start, end); // start부터 end까지의 범위 데이터를 가져옵니다.
+        .range(start, end);
 
       if (error) {
         console.error('Error fetching data:', error);
       } else {
-        // 데이터가 있을 경우에만 추가
         if (data && data.length > 0) {
           setNewsData((prevData) => {
-            // 중복된 데이터가 추가되지 않도록 기존 데이터에 없는 항목만 추가
             const newData = data.filter(
               (newsItem) => !prevData.some((item) => item.id === newsItem.id),
             );
             return [...prevData, ...newData];
           });
 
-          // 데이터가 itemsPerPage보다 적으면 더 이상 불러올 데이터가 없는 것으로 판단
           if (data.length < itemsPerPage) {
             setHasMore(false);
           }
         } else {
-          setHasMore(false); // 더 이상 불러올 데이터가 없는 경우
+          setHasMore(false);
         }
       }
 
       setLoading(false);
     };
 
-    // 데이터가 더 있을 때만 fetchData 호출
     if (hasMore) {
       fetchData(page);
     }
   }, [page]);
 
   useEffect(() => {
-    if (loading || !hasMore) return; // 로딩 중이거나 더 불러올 데이터가 없으면 실행하지 않음
+    if (loading || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -87,16 +95,51 @@ const News: React.FC = () => {
     };
   }, [loading, hasMore]);
 
+  const filteredNewsData = searchTerm
+    ? newsData.filter((news) =>
+        news.keyword.some((keyword) =>
+          keyword.toLowerCase().includes(searchTerm.toLowerCase()),
+        ),
+      )
+    : newsData;
+
+  const handleNewsClick = (newsId: number, newsTitle: string) => {
+    const currentHistory = JSON.parse(
+      localStorage.getItem('newsHistory') || '[]',
+    );
+
+    // 이미 존재하는 뉴스를 제거한 후, 새로운 뉴스 추가
+    const updatedHistory = [
+      { id: newsId, title: newsTitle },
+      ...currentHistory.filter(
+        (item: { id: number; title: string }) => item.id !== newsId,
+      ),
+    ];
+
+    // 최신 뉴스 5개만 저장
+    const limitedHistory = updatedHistory.slice(0, 5);
+
+    // 로컬 스토리지에 저장
+    localStorage.setItem('newsHistory', JSON.stringify(limitedHistory));
+
+    // 사이드바에 즉시 반영되도록 loadRecentNews 호출 (SideBar에서 사용할 함수)
+    if (typeof window !== 'undefined' && window.updateRecentNews) {
+      window.updateRecentNews();
+    }
+  };
+
   return (
     <ul className="m-auto w-[1282px] p-5">
-      {newsData.map((news) => (
+      {filteredNewsData.map((news) => (
         <li className="mt-10 flex flex-col" key={news.id}>
           <div className="flex justify-between">
             <div className="flex">
-              <img src={news.image} alt="뉴스 이미지" />
-              {/* Link 컴포넌트를 사용하여 개별 뉴스 페이지로 이동 */}
+              <Image src={news.image} alt="뉴스 이미지" />
               <Link href={`/news/${news.id}`}>
-                <h2 className="ml-4 cursor-pointer text-xl font-bold">
+                <h2
+                  className="ml-4 cursor-pointer text-xl font-bold"
+                  onClick={() => handleNewsClick(news.id, news.title)} // 뉴스 클릭 시 ID와 타이틀 함께 저장
+                >
                   {news.title}
                 </h2>
               </Link>
@@ -107,21 +150,19 @@ const News: React.FC = () => {
             </div>
           </div>
           <p className="mt-3 font-semibold">
-            관련테마:{' '}
+            관련종목:{' '}
             <span className=" text-blue-600">{news.keyword.join(' ')}</span>
           </p>
         </li>
       ))}
 
-      {/* 로딩 상태 표시 */}
-      {loading && <p>Loading more...</p>}
+      {loading && <p>로딩중</p>}
 
-      {/* 더 많은 데이터를 불러올 트리거 요소 */}
       {!loading && hasMore && (
         <div ref={observerRef} style={{ height: '20px' }}></div>
       )}
 
-      {!hasMore && <p>No more news to load</p>}
+      {!hasMore && <p>데이터가 없습니다.</p>}
     </ul>
   );
 };

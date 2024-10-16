@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 const Footer: React.FC = () => {
   const infoLinks = [
@@ -10,12 +11,14 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bottom-0 left-0 w-full bg-g-100 text-g-600">
+    <footer className="bottom-0 left-0 mt-[80px] w-full bg-g-100 text-g-600">
       <div className="container mx-auto flex py-12">
-        <img
+        <Image
           src="images/logo-gray.svg"
           alt="rapid stock"
-          className="mr-20 h-[43px] w-[235px] object-cover"
+          width={235}
+          height={43}
+          className="mr-20 object-contain"
         />
         <div>
           <ul className="grid grid-cols-3 gap-x-12">

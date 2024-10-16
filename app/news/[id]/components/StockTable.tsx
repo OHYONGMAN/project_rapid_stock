@@ -10,8 +10,9 @@ interface StockTableProps {
   onSymbolSelect: (symbol: string) => void;
 }
 
-const formatNumber = (num: string) =>
-  new Intl.NumberFormat('ko-KR').format(Number(num));
+const formatNumber = (num: string | number): string => {
+  return new Intl.NumberFormat('ko-KR').format(Number(num));
+};
 
 export default function StockTable({ onSymbolSelect }: StockTableProps) {
   const [symbol, setSymbol] = useState('005930');

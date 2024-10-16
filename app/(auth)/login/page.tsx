@@ -2,7 +2,8 @@
 
 import { supabase } from '../../utils/supabase.ts';
 import { useRouter } from 'next/navigation'; // useRouter 임포트
-import { FormEvent, useState } from 'react';
+import Image from 'next/image';
+import React, { FormEvent, useState } from 'react';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -100,7 +101,7 @@ const LoginForm = () => {
         {/* 오른쪽 - 로고 이미지 */}
         <div className="flex items-center justify-center rounded-r-lg bg-gray-50 p-8">
           <div className="text-center">
-            <img
+            <Image
               src="/images/logo.svg"
               alt="Rapid Stock Logo"
               className="mx-auto mb-4 w-[500px]"

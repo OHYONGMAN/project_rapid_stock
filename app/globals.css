@@ -101,3 +101,10 @@
     background-color: transparent;
   }
 }
+
+@media (max-width: 1440px) {
+  .sidebar-margin {
+    margin-left: 80px;
+    margin-right: 80px;
+  }
+}

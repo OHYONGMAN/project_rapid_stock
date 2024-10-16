@@ -44,8 +44,9 @@ const sortByDate = (a: StockData, b: StockData) => {
 const PriceInfo = React.memo(({ data }: { data: StockData | null }) => {
   if (!data) return null;
 
-  const formatNumber = (num: number) =>
-    new Intl.NumberFormat('ko-KR').format(num);
+  const formatNumber = (num: string | number) => {
+    return new Intl.NumberFormat('ko-KR').format(Number(num));
+  };
 
   return (
     <div className="absolute -top-3 left-7 z-10 text-sm">
@@ -57,6 +58,8 @@ const PriceInfo = React.memo(({ data }: { data: StockData | null }) => {
     </div>
   );
 });
+
+PriceInfo.displayName = 'PriceInfo';
 
 interface StockChartProps {
   symbol: string;
@@ -104,6 +107,7 @@ export default function StockChart({ symbol }: StockChartProps) {
 
       setChartData(formattedData);
     } catch (error) {
+      console.error('주식 데이터를 불러오는 데 실패했습니다.', error);
       setError('주식 데이터를 불러오는 데 실패했습니다.');
     } finally {
       setIsLoading(false);

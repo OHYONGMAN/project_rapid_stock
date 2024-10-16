@@ -216,7 +216,9 @@ async function saveToSupabase(newsData: NewsArticle[]): Promise<void> {
 
     // 이미 존재하는 제목과 링크의 기사를 필터링
     const existingTitleLinkSet = new Set(
-      existingNews.map((news) => `${news.title}|${news.link}`),
+      existingNews.map(
+        (news: { title: string; link: string }) => `${news.title}|${news.link}`,
+      ),
     );
 
     // 중복되지 않은 새로운 기사를 필터링
