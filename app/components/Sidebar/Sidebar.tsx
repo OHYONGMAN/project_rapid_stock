@@ -8,7 +8,6 @@ import Chats from './components/Chats';
 import UserInfo from './components/UserInfo'; // UserInfo 컴포넌트 임포트
 
 export default function SideBar() {
-  const [selectedButton, setSelectedButton] = useState<string>('recent');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [userEmail, setUserEmail] = useState<string | null>(null); // 사용자 이메일 상태
 
@@ -44,43 +43,15 @@ export default function SideBar() {
           ) : (
             <p className="text-center">환영합니다.</p>
           )}
-          <div>
-            {/* 최근 리스트 버튼 */}
-            <button
-              className={`box-border h-[52px] w-[180px] ${
-                selectedButton === 'recent' ? 'border-b-4 border-black' : ''
-              }`}
-              onClick={() => setSelectedButton('recent')}
-            >
-              최근 리스트
-            </button>
-
-            {/* 관심 리스트 버튼 */}
-            <button
-              className={`box-border h-[52px] w-[180px] ${
-                selectedButton === 'interest' ? 'border-b-4 border-black' : ''
-              }`}
-              onClick={() => setSelectedButton('interest')}
-            >
-              관심 리스트
-            </button>
-          </div>
-
-          {/* 로그인 상태에 따라 표시할 텍스트 */}
-          <div className="pt-3">
-            {userEmail ? (
-              <>
-                <div>삼성전자</div>
-                <div>삼성전자</div>
-                <div>삼성전자</div>
-                <div>삼성전자</div>
-                <div>삼성전자</div>
-              </>
-            ) : (
-              <>
-                <p>로그인 후 조회 가능합니다.</p>
-              </>
-            )}
+          <div className="w-[360px] pt-5">
+            <h3 className="mb-2 text-xl font-bold">최근 본 뉴스</h3>
+            <ul>
+              <li>삼성전자</li>
+              <li>삼성전자</li>
+              <li>삼성전자</li>
+              <li>삼성전자</li>
+              <li>삼성전자</li>
+            </ul>
           </div>
         </section>
 

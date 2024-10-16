@@ -14,8 +14,7 @@ const UserInfo: React.FC<{ onUserChange: (email: string | null) => void }> = ({
     async function getUserInfo() {
       const { data, error } = await supabase.auth.getUser();
 
-      if (error) {
-      } else if (data.user) {
+      if (data.user) {
         onUserChange(data.user.email ?? null);
       }
     }

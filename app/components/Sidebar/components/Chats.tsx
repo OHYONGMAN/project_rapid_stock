@@ -98,7 +98,9 @@ export default function Chat() {
                   })}
                 </span>
               </div>
-              <p className="bg-white px-[16px] py-[12px] rounded-xl">{message.content}</p>
+              <p className="rounded-xl bg-white px-[16px] py-[12px]">
+                {message.content}
+              </p>
             </div>
           ))
         ) : (
