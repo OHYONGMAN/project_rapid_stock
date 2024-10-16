@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import { supabase } from '../utils/supabase';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 declare global {
   interface Window {
     updateRecentNews?: () => void;
   }
 }
-import { supabase } from '../utils/supabase';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
 interface NewsItem {
   id: number;

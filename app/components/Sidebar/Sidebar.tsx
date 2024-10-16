@@ -7,8 +7,13 @@ import icoOpenArr from '../../../public/images/ico-openArr.svg';
 import Chats from './components/Chats';
 import UserInfo from './components/UserInfo'; // UserInfo 컴포넌트 임포트
 
-export default function SideBar() {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+export default function SideBar({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}) {
   const [userEmail, setUserEmail] = useState<string | null>(null); // 사용자 이메일 상태
   const [recentNews, setRecentNews] = useState<{ id: number; title: string }[]>(
     [],
