@@ -42,12 +42,12 @@ const handleNewsClick = (newsId: number, newsTitle: string) => {
 
   localStorage.setItem('newsHistory', JSON.stringify(limitedHistory));
 
-  // if (
-  //   typeof window !== 'undefined' &&
-  //   typeof window.updateRecentNews === 'function'
-  // ) {
-  //   window.updateRecentNews();
-  // }
+  if (
+    typeof window !== 'undefined' &&
+    typeof window.updateRecentNews === 'function'
+  ) {
+    window.updateRecentNews();
+  }
 };
 
 export default function MainNews() {

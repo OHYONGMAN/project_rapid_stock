@@ -2,6 +2,12 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+
+declare global {
+  interface Window {
+    updateRecentNews: () => void;
+  }
+}
 import icoCloseArr from '../../../public/images/ico-closeArr.svg';
 import icoOpenArr from '../../../public/images/ico-openArr.svg';
 import Chats from './components/Chats';
