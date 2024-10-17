@@ -15,7 +15,7 @@ const UserInfo: React.FC<{
       if (session?.user) {
         fetchUserInfo(session.user.id);
       } else {
-        onUserChange(null, null);
+        onUserChange(null, null, null);
       }
     });
 
@@ -29,9 +29,13 @@ const UserInfo: React.FC<{
 
       if (error) {
         console.error('Error fetching user info:', error);
-        onUserChange(null, null);
+        onUserChange(null, null, null);
       } else {
-        onUserChange(data?.email ?? null, data?.username ?? null);
+        onUserChange(
+          data?.email ?? null,
+          data?.username ?? null,
+          data?.image ?? null,
+        );
       }
     }
 
