@@ -36,7 +36,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://project-rapid-stock.vercel.app/'}/api/:path*`,
       },
     ];
   },
