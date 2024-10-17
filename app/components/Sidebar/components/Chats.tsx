@@ -18,7 +18,6 @@ type Message = {
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(null); // image 상태 추가
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -81,8 +80,7 @@ export default function Chat() {
 
       {/* UserInfo 컴포넌트 추가, username과 image 가져옴 */}
       <UserInfo
-        onUserChange={(email, username, image) => {
-          setUserEmail(email);
+        onUserChange={(username, image) => {
           setUsername(username);
           setImage(image);
         }}

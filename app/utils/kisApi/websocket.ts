@@ -90,7 +90,7 @@ export const closeWebSocket = () => {
   }
 };
 
-export const parseStockData = (data: string) => {
+export const parseStockData = (data: string | any) => {
   try {
     if (typeof data === 'string' && data.startsWith('0|H0STCNT0|')) {
       const [, , , stockData] = data.split('|');
@@ -123,11 +123,7 @@ export const parseStockData = (data: string) => {
         volume: parseFloat(ACML_VOL),
         changeSign: PRDY_VRSS_SIGN,
       };
-    } else if (
-      typeof data === 'object' &&
-      data.header &&
-      data.header.tr_id === 'H0STCNT0'
-    ) {
+    } else if (typeof data === 'object' && data?.header?.tr_id === 'H0STCNT0') {
       console.log('웹소켓 연결 성공:', data);
       return null;
     } else {

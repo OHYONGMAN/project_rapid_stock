@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const data = await fs.readFile(filePath, 'utf-8');
     return NextResponse.json(JSON.parse(data));
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: '파일을 읽을 수 없습니다.' },
       { status: 500 },

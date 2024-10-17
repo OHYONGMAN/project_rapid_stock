@@ -40,7 +40,7 @@ const UserInfo: React.FC<{
     }
 
     async function getUserInfo() {
-      const { data, error } = await supabase.auth.getUser();
+      const { data } = await supabase.auth.getUser();
 
       if (data.user) {
         fetchUserInfo(data.user.id); // 사용자 ID로 정보 가져오기
