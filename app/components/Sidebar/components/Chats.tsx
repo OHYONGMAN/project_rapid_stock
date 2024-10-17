@@ -80,7 +80,7 @@ export default function Chat() {
 
       {/* UserInfo 컴포넌트 추가, username과 image 가져옴 */}
       <UserInfo
-        onUserChange={(username, image) => {
+        onUserChange={(email, username, image) => {
           setUsername(username);
           setImage(image);
         }}
@@ -94,11 +94,15 @@ export default function Chat() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Image
-                    src={message.image ? message.image : icoProfile}
+                    src={
+                      message.image
+                        ? `/path/to/images/${message.image}`
+                        : icoProfile
+                    }
                     alt={`${message.username}`}
                     width={32}
                     height={32}
-                    className="mr-2 rounded-full"
+                    className="mr-2 rounded-full object-cover"
                   />
 
                   <span className="font-semibold">{message.username}</span>
@@ -112,7 +116,7 @@ export default function Chat() {
                   })}
                 </span>
               </div>
-              <p className="mt-2 rounded-xl  bg-white px-[16px] py-[12px]">
+              <p className="mt-2 rounded-xl bg-white px-[16px] py-[12px]">
                 {message.content}
               </p>
             </div>
