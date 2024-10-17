@@ -42,9 +42,12 @@ const handleNewsClick = (newsId: number, newsTitle: string) => {
 
   localStorage.setItem('newsHistory', JSON.stringify(limitedHistory));
 
-  if (typeof window !== 'undefined' && window.updateRecentNews) {
-    window.updateRecentNews();
-  }
+  // if (
+  //   typeof window !== 'undefined' &&
+  //   typeof window.updateRecentNews === 'function'
+  // ) {
+  //   window.updateRecentNews();
+  // }
 };
 
 export default function MainNews() {
@@ -80,7 +83,6 @@ export default function MainNews() {
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
                   }}
-                  onClick={() => handleNewsClick(news.id, news.title)}
                 >
                   {news.title}
                 </h3>
@@ -96,7 +98,7 @@ export default function MainNews() {
                     >
                       {kw}
                     </span>
-                  ))}{' '}
+                  ))}
                 </div>
               </div>
             </div>
