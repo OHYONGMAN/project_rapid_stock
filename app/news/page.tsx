@@ -6,12 +6,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
-declare global {
-  interface Window {
-    updateRecentNews?: () => void;
-  }
-}
-
 interface NewsItem {
   id: number;
   image: string;
@@ -20,7 +14,7 @@ interface NewsItem {
   keyword: string[];
 }
 
-const News: React.FC = () => {
+const NewsList = () => {
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
@@ -28,7 +22,6 @@ const News: React.FC = () => {
   const itemsPerPage = 10;
   const [hasMore, setHasMore] = useState<boolean>(true);
 
-  // Suspense를 사용하여 useSearchParams를 감싸기
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get('search') || undefined;
 
@@ -104,77 +97,55 @@ const News: React.FC = () => {
       )
     : newsData;
 
-  const handleNewsClick = (newsId: number, newsTitle: string) => {
-    const currentHistory = JSON.parse(
-      localStorage.getItem('newsHistory') || '[]',
-    );
+  return (
+    <ul className="m-auto w-[1282px] p-5">
+      {filteredNewsData.map((news) => (
+        <li className="mt-10 flex flex-col" key={news.id}>
+          <div className="flex justify-between">
+            <div className="flex">
+              <Image
+                src={news.image}
+                alt="뉴스 이미지"
+                width={100}
+                height={50}
+                objectFit="cover"
+              />
+              <Link href={`/news/${news.id}`}>
+                <h2 className="ml-4 cursor-pointer text-xl font-bold">
+                  {news.title}
+                </h2>
+              </Link>
+            </div>
+            <div>
+              <p>{news.date}</p>
+            </div>
+          </div>
+          <p className="mt-3 font-semibold">
+            <span className="m-3">관련종목</span>
+            {news.keyword.map((keyword, index) => (
+              <span key={index} className="mr-2">
+                {keyword}
+              </span>
+            ))}
+          </p>
+        </li>
+      ))}
 
-    // 이미 존재하는 뉴스를 제거한 후, 새로운 뉴스 추가
-    const updatedHistory = [
-      { id: newsId, title: newsTitle },
-      ...currentHistory.filter(
-        (item: { id: number; title: string }) => item.id !== newsId,
-      ),
-    ];
+      {loading && <p>로딩중</p>}
 
-    // 최신 뉴스 5개만 저장
-    const limitedHistory = updatedHistory.slice(0, 5);
+      {!loading && hasMore && (
+        <div ref={observerRef} style={{ height: '20px' }}></div>
+      )}
 
-    // 로컬 스토리지에 저장
-    localStorage.setItem('newsHistory', JSON.stringify(limitedHistory));
+      {!hasMore && <p>데이터가 없습니다.</p>}
+    </ul>
+  );
+};
 
-    // 사이드바에 즉시 반영되도록 loadRecentNews 호출 (SideBar에서 사용할 함수)
-    if (typeof window !== 'undefined' && window.updateRecentNews) {
-      window.updateRecentNews();
-    }
-  };
-
+const News: React.FC = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ul className="m-auto w-[1282px] p-5">
-        {filteredNewsData.map((news) => (
-          <li className="mt-10 flex flex-col" key={news.id}>
-            <div className="flex justify-between">
-              <div className="flex">
-                <Image
-                  src={news.image}
-                  alt="뉴스 이미지"
-                  width={100}
-                  height={50}
-                  objectFit="cover"
-                />
-                <Link href={`/news/${news.id}`}>
-                  <h2
-                    className="ml-4 cursor-pointer text-xl font-bold"
-                    onClick={() => handleNewsClick(news.id, news.title)}
-                  >
-                    {news.title}
-                  </h2>
-                </Link>
-              </div>
-              <div>
-                <p>{news.date}</p>
-              </div>
-            </div>
-            <p className="mt-3 font-semibold">
-              <span className="m-3">관련종목</span>
-              {news.keyword.map((keyword, index) => (
-                <span key={index} className="mr-2">
-                  {keyword}
-                </span>
-              ))}
-            </p>
-          </li>
-        ))}
-
-        {loading && <p>로딩중</p>}
-
-        {!loading && hasMore && (
-          <div ref={observerRef} style={{ height: '20px' }}></div>
-        )}
-
-        {!hasMore && <p>데이터가 없습니다.</p>}
-      </ul>
+      <NewsList />
     </Suspense>
   );
 };
