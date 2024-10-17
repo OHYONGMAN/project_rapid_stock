@@ -1,16 +1,24 @@
-// 웹소켓 연결 및 구독 관리 매니저 클래스 정의
+import { connectWebSocket, parseStockData } from './websocket';
 
-import { closeWebSocket, connectWebSocket } from './websocket';
+interface StockData {
+  symbol: string;
+  time: string;
+  price: number;
+  change: number;
+  changeRate: number;
+  volume: number;
+  changeSign: string;
+}
 
 class WebSocketManager {
-  private static instance: WebSocketManager; // 싱글톤 인스턴스
-  private subscribers: Map<string, Set<(data: any) => void>> = new Map(); // 종목 코드별 구독자 목록
-  private symbol: string | null = null; // 현재 구독 중인 종목 코드
-  private disconnect: (() => void) | null = null; // 웹소켓 연결 해제 함수
+  private static instance: WebSocketManager;
+  private subscribers: Map<string, Set<(data: StockData) => void>> = new Map();
+  private activeConnections: Map<string, () => void> = new Map();
+  private approvalKey: string | null = null;
+  private approvalKeyExpiration: number = 0;
 
   private constructor() {}
 
-  // 싱글톤 인스턴스 반환
   static getInstance(): WebSocketManager {
     if (!WebSocketManager.instance) {
       WebSocketManager.instance = new WebSocketManager();
@@ -18,66 +26,91 @@ class WebSocketManager {
     return WebSocketManager.instance;
   }
 
-  // 특정 종목 코드로 웹소켓 연결
-  async connect(symbol: string) {
-    if (this.symbol === symbol && this.disconnect) {
-      return; // 이미 해당 종목으로 연결되어 있으면 아무것도 하지 않음
+  private async getApprovalKey(): Promise<string> {
+    if (this.approvalKey && Date.now() < this.approvalKeyExpiration) {
+      return this.approvalKey;
     }
 
-    // 기존 연결 해제
-    if (this.disconnect) {
-      this.disconnect();
-      this.disconnect = null;
+    try {
+      const response = await fetch('/api/websocket', { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Failed to fetch approval key');
+      }
+      const data = await response.json();
+      this.approvalKey = data.approval_key;
+      this.approvalKeyExpiration = Date.now() + 86400000; // 24시간 후 만료
+      return this.approvalKey;
+    } catch (error) {
+      console.error('Error fetching approval key:', error);
+      throw error;
     }
-
-    this.symbol = symbol; // 현재 종목 코드 업데이트
-    this.disconnect = await connectWebSocket(symbol, this.handleMessage); // 웹소켓 연결 및 메시지 핸들러 설정
   }
 
-  // 수신된 메시지를 각 구독자에게 전달하는 함수
-  private handleMessage = (data: any) => {
-    const subscribers = this.subscribers.get(this.symbol!) || new Set();
-    subscribers.forEach((callback) => callback(data)); // 구독자들에게 데이터 전달
+  async connect(symbol: string): Promise<void> {
+    if (this.activeConnections.has(symbol)) {
+      console.log(`Already connected to ${symbol}`);
+      return;
+    }
+
+    try {
+      const approvalKey = await this.getApprovalKey();
+      const disconnect = await connectWebSocket(symbol, approvalKey, (data) =>
+        this.handleMessage(symbol, data),
+      );
+      this.activeConnections.set(symbol, disconnect);
+      console.log(`Connected to ${symbol}`);
+    } catch (error) {
+      console.error(`Failed to connect to ${symbol}:`, error);
+    }
+  }
+
+  private handleMessage = (symbol: string, data: string) => {
+    const parsedData = parseStockData(data);
+    if (parsedData) {
+      const subscribers = this.subscribers.get(symbol) || new Set();
+      subscribers.forEach((callback) => callback(parsedData));
+    }
   };
 
-  // 특정 종목 코드에 대해 콜백 함수를 구독자로 등록
-  subscribe(symbol: string, callback: (data: any) => void) {
+  subscribe(symbol: string, callback: (data: StockData) => void): void {
     if (!this.subscribers.has(symbol)) {
       this.subscribers.set(symbol, new Set());
     }
     this.subscribers.get(symbol)!.add(callback);
 
-    if (this.symbol !== symbol) {
-      this.connect(symbol); // 새로운 종목 코드로 연결
+    if (!this.activeConnections.has(symbol)) {
+      this.connect(symbol);
     }
   }
 
-  // 특정 종목 코드에 대해 콜백 함수를 구독자 목록에서 제거
-  unsubscribe(symbol: string, callback: (data: any) => void) {
+  unsubscribe(symbol: string, callback: (data: StockData) => void): void {
     const subscribers = this.subscribers.get(symbol);
     if (subscribers) {
       subscribers.delete(callback);
       if (subscribers.size === 0) {
         this.subscribers.delete(symbol);
-        if (this.symbol === symbol && this.disconnect) {
-          this.disconnect(); // 구독자가 없으면 연결 해제
-          this.disconnect = null;
-          this.symbol = null;
-        }
+        this.disconnectSymbol(symbol);
       }
     }
   }
 
-  // 모든 연결과 구독을 해제
-  close() {
-    if (this.disconnect) {
-      this.disconnect();
-      this.disconnect = null;
+  private disconnectSymbol(symbol: string): void {
+    const disconnect = this.activeConnections.get(symbol);
+    if (disconnect) {
+      disconnect();
+      this.activeConnections.delete(symbol);
+      console.log(`Disconnected from ${symbol}`);
     }
-    this.symbol = null;
+  }
+
+  close(): void {
+    this.activeConnections.forEach((disconnect, symbol) => {
+      disconnect();
+      console.log(`Disconnected from ${symbol}`);
+    });
+    this.activeConnections.clear();
     this.subscribers.clear();
   }
 }
 
-// 싱글톤 인스턴스 내보내기
 export default WebSocketManager.getInstance();
