@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '../../utils/supabase.ts';
 import StockNews from './components/StockNews';
@@ -43,14 +43,18 @@ export default function NewsDetailPage() {
 
   return (
     <div className="px-20">
-      {newsId && <StockNews newsId={newsId} />}
-      {newsDetail && (
-        <StockTable
-          relatedCompanies={newsDetail.relatedCompanies}
-          onSymbolSelect={handleSymbolSelect}
-          selectedSymbol={selectedSymbol}
-        />
-      )}
+      <Suspense fallback={<div>Loading News...</div>}>
+        {newsId && <StockNews newsId={newsId} />}
+      </Suspense>
+      <Suspense fallback={<div>Loading Stock Table...</div>}>
+        {newsDetail && (
+          <StockTable
+            relatedCompanies={newsDetail.relatedCompanies}
+            onSymbolSelect={handleSymbolSelect}
+            selectedSymbol={selectedSymbol}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
