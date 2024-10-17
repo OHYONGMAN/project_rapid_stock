@@ -14,31 +14,30 @@ const LoginForm = () => {
   const loginHandler = async (e: FormEvent) => {
     e.preventDefault();
     setErrorMessage(''); // 로그인 시도 시 에러 메시지 초기화
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        setErrorMessage('이메일 또는 비밀번호가 잘못되었습니다.');
+      } else {
+        setErrorMessage('로그인에 실패했습니다. 다시 시도해주세요.');
+      }
+      return;
+    }
+
+    if (data) {
+      // 실제로 이곳에서 상태 관리 도구 사용 시 필요합니다.
+      // 예: Redux나 Context API
+      dispatch({
+        type: 'LOGIN',
+        payload: { email: data.user?.email, id: data.user?.id },
       });
-
-      if (error) {
-        console.error(error);
-        setErrorMessage(
-          '로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.',
-        );
-        return;
-      }
-
-      if (data) {
-        dispatch({
-          type: 'LOGIN',
-          payload: { email: data.user?.email, id: data.user?.id },
-        });
-        // 로그인 성공 시 홈 페이지로 이동
-        router.push('/');
-      }
-    } catch (error) {
-      console.error(error);
-      setErrorMessage('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      // 로그인 성공 시 홈 페이지로 이동
+      router.push('/');
     }
   };
 
@@ -104,7 +103,9 @@ const LoginForm = () => {
             <Image
               src="/images/logo.svg"
               alt="Rapid Stock Logo"
-              className="mx-auto mb-4 w-[500px]"
+              width={500}
+              height={500}
+              className="mx-auto mb-4"
             />
           </div>
         </div>

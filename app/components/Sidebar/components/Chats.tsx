@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../utils/supabase.ts';
-import UserInfo from './UserInfo.tsx'; // UserInfo 컴포넌트 import
+import UserInfo from '../../UserInfo/UserInfo.tsx'; // UserInfo 컴포넌트 import
 
 // 메시지 타입 정의
 type Message = {
   id: number;
-  user_id: string;
+  username: string;
   content: string;
   created_at: string;
 };
@@ -16,6 +16,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null); // username 상태 추가
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지 컨테이너에 대한 참조
 
   useEffect(() => {
@@ -55,11 +56,11 @@ export default function Chat() {
   // 새 메시지 전송
   async function sendMessage(event: React.FormEvent) {
     event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
-    if (newMessage.trim() === '' || !userEmail) return; // 메시지나 사용자 이메일이 없으면 리턴
+    if (newMessage.trim() === '' || !username) return; // 메시지나 사용자 이름이 없으면 리턴
 
     const { error } = await supabase.from('messages').insert([
       {
-        user_id: userEmail, // 로그인한 사용자의 이메일을 user_id로 사용
+        username: username, // 로그인한 사용자의 username을 삽입
         content: newMessage,
       },
     ]);
@@ -79,8 +80,13 @@ export default function Chat() {
     <section className="mt-10 flex h-[650px] w-[360px] flex-col before:h-[2px] before:w-[360px] before:-translate-y-10 before:bg-g-400 before:content-['']">
       <h3 className="mb-2 text-xl font-bold">실시간 채팅</h3>
 
-      {/* UserInfo 컴포넌트 추가 */}
-      <UserInfo onUserChange={setUserEmail} />
+      {/* UserInfo 컴포넌트 추가, username도 가져옴 */}
+      <UserInfo
+        onUserChange={(email, username) => {
+          setUserEmail(email);
+          setUsername(username); // username도 상태로 저장
+        }}
+      />
 
       {/* 채팅 메시지 출력 */}
       <div className="mb-4 h-[500px] overflow-y-auto">
@@ -88,7 +94,7 @@ export default function Chat() {
           messages.map((message) => (
             <div key={message.id} className="mb-2">
               <div className="flex justify-between">
-                <span className="font-semibold">{message.user_id}</span>
+                <span className="font-semibold">{message.username}</span>
                 <span>
                   {new Date(message.created_at).toLocaleString('ko-KR', {
                     month: '2-digit',
@@ -117,17 +123,17 @@ export default function Chat() {
         <input
           type="text"
           placeholder={
-            userEmail ? '글을 작성해주세요.' : '로그인 후 이용 가능 합니다'
+            username ? '글을 작성해주세요.' : '로그인 후 이용 가능 합니다'
           } // 로그인 여부에 따라 placeholder 변경
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          disabled={!userEmail} // 로그인하지 않은 경우 입력을 비활성화
-          className={`grow rounded-l border border-gray-300 px-4 py-2 focus:border-blue-300 focus:outline-none focus:ring ${!userEmail ? 'bg-gray-200' : ''}`} // 비활성화 시 배경색 변경
+          disabled={!username} // 로그인하지 않은 경우 입력을 비활성화
+          className={`grow rounded-l border border-gray-300 px-4 py-2 focus:border-blue-300 focus:outline-none focus:ring ${!username ? 'bg-gray-200' : ''}`} // 비활성화 시 배경색 변경
         />
         <button
           type="submit"
           className="rounded-r bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          disabled={!userEmail} // 로그인하지 않은 경우 버튼 비활성화
+          disabled={!username} // 로그인하지 않은 경우 버튼 비활성화
         >
           전송
         </button>
