@@ -233,7 +233,7 @@ async function saveToSupabase(newsData: NewsArticle[]): Promise<void> {
     }
 
     // 중복되지 않은 데이터를 Supabase에 저장
-    const { data, error } = await supabase.from('news').upsert(
+    const { error } = await supabase.from('news').upsert(
       newArticles.map((article) => ({
         image: article.image,
         title: article.title,

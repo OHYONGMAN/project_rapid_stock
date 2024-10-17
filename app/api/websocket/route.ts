@@ -1,8 +1,8 @@
 // 웹소켓 접속키 발급을 위한 API 엔드포인트
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     // API 요청에 필요한 body 데이터 구성
     const body = {
