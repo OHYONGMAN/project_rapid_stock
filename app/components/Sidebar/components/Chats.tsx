@@ -98,7 +98,9 @@ export default function Chat() {
                   <Image
                     src={message.image ? message.image : icoProfile}
                     alt={`${message.username}`}
-                    className="mr-2 w-8 h-8 rounded-full"
+                    width={32}
+                    height={32}
+                    className="mr-2 rounded-full"
                   />
 
                   <span className="font-semibold">{message.username}</span>

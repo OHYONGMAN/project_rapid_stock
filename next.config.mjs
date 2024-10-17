@@ -2,7 +2,12 @@
 
 const nextConfig = {
   images: {
-    domains: ['imgnews.pstatic.net'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   webpack: (config) => {
     return config;
