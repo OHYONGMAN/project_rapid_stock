@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../utils/supabase.ts';
 import Link from 'next/link';
-import Image from 'next/Image';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 declare global {
