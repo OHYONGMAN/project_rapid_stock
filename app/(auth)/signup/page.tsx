@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 const SignupForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState(''); // 에러 메시지 상태 추가
   const router = useRouter();
 
@@ -37,11 +37,11 @@ const SignupForm = () => {
         return;
       }
 
-      // 회원가입 후 사용자 정보를 user 테이블에 저장
-      const { error: userError } = await supabase.from('user').insert([
+      // 회원가입 후 사용자 정보를 users 테이블에 저장
+      const { error: userError } = await supabase.from('users').insert([
         {
           id: user.id, // Supabase 사용자 ID
-          name,
+          username,
           email,
         },
       ]);
@@ -104,8 +104,8 @@ const SignupForm = () => {
                 placeholder="닉네임을 입력해주세요."
                 className="h-12 w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
 

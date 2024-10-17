@@ -2,27 +2,30 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../utils/supabase.ts';
-import UserInfo from './UserInfo.tsx'; // UserInfo 컴포넌트 import
+import UserInfo from '../../UserInfo/UserInfo.tsx'; // UserInfo 컴포넌트 import
+import icoProfile from '../../../../public/images/ico-profile.svg'; // icoProfile 이미지 import
+import Image from 'next/image';
 
 // 메시지 타입 정의
 type Message = {
   id: number;
-  user_id: string;
+  username: string;
   content: string;
   created_at: string;
+  image?: string; // image 속성 추가
 };
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지 컨테이너에 대한 참조
+  const [username, setUsername] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null); // image 상태 추가
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // 기존 메시지 가져오기
     fetchMessages();
 
-    // 실시간 메시지 업데이트 구독 설정
     const messageSubscription = supabase
       .channel('messages')
       .on(
@@ -37,13 +40,11 @@ export default function Chat() {
       )
       .subscribe();
 
-    // 컴포넌트 언마운트 시 구독 해제
     return () => {
       supabase.removeChannel(messageSubscription);
     };
   }, []);
 
-  // 기존 메시지 가져오기
   async function fetchMessages() {
     const { data } = await supabase
       .from('messages')
@@ -52,15 +53,15 @@ export default function Chat() {
     setMessages(data as Message[]);
   }
 
-  // 새 메시지 전송
   async function sendMessage(event: React.FormEvent) {
-    event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
-    if (newMessage.trim() === '' || !userEmail) return; // 메시지나 사용자 이메일이 없으면 리턴
+    event.preventDefault();
+    if (newMessage.trim() === '' || !username) return;
 
     const { error } = await supabase.from('messages').insert([
       {
-        user_id: userEmail, // 로그인한 사용자의 이메일을 user_id로 사용
+        username: username,
         content: newMessage,
+        image: image, // image 추가
       },
     ]);
 
@@ -68,7 +69,6 @@ export default function Chat() {
     setNewMessage('');
   }
 
-  // 메시지가 업데이트될 때마다 스크롤을 맨 아래로 이동
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -79,16 +79,32 @@ export default function Chat() {
     <section className="mt-10 flex h-[650px] w-[360px] flex-col before:h-[2px] before:w-[360px] before:-translate-y-10 before:bg-g-400 before:content-['']">
       <h3 className="mb-2 text-xl font-bold">실시간 채팅</h3>
 
-      {/* UserInfo 컴포넌트 추가 */}
-      <UserInfo onUserChange={setUserEmail} />
+      {/* UserInfo 컴포넌트 추가, username과 image 가져옴 */}
+      <UserInfo
+        onUserChange={(email, username, image) => {
+          setUserEmail(email);
+          setUsername(username);
+          setImage(image);
+        }}
+      />
 
       {/* 채팅 메시지 출력 */}
       <div className="mb-4 h-[500px] overflow-y-auto">
         {Array.isArray(messages) && messages.length > 0 ? (
           messages.map((message) => (
             <div key={message.id} className="mb-2">
-              <div className="flex justify-between">
-                <span className="font-semibold">{message.user_id}</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Image
+                    src={message.image ? message.image : icoProfile}
+                    alt={`${message.username}`}
+                    width={32}
+                    height={32}
+                    className="mr-2 rounded-full"
+                  />
+
+                  <span className="font-semibold">{message.username}</span>
+                </div>
                 <span>
                   {new Date(message.created_at).toLocaleString('ko-KR', {
                     month: '2-digit',
@@ -98,15 +114,15 @@ export default function Chat() {
                   })}
                 </span>
               </div>
-              <p className="rounded-xl bg-white px-[16px] py-[12px]">
+              <p className="mt-2 rounded-xl  bg-white px-[16px] py-[12px]">
                 {message.content}
               </p>
             </div>
           ))
         ) : (
-          <p>메시지가 없습니다.</p> // 메시지가 없을 경우에 대한 처리
+          <p>메시지가 없습니다.</p>
         )}
-        <div ref={messagesEndRef} /> {/* 스크롤을 위한 참조 div */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* 새 메시지 입력 */}
@@ -117,17 +133,19 @@ export default function Chat() {
         <input
           type="text"
           placeholder={
-            userEmail ? '글을 작성해주세요.' : '로그인 후 이용 가능 합니다'
-          } // 로그인 여부에 따라 placeholder 변경
+            username ? '글을 작성해주세요.' : '로그인 후 이용 가능 합니다'
+          }
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          disabled={!userEmail} // 로그인하지 않은 경우 입력을 비활성화
-          className={`grow rounded-l border border-gray-300 px-4 py-2 focus:border-blue-300 focus:outline-none focus:ring ${!userEmail ? 'bg-gray-200' : ''}`} // 비활성화 시 배경색 변경
+          disabled={!username}
+          className={`grow rounded-l border border-gray-300 px-4 py-2 focus:border-blue-300 focus:outline-none focus:ring ${
+            !username ? 'bg-gray-200' : ''
+          }`}
         />
         <button
           type="submit"
           className="rounded-r bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          disabled={!userEmail} // 로그인하지 않은 경우 버튼 비활성화
+          disabled={!username}
         >
           전송
         </button>

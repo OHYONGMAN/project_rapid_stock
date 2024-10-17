@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { logoutHandler } from '../../utils/auth/logout.ts';
-import UserInfo from '../Sidebar/components/UserInfo.tsx';
+import UserInfo from '../UserInfo/UserInfo.tsx';
 import { useRouter } from 'next/navigation';
 
 interface HeaderProps {

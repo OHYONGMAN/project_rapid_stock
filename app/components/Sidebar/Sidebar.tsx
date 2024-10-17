@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import icoCloseArr from '../../../public/images/ico-closeArr.svg';
 import icoOpenArr from '../../../public/images/ico-openArr.svg';
 import Chats from './components/Chats';
-import UserInfo from './components/UserInfo'; // UserInfo 컴포넌트 임포트
+import UserInfo from '../UserInfo/UserInfo'; // UserInfo 컴포넌트 임포트
 
 export default function SideBar({
   isOpen,
@@ -14,14 +14,14 @@ export default function SideBar({
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }) {
-  const [userEmail, setUserEmail] = useState<string | null>(null); // 사용자 이메일 상태
+  const [username, setUsername] = useState<string | null>(null); // username 상태 추가
   const [recentNews, setRecentNews] = useState<{ id: number; title: string }[]>(
     [],
   ); // 뉴스 ID와 타이틀을 저장
 
-  // 사용자 이메일 업데이트
-  const handleUserChange = (email: string | null) => {
-    setUserEmail(email);
+  // 사용자 정보 업데이트 (username 포함)
+  const handleUserChange = (email: string | null, username: string | null) => {
+    setUsername(username); // username을 업데이트
   };
 
   // 로컬 스토리지에서 최근 본 뉴스 가져오기
@@ -67,8 +67,8 @@ export default function SideBar({
       >
         {/* 리스트 섹션 */}
         <section className="pt-[36px]">
-          {userEmail ? (
-            <p className="text-center">{userEmail}님 환영합니다.</p>
+          {username ? (
+            <p className="text-center">{username}님 환영합니다.</p> // username으로 변경
           ) : (
             <p className="text-center">환영합니다.</p>
           )}
