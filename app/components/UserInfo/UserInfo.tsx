@@ -2,7 +2,11 @@ import React, { useEffect } from 'react';
 import { supabase } from '../../utils/supabase.ts';
 
 const UserInfo: React.FC<{
-  onUserChange: (email: string | null, username: string | null) => void;
+  onUserChange: (
+    email: string | null,
+    username: string | null,
+    image: string | null,
+  ) => void;
 }> = ({ onUserChange }) => {
   useEffect(() => {
     const {
@@ -19,7 +23,7 @@ const UserInfo: React.FC<{
       // users 테이블에서 username과 email 가져오기
       const { data, error } = await supabase
         .from('users') // 'users' 테이블
-        .select('email, username') // email과 username 필드 선택
+        .select('email, username, image') // email과 username 필드 선택
         .eq('id', userId) // 현재 로그인한 사용자 ID로 필터
         .single(); // 단일 결과만 반환
 
