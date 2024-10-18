@@ -122,50 +122,60 @@ const NewsList = () => {
     : newsData;
 
   return (
-    <ul className="m-auto w-[1282px] p-5">
-      {filteredNewsData.map((news) => (
-        <li className="mt-10 flex flex-col" key={news.id}>
-          <div className="flex justify-between">
-            <div className="flex">
-              <Image
-                src={news.image}
-                alt="뉴스 이미지"
-                width={100}
-                height={50}
-                objectFit="cover"
-              />
-              <Link href={`/news/${news.id}`}>
-                <h2
-                  className="ml-4 cursor-pointer text-xl font-bold"
-                  onClick={() => handleNewsClick(news.id, news.title)}
-                >
-                  {news.title}
-                </h2>
-              </Link>
+    <div className="w-full">
+      <ul className="mx-auto max-w-[1760px] pt-12">
+        {filteredNewsData.map((news) => (
+          <li
+            className="flex flex-col hover:bg-g-100 p-8 rounded-2xl mb-2"
+            key={news.id}
+          >
+            <div className="flex justify-between">
+              <div className="flex">
+                <Image
+                  src={news.image}
+                  alt="뉴스 이미지"
+                  width={100}
+                  height={50}
+                  className="h-14 w-20 rounded-lg object-cover"
+                />
+                <div className="flex flex-col">
+                  <Link href={`/news/${news.id}`}>
+                    <h2
+                      className="ml-4 cursor-pointer text-xl font-semibold"
+                      onClick={() => handleNewsClick(news.id, news.title)}
+                    >
+                      {news.title}
+                    </h2>
+                  </Link>
+                  <p className="mt-2">
+                    <span className="m-3 font-semibold">관련종목</span>
+                    {news.keyword.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="bg-gray-100 mr-2 px-2 py-1 rounded-sm text-g-900"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p>{news.date}</p>
+              </div>
             </div>
-            <div>
-              <p>{news.date}</p>
-            </div>
-          </div>
-          <p className="mt-3 font-semibold">
-            <span className="m-3">관련종목</span>
-            {news.keyword.map((keyword, index) => (
-              <span key={index} className="mr-2">
-                {keyword}
-              </span>
-            ))}
-          </p>
-        </li>
-      ))}
+          </li>
+        ))}
 
-      {loading && <p>로딩중</p>}
+        {loading && <p>로딩중</p>}
 
-      {!loading && hasMore && (
-        <div ref={observerRef} style={{ height: '20px' }}></div>
-      )}
+        {!loading && hasMore && (
+          <div ref={observerRef} style={{ height: '20px' }}></div>
+        )}
 
-      {!hasMore && <p>데이터가 없습니다.</p>}
-    </ul>
+        {!hasMore && <p>데이터가 없습니다.</p>}
+      </ul>
+    </div>
   );
 };
 
