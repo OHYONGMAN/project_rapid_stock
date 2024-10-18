@@ -68,7 +68,7 @@ app
 ├── news                       # 뉴스 페이지
 │
 └── utils                         # api 요청
-    ├── supabase.ts       # supabase 데이터 연동
+    └── supabase.ts       # supabase 데이터 연동
 ```
 
 <br><br>
