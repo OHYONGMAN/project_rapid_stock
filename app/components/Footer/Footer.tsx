@@ -11,8 +11,8 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bottom-0 left-0 mt-[80px] w-full bg-g-100 text-g-600">
-      <div className="container mx-auto flex py-12">
+    <footer className="bottom-0 left-0 px-[80px] py-12 mt-[80px] w-full bg-g-100 text-g-600">
+      <div className="container mx-auto flex">
         <Image
           src="/images/logo-gray.svg"
           alt="rapid stock"
@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
           className="mr-20 object-contain"
         />
         <div>
-          <ul className="grid grid-cols-3 gap-x-12">
+          <ul className="grid grid-cols-3 gap-x-12 text-sm">
             {infoLinks.map((infoLink, index) => (
               <li key={index}>
                 <a
