@@ -11,7 +11,7 @@ export default function Home({
 }) {
   return (
     <div className="container mx-auto flex flex-col">
-      <div className=". container mx-auto flex gap-8   py-12">
+      <div className="container mx-auto flex gap-8 py-12">
         <div className="w-full">
           <StockTable searchParams={searchParams} />
         </div>
