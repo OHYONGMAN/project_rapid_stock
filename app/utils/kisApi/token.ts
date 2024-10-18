@@ -41,7 +41,8 @@ const getNewToken = async (): Promise<string | null> => {
       accessToken = data.access_token; // 발급된 액세스 토큰 저장
 
       // 토큰 만료 시간을 현재 시간 + 유효기간으로 설정 (1분 전으로 설정하여 안전마진 확보)
-      tokenExpiration = Date.now() + data.expires_in * 1000 - 60000;
+      tokenExpiration = Date.now() + 3600 * 1000 - 60000;
+      // tokenExpiration = Date.now() + data.expires_in * 1000 - 60000;
 
       // 브라우저 저장소에 토큰 저장 (서버 환경이 아닌 경우)
       if (!isServer) {
