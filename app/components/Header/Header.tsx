@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-// import { logoutHandler } from '../../utils/auth/logout.ts';
-// import UserInfo from '../UserInfo/UserInfo.tsx';
 import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
@@ -13,13 +11,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ links = [] }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  // const [userEmail, setUserEmail] = useState<string | null>(null);
-  const router = useRouter(); // useRouter를 사용하여 URL 이동
-
-  // 사용자 이메일 업데이트
-  // const handleUserChange = (email: string | null) => {
-  //   setUserEmail(email);
-  // };
+  const router = useRouter();
 
   // 검색어 처리 함수
   const handleSearch = (e: React.FormEvent) => {
@@ -31,7 +23,6 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
 
   return (
     <header className="border-b border-g-400">
-      {/* <UserInfo onUserChange={handleUserChange} /> */}
       <div className="container mx-auto flex items-center justify-between py-6">
         <h1>
           <Link href="/">
@@ -72,25 +63,6 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
             />
           </button>
         </form>
-        {/* <div className="text-g-600">
-          {userEmail ? (
-            <>
-              <Link href="/mypage" className="mr-12 md:mr-4">
-                마이페이지
-              </Link>
-              <button className="text-g-600" onClick={logoutHandler}>
-                로그아웃
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="mr-12 md:mr-4">
-                로그인
-              </Link>
-              <Link href="/signup">회원가입</Link>
-            </>
-          )}
-        </div> */}
       </div>
     </header>
   );
