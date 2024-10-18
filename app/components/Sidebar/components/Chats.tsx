@@ -140,13 +140,15 @@ export default function Chat() {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           disabled={!username}
-          className={`grow rounded-l border border-gray-300 px-4 py-2 focus:border-blue-300 focus:outline-none focus:ring ${
+          className={`grow rounded-lg bg-g-300 px-4 py-2 focus:outline-none mr-2 ${
             !username ? 'bg-gray-200' : ''
           }`}
         />
         <button
           type="submit"
-          className="rounded-r bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className={`rounded-lg px-4 py-2 text-white ${
+            newMessage ? 'bg-g-800' : 'bg-g-600'
+          }`}
           disabled={!username}
         >
           전송
