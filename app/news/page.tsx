@@ -138,7 +138,7 @@ const NewsList = () => {
                   height={50}
                   className="h-14 w-20 rounded-lg object-cover"
                 />
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
                   <Link href={`/news/${news.id}`}>
                     <h2
                       className="ml-4 cursor-pointer text-xl font-semibold"
@@ -161,7 +161,7 @@ const NewsList = () => {
                 </div>
               </div>
               <div>
-                <p>{news.date}</p>
+                <p className="text-g-600">{news.date}</p>
               </div>
             </div>
           </li>
