@@ -89,6 +89,30 @@ const NewsList = () => {
     };
   }, [loading, hasMore]);
 
+  const handleNewsClick = (newsId: number, newsTitle: string) => {
+    const currentHistory = JSON.parse(
+      localStorage.getItem('newsHistory') || '[]',
+    );
+
+    const updatedHistory = [
+      { id: newsId, title: newsTitle },
+      ...currentHistory.filter(
+        (item: { id: number; title: string }) => item.id !== newsId,
+      ),
+    ];
+
+    const limitedHistory = updatedHistory.slice(0, 5);
+
+    localStorage.setItem('newsHistory', JSON.stringify(limitedHistory));
+
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.updateRecentNews === 'function'
+    ) {
+      window.updateRecentNews();
+    }
+  };
+
   const filteredNewsData = searchTerm
     ? newsData.filter((news) =>
         news.keyword.some((keyword) =>
@@ -111,7 +135,10 @@ const NewsList = () => {
                 objectFit="cover"
               />
               <Link href={`/news/${news.id}`}>
-                <h2 className="ml-4 cursor-pointer text-xl font-bold">
+                <h2
+                  className="ml-4 cursor-pointer text-xl font-bold"
+                  onClick={() => handleNewsClick(news.id, news.title)}
+                >
                   {news.title}
                 </h2>
               </Link>
