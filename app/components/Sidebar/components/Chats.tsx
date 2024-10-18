@@ -75,7 +75,7 @@ export default function Chat() {
   }, [messages]);
 
   return (
-    <section className="mt-10 flex h-[650px] w-[360px] flex-col before:h-[2px] before:w-[360px] before:-translate-y-10 before:bg-g-400 before:content-['']">
+    <section className="mt-[57px] flex h-[50vh] w-[360px] flex-col before:absolute before:-translate-y-[32px] before:h-[1px] before:w-[360px]  before:bg-g-400 before:content-['']">
       <h3 className="mb-2 text-xl font-bold">실시간 채팅</h3>
 
       {/* UserInfo 컴포넌트 추가, username과 image 가져옴 */}
@@ -87,10 +87,10 @@ export default function Chat() {
       />
 
       {/* 채팅 메시지 출력 */}
-      <div className="mb-4 h-[500px] overflow-y-auto">
+      <div className="mb-4  overflow-y-auto">
         {Array.isArray(messages) && messages.length > 0 ? (
           messages.map((message) => (
-            <div key={message.id} className="mb-2">
+            <div key={message.id} className="mt-[24px]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Image
@@ -100,14 +100,14 @@ export default function Chat() {
                         : icoProfile
                     }
                     alt={`${message.username}`}
-                    width={32}
-                    height={32}
+                    width={30}
+                    height={30}
                     className="mr-2 rounded-full object-cover"
                   />
 
                   <span className="font-semibold">{message.username}</span>
                 </div>
-                <span>
+                <span className="text-[14px] text-g-500">
                   {new Date(message.created_at).toLocaleString('ko-KR', {
                     month: '2-digit',
                     day: '2-digit',
@@ -116,7 +116,7 @@ export default function Chat() {
                   })}
                 </span>
               </div>
-              <p className="mt-2 rounded-xl bg-white px-[16px] py-[12px]">
+              <p className="mt-2 rounded-xl bg-white px-[16px] py-[12px] text-[15px]">
                 {message.content}
               </p>
             </div>
