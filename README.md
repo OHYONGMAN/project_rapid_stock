@@ -57,18 +57,19 @@ RapidStock는 실시간으로 주식 시장의 최신 뉴스를 크롤링하고,
 ```
 app
 │
-├── auth                       # 사용자 인증 및 권한
+├── auth          # 사용자 인증 및 권한
 │
-├── api                          # api route
-│   ├── Stock               # 주식 데이터 연동
-│   └── websocket      # 실시간 웹소켓 연동
+├── api          # api route
+│   ├── Stock          # 주식 데이터 연동
+│   └── websocket          # 실시간 웹소켓 연동
 │
 ├── components          # 컴포넌트 단위 기능
 │
-├── news                       # 뉴스 페이지
+├── news          # 뉴스 페이지
+│   └── [id]          # 개별 이동을 위한 동적 route
 │
-└── utils                         # api 요청
-    └── supabase.ts       # supabase 데이터 연동
+└── utils          # api 요청
+    └── supabase.ts          # supabase 데이터 연동
 ```
 
 <br><br>
