@@ -1,15 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import StockRank from './StockRank.tsx';
 import StockCapitalization from './StockCapitalization.tsx';
 
-type Tab = {
-  name: string;
-  component: JSX.Element;
-};
-
-const tabs: Tab[] = [
+const tabs = [
   { name: '거래 상위', component: <StockRank /> },
   { name: '시가총액 상위', component: <StockCapitalization /> },
 ];
@@ -19,8 +14,7 @@ export default function StockTable({
 }: {
   searchParams: { tab?: string };
 }) {
-  const activeTab = searchParams.tab ? parseInt(searchParams.tab) : 0;
-  const ActiveComponent = tabs[activeTab]?.component || tabs[0].component;
+  const [activeTab, setActiveTab] = useState(parseInt(searchParams.tab || '0'));
 
   return (
     <div className="mx-auto">
@@ -28,19 +22,19 @@ export default function StockTable({
 
       <div className="tabs flex">
         {tabs.map((tab, index) => (
-          <a
+          <button
             key={index}
-            href={`?tab=${index}`}
+            onClick={() => setActiveTab(index)}
             className={`tab rounded-lg px-4 py-2 font-semibold hover:bg-g-100 ${
               activeTab === index ? 'text-bk' : 'text-g-700 hover:text-bk'
             }`}
           >
             {tab.name}
-          </a>
+          </button>
         ))}
       </div>
 
-      <div className="tab-content mt-4">{ActiveComponent}</div>
+      <div className="tab-content mt-4">{tabs[activeTab]?.component}</div>
     </div>
   );
 }
