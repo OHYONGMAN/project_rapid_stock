@@ -96,17 +96,17 @@ export default function StockChart({ symbol }: StockChartProps) {
   }, [symbol, loadData]);
 
   const customizeTooltip = (pointInfo: any) => {
-    const { openValue, highValue, lowValue, closeValue, point } = pointInfo;
-    const volume = point.data.volume;
+    const { point } = pointInfo;
+    const { date, open, high, low, close, volume } = point.data;
 
     return {
       html: `
         <div>
-          <p><b>${point.argument}</b></p>
-          <p>시가: ${formatNumber(openValue)}원</p>
-          <p>고가: ${formatNumber(highValue)}원</p>
-          <p>저가: ${formatNumber(lowValue)}원</p>
-          <p>종가: ${formatNumber(closeValue)}원</p>
+          <p><b>${date}</b></p>
+          <p>시가: ${formatNumber(open)}원</p>
+          <p>고가: ${formatNumber(high)}원</p>
+          <p>저가: ${formatNumber(low)}원</p>
+          <p>종가: ${formatNumber(close)}원</p>
           <p>거래량: ${formatNumber(volume)}주</p>
         </div>
       `,
@@ -179,7 +179,11 @@ export default function StockChart({ symbol }: StockChartProps) {
         <LoadingIndicator enabled={true} />
         <Crosshair enabled={true} />
         <Legend visible={false} />
-        <Tooltip enabled={true} customizeTooltip={customizeTooltip} />
+        <Tooltip
+          enabled={true}
+          customizeTooltip={customizeTooltip}
+          shared={true}
+        />
       </Chart>
     ),
     [chartData],
