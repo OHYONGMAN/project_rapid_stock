@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 
 let accessToken = null;
 let tokenExpiration = null;
-const REFRESH_MARGIN = 5 * 60 * 1000; // 만료 5분 전 갱신
+const REFRESH_MARGIN = 5 * 60 * 60 * 1000; // 만료 2시간전 갱신
 const TOKEN_ID = 'default_token'; // 단일 토큰 관리용 고정 ID
 
 // Supabase에서 토큰을 가져오는 함수
