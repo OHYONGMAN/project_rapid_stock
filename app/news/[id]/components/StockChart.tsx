@@ -13,6 +13,10 @@ import Chart, {
   Legend,
   Tooltip,
 } from 'devextreme-react/chart';
+import config from 'devextreme/core/config';
+
+const licenseKey = process.env.NEXT_PUBLIC_DEVEXTREME_LICENSE_KEY;
+config({ licenseKey });
 
 interface StockData {
   name: string;

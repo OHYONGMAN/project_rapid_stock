@@ -17,6 +17,10 @@ import {
   fetchIndexTimePrice,
   IndexTimePrice,
 } from '../../utils/kisApi/indexTimePrice';
+import config from 'devextreme/core/config';
+
+const licenseKey = process.env.NEXT_PUBLIC_DEVEXTREME_LICENSE_KEY;
+config({ licenseKey });
 
 const isValidTime = (timeString: string): boolean => {
   const hours = parseInt(timeString.slice(0, 2));
