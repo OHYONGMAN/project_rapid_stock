@@ -25,7 +25,7 @@ const SignupForm = () => {
 
       if (error) {
         console.error('회원가입 오류:', error.message);
-        setErrorMessage(error.message); // 에러 메시지 출력
+        setErrorMessage('이메일이 이미 존재합니다.'); // 에러 메시지 출력
         return;
       }
 
