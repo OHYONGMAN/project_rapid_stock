@@ -1,12 +1,6 @@
 'use client';
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useMemo,
-} from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchStockData } from '../../../utils/kisApi/dailyStock.ts';
 import Chart, {
   ArgumentAxis,
@@ -17,6 +11,7 @@ import Chart, {
   Pane,
   Crosshair,
   Legend,
+  Tooltip,
 } from 'devextreme-react/chart';
 
 interface StockData {
@@ -41,25 +36,9 @@ const sortByDate = (a: StockData, b: StockData) => {
   return dateA.getTime() - dateB.getTime();
 };
 
-const PriceInfo = React.memo(({ data }: { data: StockData | null }) => {
-  if (!data) return null;
-
-  const formatNumber = (num: string | number) => {
-    return new Intl.NumberFormat('ko-KR').format(Number(num));
-  };
-
-  return (
-    <div className="absolute -top-3 left-7 z-10 text-sm">
-      <span>시가: {formatNumber(data.open)}원</span>
-      <span>고가: {formatNumber(data.high)}원</span>
-      <span>저가: {formatNumber(data.low)}원</span>
-      <span>종가: {formatNumber(data.close)}원</span>
-      <span>거래량: {formatNumber(data.volume)}주</span>
-    </div>
-  );
-});
-
-PriceInfo.displayName = 'PriceInfo';
+const formatNumber = (num: string | number) => {
+  return new Intl.NumberFormat('ko-KR').format(Number(num));
+};
 
 interface StockChartProps {
   symbol: string;
@@ -69,10 +48,6 @@ export default function StockChart({ symbol }: StockChartProps) {
   const [chartData, setChartData] = useState<StockData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const chartRef = useRef<any>(null);
-  const [hoveredPoint, setHoveredPoint] = useState<StockData | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -94,10 +69,6 @@ export default function StockChart({ symbol }: StockChartProps) {
         endFormatted,
       );
 
-      if (stockData.length > 0) {
-        setHoveredPoint(stockData[stockData.length - 1]);
-      }
-
       const formattedData = stockData
         .map((data) => ({
           ...data,
@@ -108,7 +79,9 @@ export default function StockChart({ symbol }: StockChartProps) {
       setChartData(formattedData);
     } catch (error) {
       console.error('주식 데이터를 불러오는 데 실패했습니다.', error);
-      setError('주식 데이터를 불러오는 데 실패했습니다.');
+      setError(
+        '주식 데이터를 불러오는 데 실패했습니다. 잠시 후 다시 시도해 주세요.',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -118,45 +91,28 @@ export default function StockChart({ symbol }: StockChartProps) {
     loadData();
   }, [symbol, loadData]);
 
-  const handleChartHover = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
+  const customizeTooltip = (pointInfo: any) => {
+    const { openValue, highValue, lowValue, closeValue, point } = pointInfo;
+    const volume = point.data.volume;
 
-      debounceTimerRef.current = setTimeout(() => {
-        if (!containerRef.current || chartData.length === 0) return;
-
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const mouseX = e.clientX - containerRect.left;
-        const chartWidth = containerRect.width;
-
-        const index = Math.floor((mouseX / chartWidth) * chartData.length);
-        const hoveredData = chartData[Math.min(index, chartData.length - 1)];
-
-        setHoveredPoint((prevPoint) => {
-          if (prevPoint?.date !== hoveredData.date) {
-            return hoveredData;
-          }
-          return prevPoint;
-        });
-      }, 50);
-    },
-    [chartData],
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    setHoveredPoint(null);
-  }, []);
+    return {
+      html: `
+        <div>
+          <p><b>${point.argument}</b></p>
+          <p>시가: ${formatNumber(openValue)}원</p>
+          <p>고가: ${formatNumber(highValue)}원</p>
+          <p>저가: ${formatNumber(lowValue)}원</p>
+          <p>종가: ${formatNumber(closeValue)}원</p>
+          <p>거래량: ${formatNumber(volume)}주</p>
+        </div>
+      `,
+    };
+  };
 
   const memoizedChart = useMemo(
     () => (
       <Chart
         id="stock-chart"
-        ref={chartRef}
         dataSource={chartData}
         commonSeriesSettings={{
           type: 'candlestick',
@@ -219,6 +175,7 @@ export default function StockChart({ symbol }: StockChartProps) {
         <LoadingIndicator enabled={true} />
         <Crosshair enabled={true} />
         <Legend visible={false} />
+        <Tooltip enabled={true} customizeTooltip={customizeTooltip} />
       </Chart>
     ),
     [chartData],
@@ -230,15 +187,7 @@ export default function StockChart({ symbol }: StockChartProps) {
       {isLoading ? (
         <p>로딩 중...</p>
       ) : chartData.length > 0 ? (
-        <div
-          className="relative h-[500px] w-full"
-          ref={containerRef}
-          onMouseMove={handleChartHover}
-          onMouseLeave={handleMouseLeave}
-        >
-          <PriceInfo data={hoveredPoint} />
-          {memoizedChart}
-        </div>
+        <div className="relative h-[500px] w-full">{memoizedChart}</div>
       ) : (
         <p>데이터가 없습니다.</p>
       )}

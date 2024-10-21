@@ -36,9 +36,6 @@ export default function StockNews({ newsId }: StockNewsProps) {
         console.error('뉴스 데이터를 가져오는 중 오류 발생:', error.message);
         setError('뉴스 데이터를 불러오는 데 실패했습니다.');
       } else {
-        if (data && data.summary) {
-          data.summary = data.summary.split('...')[0] + '...';
-        }
         setNewsDetail(data as NewsDetail);
       }
       setIsLoading(false);
@@ -48,6 +45,10 @@ export default function StockNews({ newsId }: StockNewsProps) {
       fetchNewsDetail();
     }
   }, [newsId]);
+
+  const formatSummary = (summary: string) => {
+    return summary.split('...')[0] + '...';
+  };
 
   if (isLoading) {
     return <p>로딩 중...</p>;
@@ -74,7 +75,9 @@ export default function StockNews({ newsId }: StockNewsProps) {
         />
         <div>
           <h3 className="mb-4 text-xl font-semibold">{newsDetail.title}</h3>
-          <p className="mb-4 text-gray-600">{newsDetail.summary}</p>
+          <p className="mb-4 text-gray-600">
+            {formatSummary(newsDetail.summary)}
+          </p>
 
           <div className="flex justify-between">
             <a
