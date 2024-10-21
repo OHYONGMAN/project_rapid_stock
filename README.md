@@ -2,7 +2,7 @@
 
 # RapidStock
 
-https://project-rapid-stock.vercel.app/
+https://project-rapid-stock-uzca.vercel.app/
 
 RapidStock는 실시간으로 주식 시장의 최신 뉴스를 크롤링하고, 뉴스에서 언급된 관련 주식을 자동으로 추출하며, 이를 바탕으로 주식 데이터를 시각화해 빠르게 시장 상황을 파악할 수 있도록 돕는 주식 시장 분석 서비스입니다.
 <br><br>
