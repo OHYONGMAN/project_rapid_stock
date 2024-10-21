@@ -22,8 +22,8 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
   };
 
   return (
-    <header className="border-b border-g-400">
-      <div className="container mx-auto flex items-center justify-between py-6">
+    <header className={'border-b border-g-400 transition-all duration-300'}>
+      <div className="max-w-[1700px] w-full mx-auto sm:px-12 xl:px-20 2xl:px-20 flex items-center justify-between py-6">
         <h1>
           <Link href="/">
             <Image
@@ -45,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ links = [] }) => {
         </nav>
         <form
           onSubmit={handleSearch}
-          className="flex h-[45px] w-5/12 rounded-full bg-g-100 px-6 py-2.5"
+          className="flex h-[45px] w-8/12 rounded-full bg-g-100 px-6 py-2.5"
         >
           <input
             type="text"

@@ -10,7 +10,7 @@ export default function Home({
   searchParams: { tab?: string };
 }) {
   return (
-    <div className="container mx-auto flex flex-col">
+    <div className="container mx-auto flex flex-col  pb-16">
       <div className="container mx-auto flex gap-8 py-12">
         <div className="w-full">
           <StockTable searchParams={searchParams} />

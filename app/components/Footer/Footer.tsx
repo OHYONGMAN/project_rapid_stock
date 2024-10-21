@@ -11,8 +11,8 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="mt-[80px] border-t border-g-200 bg-g-100 text-g-600">
-      <div className="mx-auto flex py-12 sm:px-12 xl:px-20">
+    <footer className="w-full mx-auto border-t border-g-200 bg-g-100 text-g-600 transition-all duration-300">
+      <div className="mx-auto max-w-[1700px] flex py-12 sm:px-12 xl:px-20 2xl:px-20">
         <Image
           src="/images/logo-gray.svg"
           alt="rapid stock"
