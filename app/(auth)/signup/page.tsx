@@ -60,34 +60,35 @@ const SignupForm = () => {
   };
 
   return (
-    <div className="mt-10 flex h-screen items-start justify-center bg-white">
-      <div className="grid max-h-[640px] w-full max-w-[980px] grid-cols-2 rounded-lg bg-white shadow-xl">
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="grid items-center max-h-full h-[640px] w-full max-w-[980px] grid-cols-2 rounded-xl border border-g-400 bg-white shadow-xl">
         {/* 왼쪽 - 회원가입 폼 */}
-        <div className="p-4">
+        <div className="p-8">
           <h1 className="mb-2 text-2xl font-bold text-black">
             Welcome to Rapid Stock!
           </h1>
-          <p className="mb-10 text-gray-600">
+          <p className="mb-14 text-gray-600">
             가장 빠르게 주식 뉴스를 전달드립니다.
           </p>
 
-          {/* 에러 메시지 표시 */}
-          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-
           <form className="space-y-6" onSubmit={signupHandler}>
             <div>
-              <label className="font-medium text-black">이메일</label>
+              <label className="block font-medium text-black mb-[10px]">
+                이메일
+              </label>
               <input
                 type="email"
                 placeholder="이메일을 입력해주세요."
-                className="h-12 w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
-              <label className="font-medium text-black">비밀번호</label>
+              <label className="block font-medium text-black mb-[10px]">
+                비밀번호
+              </label>
               <input
                 type="password"
                 placeholder="비밀번호를 입력해주세요."
@@ -98,7 +99,9 @@ const SignupForm = () => {
               />
             </div>
             <div>
-              <label className="font-medium text-black">닉네임</label>
+              <label className="block font-medium text-black mb-[10px]">
+                닉네임
+              </label>
               <input
                 type="text"
                 placeholder="닉네임을 입력해주세요."
@@ -108,24 +111,28 @@ const SignupForm = () => {
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
-
-            <button
-              type="submit"
-              className="h-12 w-full rounded-md bg-black text-white transition duration-200 hover:bg-gray-800"
-            >
-              회원가입
-            </button>
+            {errorMessage && (
+              <p className="text-red-600 mt-2">{errorMessage}</p>
+            )}
+            <div className="block mt-14">
+              <button
+                type="submit"
+                className="h-12 w-full rounded-md bg-black text-white transition duration-200 hover:bg-gray-800"
+              >
+                회원가입
+              </button>
+            </div>
           </form>
         </div>
 
         {/* 오른쪽 - 로고 이미지 */}
-        <div className="flex items-center justify-center rounded-r-lg bg-gray-50 p-8">
+        <div className="flex items-center justify-center h-[640px] rounded-r-xl bg-gray-50 p-8">
           <div className="text-center">
             <Image
-              src="/images/logo.svg"
+              src="/images/logo-2.svg"
               alt="Rapid Stock Logo"
-              width={500}
-              height={500}
+              width={300}
+              height={300}
               className="mx-auto mb-4"
             />
           </div>
