@@ -4,6 +4,7 @@ import { supabase } from '../../utils/supabase.ts';
 import { useRouter } from 'next/navigation'; // useRouter 임포트
 import Image from 'next/image';
 import React, { FormEvent, useState } from 'react';
+import Link from 'next/link';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -102,6 +103,12 @@ const LoginForm = () => {
               </div>
             </div>
           </form>
+          <div className="flex mt-10 justify-center gap-2 text-g-600">
+            <p>계정이 없으신가요?</p>
+            <Link href="/signup" className="hover:underline">
+              회원가입
+            </Link>
+          </div>
         </div>
 
         {/* 오른쪽 - 로고 이미지 */}
