@@ -20,7 +20,7 @@ export default function StockMarket() {
   const [indexData, setIndexData] = useState<IndexPriceData[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
+  const [selectedIndices, setSelectedIndices] = useState<string[]>([]);
 
   const formatNumber = (num: string) => {
     return new Intl.NumberFormat('ko-KR').format(Number(num));
@@ -56,6 +56,12 @@ export default function StockMarket() {
     };
   }, []);
 
+  const toggleChart = (code: string) => {
+    setSelectedIndices((prev) =>
+      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code],
+    );
+  };
+
   if (isLoading) return <p>지수 데이터를 불러오는 중입니다...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!indexData || indexData.length === 0)
@@ -66,16 +72,10 @@ export default function StockMarket() {
       <h2 className="mb-4 text-2xl font-semibold">오늘의 증시</h2>
       <div className="flex flex-col gap-4">
         {indexData.map((data: IndexPriceData, index: number) => (
-          <div key={indexCodes[index].code} className="rounded-lg bg-g-100 p-4">
+          <div key={indexCodes[index].code} className="bg-g-100 rounded-lg p-4">
             <div
               className="flex cursor-pointer items-center gap-5"
-              onClick={() =>
-                setSelectedIndex(
-                  selectedIndex === indexCodes[index].code
-                    ? null
-                    : indexCodes[index].code,
-                )
-              }
+              onClick={() => toggleChart(indexCodes[index].code)}
             >
               <h3 className="flex-1 text-left font-semibold">
                 {indexCodes[index].name}
@@ -88,7 +88,7 @@ export default function StockMarket() {
               <div className="ml-2 flex w-16 items-center justify-between">
                 {data?.bstp_nmix_prdy_vrss &&
                 parseFloat(data.bstp_nmix_prdy_vrss) > 0 ? (
-                  <div className="flex w-full items-center text-primary">
+                  <div className="text-primary flex w-full items-center">
                     <Image src={stockup} alt="상승" width={16} height={16} />
                     <p className="flex-1 text-right">
                       {formatNumber(data.bstp_nmix_prdy_vrss)}
@@ -121,7 +121,7 @@ export default function StockMarket() {
               </p>
             </div>
 
-            {selectedIndex === indexCodes[index].code && (
+            {selectedIndices.includes(indexCodes[index].code) && (
               <div className="mt-4">
                 <StockChart symbol={indexCodes[index].code} />
               </div>

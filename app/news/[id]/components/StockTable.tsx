@@ -18,7 +18,7 @@ interface RelatedCompany {
 interface StockTableProps {
   relatedCompanies?: RelatedCompany[];
   onSymbolSelect: (symbol: string) => void;
-  selectedSymbol: string | null;
+  selectedSymbols: string[];
 }
 
 const formatNumber = (num: string | number): string => {
@@ -28,38 +28,51 @@ const formatNumber = (num: string | number): string => {
 export default function StockTable({
   relatedCompanies = [],
   onSymbolSelect,
-  selectedSymbol,
+  selectedSymbols,
 }: StockTableProps) {
   const [stockDataMap, setStockDataMap] = useState<Map<string, StockData>>(
     new Map(),
   );
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const loadStockData = useCallback(async () => {
     if (relatedCompanies.length === 0) {
       setError('관련 종목이 없습니다.');
+      setIsLoading(false);
       return;
     }
+
+    setIsLoading(true);
+    setError(null);
 
     const newStockDataMap = new Map<string, StockData>();
     for (const company of relatedCompanies) {
       try {
+        console.log(`Fetching data for ${company.name} (${company.code})`);
         const data = await fetchTodayStockData(company.code);
+        console.log(`Received data for ${company.name}:`, data);
         newStockDataMap.set(company.code, data);
       } catch (err) {
         console.error(`데이터 로딩 중 에러 (${company.name}):`, err);
+        setError(`${company.name} 데이터 로딩 실패`);
       }
     }
+
     setStockDataMap(newStockDataMap);
-    setError(null);
+    setIsLoading(false);
   }, [relatedCompanies]);
 
   useEffect(() => {
     loadStockData();
   }, [loadStockData]);
 
+  if (isLoading) {
+    return <p className="text-center">데이터를 불러오는 중입니다...</p>;
+  }
+
   if (error) {
-    return <p className="text-center text-red-500">{error}</p>;
+    return <p className="text-center text-red-500">에러: {error}</p>;
   }
 
   if (relatedCompanies.length === 0) {
@@ -67,17 +80,17 @@ export default function StockTable({
   }
 
   return (
-    <section>
+    <section className="w-full">
       <h2 className="mb-6 text-2xl font-semibold">관련 종목</h2>
 
-      <table className="w-full min-w-full">
+      <table className="w-full">
         <tbody className="overflow-x-auto border-t-2 border-black">
           {relatedCompanies.map((company) => {
             const stockData = stockDataMap.get(company.code);
             const isPositive =
               stockData && parseFloat(stockData.priceChange) >= 0;
             const changeColor = isPositive ? 'text-red-500' : 'text-blue-500';
-            const isSelected = company.code === selectedSymbol;
+            const isSelected = selectedSymbols.includes(company.code);
 
             return (
               <React.Fragment key={company.code}>
@@ -119,7 +132,7 @@ export default function StockTable({
                     </>
                   ) : (
                     <td colSpan={3} className="text-center">
-                      데이터 로딩 중...
+                      데이터 없음
                     </td>
                   )}
                 </tr>

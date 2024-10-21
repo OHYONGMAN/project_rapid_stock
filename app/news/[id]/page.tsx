@@ -12,7 +12,7 @@ interface NewsDetail {
 }
 
 export default function NewsDetailPage() {
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [selectedSymbols, setSelectedSymbols] = useState<string[]>([]);
   const [newsDetail, setNewsDetail] = useState<NewsDetail | null>(null);
   const params = useParams();
   const newsId = params?.id as string;
@@ -38,11 +38,15 @@ export default function NewsDetailPage() {
   }, [newsId]);
 
   const handleSymbolSelect = (symbol: string) => {
-    setSelectedSymbol((prevSymbol) => (prevSymbol === symbol ? null : symbol));
+    setSelectedSymbols((prevSymbols) =>
+      prevSymbols.includes(symbol)
+        ? prevSymbols.filter((s) => s !== symbol)
+        : [...prevSymbols, symbol],
+    );
   };
 
   return (
-    <div className="px-20">
+    <div className="container mx-auto max-w-[1700px]">
       <Suspense fallback={<div>Loading News...</div>}>
         {newsId && <StockNews newsId={newsId} />}
       </Suspense>
@@ -51,7 +55,7 @@ export default function NewsDetailPage() {
           <StockTable
             relatedCompanies={newsDetail.relatedCompanies}
             onSymbolSelect={handleSymbolSelect}
-            selectedSymbol={selectedSymbol}
+            selectedSymbols={selectedSymbols}
           />
         )}
       </Suspense>
