@@ -46,7 +46,7 @@ export default function NewsDetailPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-[1700px]">
+    <div className="mx-auto max-w-[1700px] w-full py-16 sm:px-12 xl:px-20 2xl:px-20">
       <Suspense fallback={<div>Loading News...</div>}>
         {newsId && <StockNews newsId={newsId} />}
       </Suspense>

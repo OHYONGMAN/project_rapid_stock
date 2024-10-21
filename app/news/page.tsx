@@ -123,7 +123,7 @@ const NewsList = () => {
 
   return (
     <div className="w-full">
-      <ul className="mx-auto max-w-[1760px] pt-12">
+      <ul className="mx-auto max-w-[1700px] py-12 sm:px-12 xl:px-20 2xl:px-20">
         {filteredNewsData.map((news) => (
           <li
             className="flex flex-col hover:bg-g-100 p-8 rounded-2xl mb-2"
