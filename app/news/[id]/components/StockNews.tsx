@@ -63,7 +63,7 @@ export default function StockNews({ newsId }: StockNewsProps) {
   }
 
   return (
-    <section className="mb-20 mt-16 w-full">
+    <section className="mb-20 w-full">
       <h2 className="mb-6 text-2xl font-semibold">관련 기사</h2>
       <div className="flex">
         <Image
