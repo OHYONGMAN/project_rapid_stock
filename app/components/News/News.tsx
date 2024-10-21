@@ -94,7 +94,7 @@ export default function MainNews() {
                   {news.keyword.map((kw, index) => (
                     <span
                       key={index}
-                      className="bg-gray-100 px-2 py-1 rounded-md text-g-900"
+                      className="bg-gray-100 text-g-900 px-2 py-1 rounded-md "
                     >
                       {kw}
                     </span>
