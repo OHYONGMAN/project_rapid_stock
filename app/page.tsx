@@ -9,10 +9,10 @@ export default function Home({
   return (
     <div className="container mx-auto flex gap-20 py-12">
       <div className="w-full">
-        <StockTable searchParams={searchParams} />
+        {/* <StockTable searchParams={searchParams} /> */}
       </div>
       <div className="w-96">
-        <StockMarket />
+        {/* <StockMarket /> */}
       </div>
     </div>
   );
