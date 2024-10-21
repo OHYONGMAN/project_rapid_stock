@@ -24,7 +24,7 @@ export default function RootLayout({
         <Header
           links={[
             { name: '뉴스룸', url: '/news' },
-            { name: '현재가', url: '/community' },
+            { name: '현재가', url: '/price' },
             { name: '모의투자', url: '/stock' },
           ]}
         />
