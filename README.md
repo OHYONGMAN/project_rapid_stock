@@ -78,6 +78,69 @@ RapidStock는 실시간으로 주식 시장의 최신 뉴스를 크롤링하고,
 
 <br><br>
 
+## 페이지별 기능
+
+### 로그인 페이지
+![Login](/public/images/README/loginPage.png)
+- Supabase를 통한 로그인 기능 구현
+  - Supabase의 데이터베이스를 활용해 저장된 유저 정보를 가져와 로그인 기능을 구현했습니다.
+
+### 회원가입 페이지
+![SignUp](/public/images/README/signupPage.png)
+- Supabase를 통한 유저 관리
+  - 회원가입 기능은 Supabase의 Auth 기능을 활용하여 구현했습니다. supabase.auth.signUp() 메서드를 사용하여 사용자의 이메일과 비밀번호를 Supabase에 저장합니다.
+
+### 사이드바
+![SideBar](/public/images/README/sidebarPage.png)
+- 로그인 상태 사이드바
+  - 비로그인 상태와 로그인 상태를 구별해 로그인 및 채팅 기능 등을 보여줍니다.
+- 최근 본 뉴스
+  - 로컬 스토리지에 저장된 뉴스 데이터를 사이드바에 표시했습니다.
+- 실시간 채팅
+  - Supabase Realtime 기능을 활용해 메시지를 저장하고 실시간 업데이트 합니다.
+
+### 메인 페이지
+#### TOP 종목
+![TOP](/public/images/README/topPage.png)
+- 한국투자증권 오픈 API 연결을 통한 실시간 주식 데이터 반영
+  - 한국투자증권의 실시간 증권 데이터를 받아와 테이블 형식으로 시각화해서 보여줍니다.
+
+#### 오늘의 증시
+![today](/public/images/README/todayPage.png)
+- 주요 증권 데이터를 차트로 시각화해 표현
+- 한국투자증권의 실시간 증권 데이터를 받아와 시간대별로 변하는 데이터를 차트에 대입해 시각적으로 보기 쉽도록 표현했습니다.
+
+#### 오늘의 뉴스
+![todayNews](/public/images/README/todayNewsPage.png)
+- 최신 뉴스 데이터 불러오기
+  - Supabase에 저장된 뉴스 데이터를 최신순으로 정렬하여 뉴스 클릭 시 로컬 스토리지에서 기존 히스토리를 가져와 클릭한 뉴스를 중복 없이 맨 앞에 추가하고, 업데이트된 히스토리를 다시 로컬 스토리지에 저장합니다.
+
+### 뉴스룸 페이지
+![Scroll](/public/images/README/scrollPage.png)
+- 증권 뉴스 크롤링
+  - 네이버 금융 뉴스 페이지에서 최신 뉴스 데이터를 가져옵니다. LLM 프롬프트 엔지니어링으로 핵심 키워드를 추출하고핵심 키워드와 국내 종목을 매칭하고 최신 뉴스 데이터 및 관련 종목을 Supabase 데이터 베이스에 저장했습니다.
+- 무한 스크롤 구현
+  - 페이지 하단으로 스크롤하게 되면 Observer가 타깃인 div 태그를 감지하게 되며, page 상태를 증가시킵니다. page 상태 변경 시 useEffect가 트리거 되어 다음 페이지의 데이터를 로드하고 새 데이터가 newsData에 추가되면, 컴포넌트 리렌더링 됩니다.
+
+### 키워드 검색
+![Search](/public/images/README/searchPage.png)
+- 키워드 검색을 통한 주식 관련 뉴스 필터링
+  - 입력값이 비어 있지 않으면 검색어를 쿼리 파라미터로 추가해 'news' 페이지로 이동합니다.
+
+### 주식 상세 페이지
+#### 관련 기사
+![NewsDetail](/public/images/README/newsDetailPage.png)
+- 뉴스에 대한 원문 요약
+  - 선택된 뉴스의 ID를 사용하여,Supabase 데이터 베이스에서 해당 뉴스 데이터 추출합니다.
+
+#### 관련 종목
+![Chart](/public/images/README/ChartPage.png)
+- 관련 종목 데이터 시각화
+  - Supabase 데이터 베이스에 저장되어 있는 관련 종목 코드를 가져와 한국투자증권 API로 종목 데이터 요청 및 추출하고,종목 데이터를 이용하여 테이블 생성 및 차트를 구현했습니다.
+
+
+
+
 ## 프로젝트 상태
 
 RapidStock는 현재 활성 개발 중이며, 사용자의 피드백과 함께 기능 개선 및 새로운 기능 추가가 지속적으로 이루어지고 있습니다. 주식 시장의 변화를 신속하게 반영하여 더욱 정교한 서비스를 제공할 계획입니다.
